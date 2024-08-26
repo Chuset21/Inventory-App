@@ -23,17 +23,18 @@ class SettingsPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start, // Align to the left
         children: [
           Padding(
-              padding: const EdgeInsets.only(left: 20.0, top: 5.0, right: 20.0),
-              child: Row(
-                children: [
-                  Center(
-                    child: AppThemeSelection(
-                      appTheme: appTheme,
-                      onThemeUpdate: onThemeUpdate,
-                    ),
+            padding: const EdgeInsets.only(left: 20.0, top: 5.0, right: 20.0),
+            child: Row(
+              children: [
+                Center(
+                  child: AppThemeSelection(
+                    appTheme: appTheme,
+                    onThemeUpdate: onThemeUpdate,
                   ),
-                ],
-              )),
+                ),
+              ],
+            ),
+          ),
           const Divider(
             indent: 10,
             endIndent: 10,
