@@ -1,36 +1,70 @@
 import 'package:flutter/material.dart';
 
 import 'core/themes/app_themes.dart';
+import 'core/services/local_storage.dart';
+import 'core/utils/platform_utils.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  runApp(MyApp(
+    startInDarkMode: await LocalStorage.isDarkMode(),
+  ));
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({super.key, required this.startInDarkMode});
 
-  // This widget is the root of your application.
+  final bool? startInDarkMode;
+
+  @override
+  State<MyApp> createState() => _MyApp();
+}
+
+/// This widget essentially keeps track of the theme
+class _MyApp extends State<MyApp> {
+  bool _isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      // Prioritise app settings if present, otherwise use platform settings
+      _isDarkMode = widget.startInDarkMode ?? isPlatformDarkMode();
+    });
+  }
+
+  void _updateIsDarkMode(bool value) {
+    setState(() {
+      // Flip the mode
+      _isDarkMode = value;
+      // Update in local storage
+      LocalStorage.updateDarkMode(_isDarkMode);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Freezer Inventory Demo',
-      theme: lightTheme,
-      home: const MyHomePage(title: 'Freezer Inventory Demo'),
+      theme: _isDarkMode ? darkTheme : lightTheme,
+      debugShowCheckedModeBanner: false,
+      home: MyHomePage(
+          title: 'Freezer Inventory Demo',
+          isDarkMode: _isDarkMode,
+          onDarkModeUpdate: _updateIsDarkMode),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  const MyHomePage(
+      {super.key,
+      required this.title,
+      required this.isDarkMode,
+      required this.onDarkModeUpdate});
 
   final String title;
+  final bool isDarkMode;
+  final Function(bool) onDarkModeUpdate; // Callback to update dark mode
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -47,12 +81,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -62,22 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
@@ -86,6 +99,20 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Toggle to change theme:',
+                ),
+                Switch(
+                  value: widget.isDarkMode,
+                  onChanged: (value) {
+                    widget.onDarkModeUpdate(value); // Call the callback
+                  },
+                ),
+              ],
             ),
           ],
         ),
