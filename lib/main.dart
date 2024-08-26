@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/presentation/screens/settings_page.dart';
+import 'package:inventory_app/presentation/screens/home_page.dart';
 
 import 'core/themes/app_themes.dart';
 import 'core/services/local_storage.dart';
@@ -48,85 +48,10 @@ class _MyApp extends State<MyApp> {
       title: 'Freezer Inventory Demo',
       theme: _isDarkMode ? darkTheme : lightTheme,
       debugShowCheckedModeBanner: false,
-      home: MyHomePage(
+      home: HomePage(
           title: 'Freezer Inventory Demo',
           isDarkMode: _isDarkMode,
           onDarkModeUpdate: _updateIsDarkMode),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage(
-      {super.key,
-      required this.title,
-      required this.isDarkMode,
-      required this.onDarkModeUpdate});
-
-  final String title;
-  final bool isDarkMode;
-  final Function(bool) onDarkModeUpdate; // Callback to update dark mode
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).canvasColor,
-        title: Text(
-          widget.title,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsPage(
-                    isDarkMode: widget.isDarkMode,
-                    onDarkModeUpdate: widget.onDarkModeUpdate,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).canvasColor,
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }
