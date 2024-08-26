@@ -10,6 +10,21 @@ class AppThemeSelection extends StatefulWidget {
   final AppTheme appTheme;
   final Function(AppTheme) onThemeUpdate;
 
+  static final themeInfoMap = {
+    AppTheme.light: _RadioButtonInfo(
+      const Icon(Icons.brightness_5),
+      const Text(lightThemeText),
+    ),
+    AppTheme.dark: _RadioButtonInfo(
+      const Icon(Icons.brightness_2),
+      const Text(darkThemeText),
+    ),
+    AppTheme.system: _RadioButtonInfo(
+      const Icon(Icons.devices),
+      const Text(systemThemeText),
+    ),
+  };
+
   @override
   State<AppThemeSelection> createState() => _AppThemeSelectionState();
 }
@@ -19,59 +34,36 @@ class _AppThemeSelectionState extends State<AppThemeSelection> {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      children: AppTheme.values
+          .map((value) => _buildThemeRadioButton(value))
+          .toList(),
+    );
+  }
+
+  Row _buildThemeRadioButton(AppTheme value) {
+    final _RadioButtonInfo buttonInfo = AppThemeSelection.themeInfoMap[value]!;
+
+    return Row(
       children: [
-        Row(
-          children: [
-            const Icon(
-              Icons.brightness_5, // Sun icon for light mode
-            ),
-            Radio<AppTheme>(
-              value: AppTheme.light,
-              groupValue: widget.appTheme,
-              onChanged: (AppTheme? mode) {
-                if (mode != null) {
-                  widget.onThemeUpdate(mode);
-                }
-              },
-            ),
-            const Text(lightThemeText),
-          ],
+        buttonInfo.icon,
+        Radio<AppTheme>(
+          value: value,
+          groupValue: widget.appTheme,
+          onChanged: (AppTheme? mode) {
+            if (mode != null) {
+              widget.onThemeUpdate(mode);
+            }
+          },
         ),
-        Row(
-          children: [
-            const Icon(
-              Icons.brightness_2, // Moon icon for dark mode
-            ),
-            Radio<AppTheme>(
-              value: AppTheme.dark,
-              groupValue: widget.appTheme,
-              onChanged: (AppTheme? mode) {
-                if (mode != null) {
-                  widget.onThemeUpdate(mode);
-                }
-              },
-            ),
-            const Text(darkThemeText),
-          ],
-        ),
-        Row(
-          children: [
-            const Icon(
-              Icons.devices, // System icon for system default
-            ),
-            Radio<AppTheme>(
-              value: AppTheme.system,
-              groupValue: widget.appTheme,
-              onChanged: (AppTheme? mode) {
-                if (mode != null) {
-                  widget.onThemeUpdate(mode);
-                }
-              },
-            ),
-            const Text(systemThemeText),
-          ],
-        ),
+        buttonInfo.themeText,
       ],
     );
   }
+}
+
+class _RadioButtonInfo {
+  final Icon icon;
+  final Text themeText;
+
+  _RadioButtonInfo(this.icon, this.themeText);
 }
