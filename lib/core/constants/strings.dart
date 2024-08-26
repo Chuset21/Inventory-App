@@ -1,3 +1,3 @@
-const String darkModeSwitchText = 'Toggle to change theme';
+const darkModeSwitchText = 'Toggle to change theme';
 
-const String settingsTitle = 'Settings';
+const settingsTitle = 'Settings';
