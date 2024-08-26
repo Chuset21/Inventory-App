@@ -35,7 +35,6 @@ class _MyApp extends State<MyApp> {
 
   void _updateIsDarkMode(bool value) {
     setState(() {
-      // Flip the mode
       _isDarkMode = value;
       // Update in local storage
       LocalStorage.updateDarkMode(_isDarkMode);
