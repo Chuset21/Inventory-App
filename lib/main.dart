@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:inventory_app/presentation/screens/home_page.dart';
 
-import 'core/themes/app_themes.dart';
 import 'core/services/local_storage.dart';
-import 'core/utils/platform_utils.dart';
 
 void main() async {
   runApp(MyApp(
-    startInDarkMode: await LocalStorage.isDarkMode(),
+    appTheme: await LocalStorage.getAppTheme(),
   ));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key, required this.startInDarkMode});
+  const MyApp({super.key, required this.appTheme});
 
-  final bool? startInDarkMode;
+  final AppTheme appTheme;
 
   @override
   State<MyApp> createState() => _MyApp();
@@ -22,22 +21,22 @@ class MyApp extends StatefulWidget {
 
 /// This widget essentially keeps track of the theme
 class _MyApp extends State<MyApp> {
-  bool _isDarkMode = false;
+  AppTheme _appTheme = AppTheme.system;
 
   @override
   void initState() {
     super.initState();
     setState(() {
       // Prioritise app settings if present, otherwise use platform settings
-      _isDarkMode = widget.startInDarkMode ?? isPlatformDarkMode();
+      _appTheme = widget.appTheme;
     });
   }
 
-  void _updateIsDarkMode(bool value) {
+  void _updateTheme(AppTheme value) {
     setState(() {
-      _isDarkMode = value;
+      _appTheme = value;
       // Update in local storage
-      LocalStorage.updateDarkMode(_isDarkMode);
+      LocalStorage.updateAppTheme(_appTheme);
     });
   }
 
@@ -45,12 +44,12 @@ class _MyApp extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Freezer Inventory Demo',
-      theme: _isDarkMode ? darkTheme : lightTheme,
+      theme: getThemeData(_appTheme),
       debugShowCheckedModeBanner: false,
       home: HomePage(
           title: 'Freezer Inventory Demo',
-          isDarkMode: _isDarkMode,
-          onDarkModeUpdate: _updateIsDarkMode),
+          appTheme: _appTheme,
+          onThemeUpdate: _updateTheme),
     );
   }
 }

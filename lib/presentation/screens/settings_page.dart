@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/core/utils/app_theme.dart';
+import 'package:inventory_app/presentation/widgets/app_theme_selection.dart';
 
 import '../../core/constants/strings.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage(
-      {super.key, required this.isDarkMode, required this.onDarkModeUpdate});
+      {super.key, required this.appTheme, required this.onThemeUpdate});
 
-  final bool isDarkMode;
-  final Function(bool) onDarkModeUpdate;
+  final AppTheme appTheme;
+  final Function(AppTheme) onThemeUpdate;
 
   @override
   Widget build(BuildContext context) {
@@ -21,30 +23,17 @@ class SettingsPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start, // Align to the left
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 20.0, top: 5.0, right: 20.0),
-            child: Row(
-              children: [
-                Text(
-                  darkModeSwitchText,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const Spacer(),
-                const Icon(
-                  Icons.brightness_5, // Sun icon for light mode
-                ),
-                Switch(
-                  value: isDarkMode,
-                  onChanged: (value) {
-                    onDarkModeUpdate(value);
-                  },
-                ),
-                const Icon(
-                  Icons.brightness_2, // Moon icon for dark mode
-                ),
-              ],
-            ),
-          ),
+              padding: const EdgeInsets.only(left: 20.0, top: 5.0, right: 20.0),
+              child: Row(
+                children: [
+                  Center(
+                    child: AppThemeSelection(
+                      appTheme: appTheme,
+                      onThemeUpdate: onThemeUpdate,
+                    ),
+                  ),
+                ],
+              )),
           const Divider(
             indent: 10,
             endIndent: 10,

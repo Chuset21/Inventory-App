@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/keys.dart';
@@ -13,23 +14,28 @@ class LocalStorage {
     WidgetsFlutterBinding.ensureInitialized();
     LocalStorage._preferences = await SharedPreferencesWithCache.create(
       cacheOptions: const SharedPreferencesWithCacheOptions(
-        allowList: <String>{isDarkModeKey},
+        allowList: <String>{appThemeKey},
       ),
     );
+
+    if (_preferences.get(appThemeKey) == null) {
+      _preferences.setString(appThemeKey, AppTheme.system.name);
+    }
     _isInitialised = true;
   }
 
-  static Future<bool?> isDarkMode() async {
+  static Future<AppTheme> getAppTheme() async {
     if (!_isInitialised) {
       await _initialise();
     }
-    return _preferences.getBool(isDarkModeKey);
+    final String? appTheme = _preferences.getString(appThemeKey);
+    return appThemeNameMap[appTheme] ?? AppTheme.system;
   }
 
-  static Future<void> updateDarkMode(bool value) async {
+  static Future<void> updateAppTheme(AppTheme value) async {
     if (!_isInitialised) {
       await _initialise();
     }
-    _preferences.setBool(isDarkModeKey, value);
+    _preferences.setString(appThemeKey, value.name);
   }
 }

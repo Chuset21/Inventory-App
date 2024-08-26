@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:inventory_app/presentation/screens/settings_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage(
       {super.key,
       required this.title,
-      required this.isDarkMode,
-      required this.onDarkModeUpdate});
+      required this.appTheme,
+      required this.onThemeUpdate});
 
   final String title;
-  final bool isDarkMode;
-  final Function(bool) onDarkModeUpdate; // Callback to update dark mode
+  final AppTheme appTheme;
+  final Function(AppTheme) onThemeUpdate; // Callback to update dark mode
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -42,8 +43,8 @@ class _HomePageState extends State<HomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => SettingsPage(
-                    isDarkMode: widget.isDarkMode,
-                    onDarkModeUpdate: widget.onDarkModeUpdate,
+                    appTheme: widget.appTheme,
+                    onThemeUpdate: widget.onThemeUpdate,
                   ),
                 ),
               );

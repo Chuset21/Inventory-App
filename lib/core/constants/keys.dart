@@ -1,1 +1,1 @@
-const isDarkModeKey = 'isDarkMode';
+const appThemeKey = 'appTheme';
