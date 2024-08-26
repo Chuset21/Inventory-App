@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/presentation/screens/settings_page.dart';
 
 import 'core/themes/app_themes.dart';
 import 'core/services/local_storage.dart';
@@ -88,6 +89,22 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(
           widget.title,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsPage(
+                    isDarkMode: widget.isDarkMode,
+                    onDarkModeUpdate: widget.onDarkModeUpdate,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -99,20 +116,6 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Toggle to change theme:',
-                ),
-                Switch(
-                  value: widget.isDarkMode,
-                  onChanged: (value) {
-                    widget.onDarkModeUpdate(value); // Call the callback
-                  },
-                ),
-              ],
             ),
           ],
         ),
