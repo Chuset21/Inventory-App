@@ -26,9 +26,7 @@ class _MyApp extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _appTheme = widget.appTheme;
-    });
+    _appTheme = widget.appTheme;
   }
 
   void _updateTheme(AppTheme value) {
