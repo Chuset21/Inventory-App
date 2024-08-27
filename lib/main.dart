@@ -27,7 +27,6 @@ class _MyApp extends State<MyApp> {
   void initState() {
     super.initState();
     setState(() {
-      // Prioritise app settings if present, otherwise use platform settings
       _appTheme = widget.appTheme;
     });
   }
