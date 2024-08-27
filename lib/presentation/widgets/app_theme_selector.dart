@@ -3,8 +3,8 @@ import 'package:inventory_app/core/constants/strings.dart';
 
 import '../../core/utils/app_theme.dart';
 
-class AppThemeSelection extends StatelessWidget {
-  const AppThemeSelection(
+class AppThemeSelector extends StatelessWidget {
+  const AppThemeSelector(
       {super.key, required this.appTheme, required this.onThemeUpdate});
 
   final AppTheme appTheme;
@@ -36,7 +36,7 @@ class AppThemeSelection extends StatelessWidget {
   }
 
   Row _buildThemeRadioButton(AppTheme value) {
-    final _RadioButtonInfo buttonInfo = AppThemeSelection.themeInfoMap[value]!;
+    final _RadioButtonInfo buttonInfo = AppThemeSelector.themeInfoMap[value]!;
 
     return Row(
       children: [

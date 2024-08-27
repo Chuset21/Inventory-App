@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/utils/app_theme.dart';
-import 'package:inventory_app/presentation/widgets/app_theme_selection.dart';
+import 'package:inventory_app/presentation/widgets/app_theme_selector.dart';
 
 import '../../core/constants/strings.dart';
 
@@ -27,7 +27,7 @@ class SettingsPage extends StatelessWidget {
             child: Row(
               children: [
                 Center(
-                  child: AppThemeSelection(
+                  child: AppThemeSelector(
                     appTheme: appTheme,
                     onThemeUpdate: onThemeUpdate,
                   ),
