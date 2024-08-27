@@ -3,7 +3,7 @@ import 'package:inventory_app/core/constants/strings.dart';
 
 import '../../core/utils/app_theme.dart';
 
-class AppThemeSelection extends StatefulWidget {
+class AppThemeSelection extends StatelessWidget {
   const AppThemeSelection(
       {super.key, required this.appTheme, required this.onThemeUpdate});
 
@@ -26,11 +26,6 @@ class AppThemeSelection extends StatefulWidget {
   };
 
   @override
-  State<AppThemeSelection> createState() => _AppThemeSelectionState();
-}
-
-class _AppThemeSelectionState extends State<AppThemeSelection> {
-  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,10 +43,10 @@ class _AppThemeSelectionState extends State<AppThemeSelection> {
         buttonInfo.icon,
         Radio<AppTheme>(
           value: value,
-          groupValue: widget.appTheme,
+          groupValue: appTheme,
           onChanged: (AppTheme? mode) {
             if (mode != null) {
-              widget.onThemeUpdate(mode);
+              onThemeUpdate(mode);
             }
           },
         ),
