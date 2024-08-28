@@ -7,3 +7,4 @@ const darkThemeText = 'Dark';
 const systemThemeText = 'System Default';
 
 const searchHint = 'Search...';
+const addButtonTooltipText = 'Add Item';
