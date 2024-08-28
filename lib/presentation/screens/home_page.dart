@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/core/constants/strings.dart';
 import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:inventory_app/presentation/screens/settings_page.dart';
 
@@ -11,7 +12,7 @@ class HomePage extends StatefulWidget {
 
   final String title;
   final AppTheme appTheme;
-  final Function(AppTheme) onThemeUpdate; // Callback to update dark mode
+  final Function(AppTheme) onThemeUpdate;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -35,22 +36,36 @@ class _HomePageState extends State<HomePage> {
         title: Text(
           widget.title,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsPage(
-                    appTheme: widget.appTheme,
-                    onThemeUpdate: widget.onThemeUpdate,
-                  ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            Container(
+              color: Theme.of(context).colorScheme.primary,
+              padding: const EdgeInsets.only(
+                  left: 16.0, top: 50.0, right: 16.0, bottom: 16.0),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                menuTitle,
+                style: TextStyle(
+                  color: Theme.of(context).canvasColor,
+                  fontSize: 24,
                 ),
-              );
-            },
-          ),
-        ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text(homeTitle),
+              onTap: _navigateToHomePage,
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text(settingsTitle),
+              onTap: _navigateToSettingsPage,
+            ),
+          ],
+        ),
       ),
       body: Center(
         child: Column(
@@ -72,6 +87,26 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).canvasColor,
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _navigateToHomePage() {
+    // Simply close the burger menu
+    Navigator.pop(context);
+  }
+
+  void _navigateToSettingsPage() {
+    // Close the burger menu
+    Navigator.pop(context);
+    // Navigate to the settings page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SettingsPage(
+          appTheme: widget.appTheme,
+          onThemeUpdate: widget.onThemeUpdate,
+        ),
       ),
     );
   }
