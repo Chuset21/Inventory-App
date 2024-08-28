@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
 import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:inventory_app/presentation/screens/settings_page.dart';
+import 'package:inventory_app/presentation/widgets/burger_menu.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage(
@@ -52,35 +53,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            Container(
-              color: Theme.of(context).colorScheme.primary,
-              padding: const EdgeInsets.only(
-                  left: 16.0, top: 65.0, right: 16.0, bottom: 16.0),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                menuTitle,
-                style: TextStyle(
-                  color: Theme.of(context).canvasColor,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text(homeTitle),
-              onTap: _navigateToHomePage,
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text(settingsTitle),
-              onTap: _navigateToSettingsPage,
-            ),
-          ],
-        ),
+      drawer: BurgerMenu(
+        navigateToHome: _navigateToHomePage,
+        navigateToSettings: _navigateToSettingsPage,
       ),
       body: Column(
         children: <Widget>[
