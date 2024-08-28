@@ -32,10 +32,10 @@ class LocalStorage {
     return appThemeNameMap[appTheme] ?? AppTheme.system;
   }
 
-  static Future<void> updateAppTheme(AppTheme value) async {
+  static Future<void> updateAppTheme(AppTheme theme) async {
     if (!_isInitialised) {
       await _initialise();
     }
-    _preferences.setString(appThemeKey, value.name);
+    _preferences.setString(appThemeKey, theme.name);
   }
 }

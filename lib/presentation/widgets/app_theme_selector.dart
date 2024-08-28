@@ -35,14 +35,15 @@ class AppThemeSelector extends StatelessWidget {
     );
   }
 
-  Row _buildThemeRadioButton(AppTheme value) {
-    final _RadioButtonInfo buttonInfo = AppThemeSelector.themeInfoMap[value]!;
+  Row _buildThemeRadioButton(AppTheme currentTheme) {
+    final _RadioButtonInfo buttonInfo =
+        AppThemeSelector.themeInfoMap[currentTheme]!;
 
     return Row(
       children: [
         buttonInfo.icon,
         Radio<AppTheme>(
-          value: value,
+          value: currentTheme,
           groupValue: appTheme,
           onChanged: (AppTheme? mode) {
             if (mode != null) {

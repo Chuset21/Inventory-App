@@ -29,9 +29,9 @@ class _MyApp extends State<MyApp> {
     _appTheme = widget.appTheme;
   }
 
-  void _updateTheme(AppTheme value) {
+  void _updateTheme(AppTheme theme) {
     setState(() {
-      _appTheme = value;
+      _appTheme = theme;
       // Update in local storage
       LocalStorage.updateAppTheme(_appTheme);
     });
