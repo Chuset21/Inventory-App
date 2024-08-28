@@ -13,15 +13,15 @@ class AppThemeSelector extends StatelessWidget {
   static final themeInfoMap = {
     AppTheme.light: _RadioButtonInfo(
       const Icon(Icons.brightness_5),
-      const Text(lightThemeText),
+      const Text(ThemeText.light),
     ),
     AppTheme.dark: _RadioButtonInfo(
       const Icon(Icons.brightness_2),
-      const Text(darkThemeText),
+      const Text(ThemeText.dark),
     ),
     AppTheme.system: _RadioButtonInfo(
       const Icon(Icons.devices),
-      const Text(systemThemeText),
+      const Text(ThemeText.systemDefault),
     ),
   };
 

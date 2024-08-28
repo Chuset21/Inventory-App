@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
 import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:inventory_app/presentation/screens/settings_page.dart';
+import 'package:inventory_app/presentation/widgets/add_items_suggestion.dart';
 import 'package:inventory_app/presentation/widgets/burger_menu.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,15 +21,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _counter = 0;
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   void _toggleSearch() {
     setState(() {
@@ -71,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                       controller: _searchController,
                       autofocus: true,
                       decoration: InputDecoration(
-                        hintText: searchHint,
+                        hintText: Placeholders.searchHint,
                         hintStyle: TextStyle(
                           color: Theme.of(context)
                               .colorScheme
@@ -105,27 +99,17 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           // The rest of the body content
-          Expanded(
+          const Expanded(
             child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Text(
-                    'You have pushed the button this many times:',
-                  ),
-                  Text(
-                    '$_counter',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ],
-              ),
+              child: AddItemsSuggestion(),
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: addButtonTooltipText,
+        onPressed: () {},
+        // TODO: route to add item page
+        tooltip: Tooltips.addButton,
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).canvasColor,
         child: const Icon(Icons.add),

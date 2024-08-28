@@ -1,10 +1,25 @@
-const settingsTitle = 'Settings';
-const homeTitle = 'Home';
-const menuTitle = 'Menu';
+final class AppTitles {
+  static const settings = 'Settings';
+  static const home = 'Home';
+  static const menu = 'Menu';
+}
 
-const lightThemeText = 'Light';
-const darkThemeText = 'Dark';
-const systemThemeText = 'System Default';
+final class ThemeText {
+  static const light = 'Light';
+  static const dark = 'Dark';
+  static const systemDefault = 'System Default';
+}
 
-const searchHint = 'Search...';
-const addButtonTooltipText = 'Add Item';
+final class Tooltips {
+  static const addButton = 'Add Item';
+}
+
+final class Placeholders {
+  static const searchHint = 'Search...';
+}
+
+final class Messages {
+  static const addItemsSuggestion =
+      'Start adding items to keep track of your inventory';
+  static const emptyInventory = 'Your inventory is empty!';
+}

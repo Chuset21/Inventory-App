@@ -23,7 +23,7 @@ class BurgerMenu extends StatelessWidget {
                 left: 16.0, top: 65.0, right: 16.0, bottom: 16.0),
             alignment: Alignment.centerLeft,
             child: Text(
-              menuTitle,
+              AppTitles.menu,
               style: TextStyle(
                 color: Theme.of(context).canvasColor,
                 fontSize: 24,
@@ -32,12 +32,12 @@ class BurgerMenu extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.home),
-            title: const Text(homeTitle),
+            title: const Text(AppTitles.home),
             onTap: navigateToHome,
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text(settingsTitle),
+            title: const Text(AppTitles.settings),
             onTap: navigateToSettings,
           ),
         ],

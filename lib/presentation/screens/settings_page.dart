@@ -17,7 +17,7 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).canvasColor,
-        title: const Text(settingsTitle),
+        title: const Text(AppTitles.settings),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start, // Align to the left
