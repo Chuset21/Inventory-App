@@ -5,68 +5,97 @@ import '../../data/models/item.dart';
 class ItemDisplay extends StatefulWidget {
   final Item item;
   final int number;
+  final Function(int) setItemNumber;
+  final Function() removeItem;
 
   /// The focus node for the number
   final FocusNode? numberFocusNode;
 
-  const ItemDisplay(
+  late final TextEditingController _controller;
+
+  ItemDisplay(
       {super.key,
       required this.item,
       required this.number,
-      this.numberFocusNode});
+      required this.setItemNumber,
+      required this.removeItem,
+      this.numberFocusNode}) {
+    _controller = TextEditingController(text: number.toString());
+  }
 
   @override
-  State<ItemDisplay> createState() => _ItemDisplayState();
+  State<ItemDisplay> createState() => ItemDisplayState();
 }
 
-class _ItemDisplayState extends State<ItemDisplay> {
-  // TODO: make it so that the number that was passed in is actually edited
-  late int _currentNumber;
-  late TextEditingController _controller;
+class ItemDisplayState extends State<ItemDisplay> {
+  late int _lastValidNumber;
 
   @override
   void initState() {
     super.initState();
-    _currentNumber = widget.number;
-    _controller = TextEditingController(text: '$_currentNumber');
-  }
-
-  void _increment() {
-    setState(() {
-      _currentNumber++;
-      _controller.text = '$_currentNumber';
-    });
-  }
-
-  // TODO: make it so that the item can be deleted, when the bin is pressed
-  void _decrement() {
-    setState(() {
-      if (_currentNumber > 0) {
-        _currentNumber--;
-        _controller.text = '$_currentNumber';
-      }
-    });
-  }
-
-  // TODO: make it so that the item can be deleted if 0 is inputted
-  void _onTextChanged(String value) {
-    final int? number = int.tryParse(value);
-    if (number != null && number >= 0) {
-      setState(() {
-        _currentNumber = number;
-      });
-    } else {
-      setState(() {
-        _controller.text = '$_currentNumber';
-      });
-    }
+    _lastValidNumber = widget.number;
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     widget.numberFocusNode?.dispose();
+    widget._controller.dispose();
     super.dispose();
+  }
+
+  void submitText() {
+    _onSubmitted(widget._controller.text);
+  }
+
+  void setTextToLastValidNumber() {
+    // Revert to the last valid number if the input is invalid
+    widget._controller.text = _lastValidNumber.toString();
+    // Move the cursor to the end of the text
+    widget._controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: widget._controller.text.length),
+    );
+  }
+
+  int? _getControllerNumber() {
+    final text = widget._controller.text;
+    return int.tryParse(text);
+  }
+
+  void _increment() {
+    int controllerNumber = _getControllerNumber() ?? 0;
+    widget.setItemNumber(controllerNumber + 1);
+  }
+
+  void _decrement() {
+    int controllerNumber = _getControllerNumber() ?? 0;
+    if (controllerNumber > 1) {
+      widget.setItemNumber(controllerNumber - 1);
+    } else {
+      // TODO: Maybe show message about being sure to delete?
+      widget.removeItem();
+    }
+  }
+
+  void _onSubmitted(String value) {
+    final int? number = int.tryParse(value);
+    if (number != null && number > 0) {
+      widget.setItemNumber(number);
+    } else if (number == 0) {
+      // TODO: Maybe show message about being sure to delete?
+      widget.removeItem();
+    } else {
+      setTextToLastValidNumber();
+    }
+  }
+
+  void _onTextChanged(String value) {
+    final int? number = int.tryParse(value);
+    if (number == null || number < 0) {
+      setTextToLastValidNumber();
+    } else {
+      widget._controller.text = number.toString();
+      _lastValidNumber = number;
+    }
   }
 
   @override
@@ -78,7 +107,8 @@ class _ItemDisplayState extends State<ItemDisplay> {
           width: 50,
           // For now it will have a fixed width, TODO: make it flexible
           child: TextField(
-            controller: _controller,
+            // Add data validation here, only allow numbers >= 0
+            controller: widget._controller,
             focusNode: widget.numberFocusNode,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
@@ -89,6 +119,7 @@ class _ItemDisplayState extends State<ItemDisplay> {
               color: Theme.of(context).colorScheme.secondary,
             ),
             onChanged: _onTextChanged,
+            onSubmitted: _onSubmitted,
             decoration: InputDecoration(
               isDense: true,
               focusedBorder: OutlineInputBorder(
@@ -114,9 +145,9 @@ class _ItemDisplayState extends State<ItemDisplay> {
               ),
             ),
             onTap: () {
-              _controller.selection = TextSelection(
+              widget._controller.selection = TextSelection(
                 baseOffset: 0,
-                extentOffset: _controller.text.length,
+                extentOffset: widget._controller.text.length,
               ); // Select all text when tapped
             },
           ),
@@ -161,7 +192,7 @@ class _ItemDisplayState extends State<ItemDisplay> {
                         .colorScheme
                         .secondary
                         .withOpacity(0.5),
-                    child: _currentNumber <=
+                    child: widget.number <=
                             1 // Show a bin if there is only one item remaining
                         ? const Icon(
                             Icons.delete,

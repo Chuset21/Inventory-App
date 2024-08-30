@@ -39,6 +39,34 @@ class _HomePageState extends State<HomePage> {
     ): 2,
   };
 
+  void _syncItemListViewAndDependencies() {
+    final (:listView, :focusNodesAndKeys) =
+        _buildItemListViewWithFocusNodesAndKeys(items);
+    _itemListView = listView;
+    _itemFocusNodesAndKeys = focusNodesAndKeys;
+  }
+
+  late ListView _itemListView;
+  late List<({FocusNode node, GlobalKey<ItemDisplayState> key})>
+      _itemFocusNodesAndKeys;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncItemListViewAndDependencies();
+  }
+
+  void _unfocusAndSubmitItemNodes() {
+    // Unfocus each item focus node
+    for (var nodeAndKey in _itemFocusNodesAndKeys) {
+      // If we are losing focus then submit the current text
+      if (nodeAndKey.node.hasFocus) {
+        nodeAndKey.key.currentState?.submitText();
+      }
+      nodeAndKey.node.unfocus();
+    }
+  }
+
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
@@ -46,6 +74,7 @@ class _HomePageState extends State<HomePage> {
         _searchController.clear();
         _searchFocusNode.unfocus();
       } else {
+        _unfocusAndSubmitItemNodes();
         _searchFocusNode.requestFocus();
       }
     });
@@ -53,22 +82,20 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    _searchController.dispose();
     _searchFocusNode.dispose();
+    _searchController.dispose();
+    for (var nodeAndKey in _itemFocusNodesAndKeys) {
+      nodeAndKey.node.dispose();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final itemListAndFocusNodes = _buildItemListViewWithFocusNodes(items);
-
     return GestureDetector(
       onTap: () {
         _searchFocusNode.unfocus();
-        // Unfocus each item focus node
-        for (var node in itemListAndFocusNodes.focusNodes) {
-          node.unfocus();
-        }
+        _unfocusAndSubmitItemNodes();
       },
       child: Scaffold(
         appBar: AppBar(
@@ -142,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                     )
                   : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: itemListAndFocusNodes.listView,
+                      child: _itemListView,
                     ),
             ),
           ],
@@ -162,25 +189,46 @@ class _HomePageState extends State<HomePage> {
   /// Build the list view with focus nodes.
   /// Returns the list view with a reference to the focus node list too.
   /// This returns the focus nodes for the numbers as they are needed to be able to unfocus them when the user presses elsewhere on the screen.
-  ({ListView listView, List<FocusNode> focusNodes})
-      _buildItemListViewWithFocusNodes(Map<Item, int> items) {
+  /// We also need to create a global key to submit the text if and when we lose focus on the node
+  ({
+    ListView listView,
+    List<({FocusNode node, GlobalKey<ItemDisplayState> key})> focusNodesAndKeys
+  }) _buildItemListViewWithFocusNodesAndKeys(Map<Item, int> items) {
     // Create a list of FocusNodes
-    final focusNodes =
-        List.generate(items.length, (index) => FocusNode(), growable: false);
+    final focusNodesAndKeys = List.generate(items.length,
+        (index) => (node: FocusNode(), key: GlobalKey<ItemDisplayState>()),
+        growable: false);
 
     // Convert the map entries to a list
-    final entries = items.entries.toList();
+    final entries = items.entries.toList(growable: false);
 
     return (
       listView: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (context, index) => ItemDisplay(
-          item: entries[index].key,
-          number: entries[index].value,
-          numberFocusNode: focusNodes[index],
-        ),
+        itemCount: entries.length,
+        itemBuilder: (context, index) {
+          final item = entries[index].key;
+
+          return ItemDisplay(
+            key: focusNodesAndKeys[index].key,
+            item: entries[index].key,
+            number: entries[index].value,
+            numberFocusNode: focusNodesAndKeys[index].node,
+            setItemNumber: (itemNumber) {
+              setState(() {
+                items.update(item, (oldValue) => itemNumber);
+                _syncItemListViewAndDependencies();
+              });
+            },
+            removeItem: () {
+              setState(() {
+                items.remove(item);
+                _syncItemListViewAndDependencies();
+              });
+            },
+          );
+        },
       ),
-      focusNodes: focusNodes,
+      focusNodesAndKeys: focusNodesAndKeys,
     );
   }
 
