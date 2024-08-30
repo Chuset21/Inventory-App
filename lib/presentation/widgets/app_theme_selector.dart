@@ -11,17 +11,17 @@ class AppThemeSelector extends StatelessWidget {
   final Function(AppTheme) onThemeUpdate;
 
   static final themeInfoMap = {
-    AppTheme.light: _RadioButtonInfo(
-      const Icon(Icons.brightness_5),
-      const Text(ThemeText.light),
+    AppTheme.light: (
+      icon: const Icon(Icons.brightness_5),
+      themeText: const Text(ThemeText.light),
     ),
-    AppTheme.dark: _RadioButtonInfo(
-      const Icon(Icons.brightness_2),
-      const Text(ThemeText.dark),
+    AppTheme.dark: (
+      icon: const Icon(Icons.brightness_2),
+      themeText: const Text(ThemeText.dark),
     ),
-    AppTheme.system: _RadioButtonInfo(
-      const Icon(Icons.devices),
-      const Text(ThemeText.systemDefault),
+    AppTheme.system: (
+      icon: const Icon(Icons.devices),
+      themeText: const Text(ThemeText.systemDefault),
     ),
   };
 
@@ -36,8 +36,7 @@ class AppThemeSelector extends StatelessWidget {
   }
 
   Row _buildThemeRadioButton(AppTheme currentTheme) {
-    final _RadioButtonInfo buttonInfo =
-        AppThemeSelector.themeInfoMap[currentTheme]!;
+    final buttonInfo = AppThemeSelector.themeInfoMap[currentTheme]!;
 
     return Row(
       children: [
@@ -55,11 +54,4 @@ class AppThemeSelector extends StatelessWidget {
       ],
     );
   }
-}
-
-class _RadioButtonInfo {
-  final Icon icon;
-  final Text themeText;
-
-  _RadioButtonInfo(this.icon, this.themeText);
 }
