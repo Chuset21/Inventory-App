@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
 
 import '../../core/utils/app_theme.dart';
+import '../../core/utils/platform_utils.dart';
 
 class AppThemeSelector extends StatelessWidget {
   const AppThemeSelector(
@@ -21,7 +22,8 @@ class AppThemeSelector extends StatelessWidget {
     ),
     AppTheme.system: (
       icon: const Icon(Icons.devices),
-      themeText: const Text(ThemeText.systemDefault),
+      themeText: Text(
+          '${ThemeText.systemDefault} (${isPlatformDarkMode() ? ThemeText.dark : ThemeText.light})'),
     ),
   };
 
