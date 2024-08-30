@@ -93,8 +93,10 @@ class ItemDisplayState extends State<ItemDisplay> {
     if (number == null || number < 0) {
       setTextToLastValidNumber();
     } else {
-      widget._controller.text = number.toString();
-      _lastValidNumber = number;
+      setState(() {
+        widget._controller.text = number.toString();
+        _lastValidNumber = number;
+      });
     }
   }
 
@@ -192,7 +194,7 @@ class ItemDisplayState extends State<ItemDisplay> {
                         .colorScheme
                         .secondary
                         .withOpacity(0.5),
-                    child: widget.number <=
+                    child: (_getControllerNumber() ?? 0) <=
                             1 // Show a bin if there is only one item remaining
                         ? const Icon(
                             Icons.delete,
