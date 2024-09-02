@@ -15,7 +15,7 @@ class SettingsPage extends StatelessWidget {
 
   final AppTheme appTheme;
   final Function(AppTheme) onThemeUpdate;
-  final bool isSafeDeleteOn;
+  final bool Function() isSafeDeleteOn;
   final Function(bool) onSafeDeleteUpdate;
 
   @override

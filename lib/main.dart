@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/core/services/settings_model.dart';
 import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:inventory_app/presentation/screens/home_page.dart';
+import 'package:provider/provider.dart';
 
 import 'core/services/local_storage.dart';
 
@@ -43,26 +45,19 @@ class _MyApp extends State<MyApp> {
     });
   }
 
-  void _updateSafeDeleteSetting(bool isSafeDeleteOn) {
-    setState(() {
-      _isSafeDeleteOn = isSafeDeleteOn;
-      // Update in local storage
-      LocalStorage.updateIsSafeDeleteOn(isSafeDeleteOn);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Freezer Inventory Demo',
       theme: getThemeData(_appTheme),
       debugShowCheckedModeBanner: false,
-      home: HomePage(
-        title: 'Freezer Inventory Demo',
-        isSafeDeleteOn: _isSafeDeleteOn,
-        appTheme: _appTheme,
-        onThemeUpdate: _updateTheme,
-        onSafeDeleteUpdate: _updateSafeDeleteSetting,
+      home: ChangeNotifierProvider(
+        create: (_) => SettingsModel(_isSafeDeleteOn),
+        child: HomePage(
+          title: 'Freezer Inventory Demo',
+          appTheme: _appTheme,
+          onThemeUpdate: _updateTheme,
+        ),
       ),
     );
   }

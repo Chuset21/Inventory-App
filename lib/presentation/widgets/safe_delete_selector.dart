@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
 
-class SafeDeleteSelector extends StatelessWidget {
+class SafeDeleteSelector extends StatefulWidget {
   const SafeDeleteSelector({
     super.key,
     required this.isSafeDeleteOn,
     required this.onSafeDeleteToggle,
   });
 
-  final bool isSafeDeleteOn;
+  final bool Function() isSafeDeleteOn;
   final Function(bool) onSafeDeleteToggle;
+
+  @override
+  State<SafeDeleteSelector> createState() => _SafeDeleteSelectorState();
+}
+
+class _SafeDeleteSelectorState extends State<SafeDeleteSelector> {
+  void _updateSafeDelete(bool newValue) {
+    setState(() {
+      widget.onSafeDeleteToggle(newValue);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +33,8 @@ class SafeDeleteSelector extends StatelessWidget {
         Transform.scale(
           scale: 0.85,
           child: Switch(
-            value: isSafeDeleteOn,
-            onChanged: onSafeDeleteToggle,
+            value: widget.isSafeDeleteOn(),
+            onChanged: _updateSafeDelete,
           ),
         ),
       ],

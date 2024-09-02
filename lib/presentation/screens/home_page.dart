@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
+import 'package:inventory_app/core/services/settings_model.dart';
 import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:inventory_app/data/models/item.dart';
 import 'package:inventory_app/presentation/screens/settings_page.dart';
 import 'package:inventory_app/presentation/widgets/add_items_suggestion.dart';
 import 'package:inventory_app/presentation/widgets/burger_menu.dart';
 import 'package:inventory_app/presentation/widgets/item_display.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage(
       {super.key,
       required this.title,
       required this.appTheme,
-      required this.isSafeDeleteOn,
-      required this.onThemeUpdate,
-      required this.onSafeDeleteUpdate});
+      required this.onThemeUpdate});
 
   final String title;
-  final bool isSafeDeleteOn;
   final AppTheme appTheme;
   final Function(AppTheme) onThemeUpdate;
-  final Function(bool isSafeDeleteOn) onSafeDeleteUpdate;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -43,21 +41,25 @@ class _HomePageState extends State<HomePage> {
     ): 2,
   };
 
-  void _syncItemListViewAndDependencies() {
-    final (:listView, :focusNodesAndKeys) =
-        _buildItemListViewWithFocusNodesAndKeys(items);
-    _itemListView = listView;
-    _itemFocusNodesAndKeys = focusNodesAndKeys;
-  }
-
   late ListView _itemListView;
   late List<({FocusNode node, GlobalKey<ItemDisplayState> key})>
       _itemFocusNodesAndKeys;
+  late SettingsModel settingsModel;
+
+  void _syncItemListViewAndDependencies() {
+    setState(() {
+      final (:listView, :focusNodesAndKeys) =
+          _buildItemListViewWithFocusNodesAndKeys(items);
+      _itemListView = listView;
+      _itemFocusNodesAndKeys = focusNodesAndKeys;
+    });
+  }
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    settingsModel = Provider.of<SettingsModel>(context);
     _syncItemListViewAndDependencies();
+    super.didChangeDependencies();
   }
 
   void _unfocusAndSubmitItemNodes() {
@@ -214,7 +216,7 @@ class _HomePageState extends State<HomePage> {
 
           return ItemDisplay(
             key: focusNodesAndKeys[index].key,
-            isSafeDeleteOn: widget.isSafeDeleteOn,
+            isSafeDeleteOn: settingsModel.isSafeDeleteOn,
             item: entries[index].key,
             number: entries[index].value,
             numberFocusNode: focusNodesAndKeys[index].node,
@@ -249,11 +251,11 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SettingsPage(
+        builder: (buildContext) => SettingsPage(
           appTheme: widget.appTheme,
           onThemeUpdate: widget.onThemeUpdate,
-          isSafeDeleteOn: widget.isSafeDeleteOn,
-          onSafeDeleteUpdate: widget.onSafeDeleteUpdate,
+          isSafeDeleteOn: () => settingsModel.isSafeDeleteOn,
+          onSafeDeleteUpdate: settingsModel.updateSafeDelete,
         ),
       ),
     );

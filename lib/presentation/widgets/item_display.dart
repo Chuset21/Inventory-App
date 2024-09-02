@@ -50,12 +50,14 @@ class ItemDisplayState extends State<ItemDisplay> {
   }
 
   void setTextToLastValidNumber() {
-    // Revert to the last valid number if the input is invalid
-    widget._controller.text = _lastValidNumber.toString();
-    // Move the cursor to the end of the text
-    widget._controller.selection = TextSelection.fromPosition(
-      TextPosition(offset: widget._controller.text.length),
-    );
+    setState(() {
+      // Revert to the last valid number if the input is invalid
+      widget._controller.text = _lastValidNumber.toString();
+      // Move the cursor to the end of the text
+      widget._controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: widget._controller.text.length),
+      );
+    });
   }
 
   int? _getControllerNumber() {
@@ -73,7 +75,7 @@ class ItemDisplayState extends State<ItemDisplay> {
     if (controllerNumber > 1) {
       widget.setItemNumber(controllerNumber - 1);
     } else if (widget.isSafeDeleteOn) {
-      // TODO: Show message about being sure to delete
+      _showDeleteConfirmationDialog();
     } else {
       widget.removeItem();
     }
@@ -85,7 +87,7 @@ class ItemDisplayState extends State<ItemDisplay> {
       widget.setItemNumber(number);
     } else if (number == 0) {
       if (widget.isSafeDeleteOn) {
-        // TODO: Show message about being sure to delete, if they cancel, set number to widget.number
+        _showDeleteConfirmationDialog();
       } else {
         widget.removeItem();
       }
@@ -215,6 +217,38 @@ class ItemDisplayState extends State<ItemDisplay> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content:
+              Text('Are you sure you want to remove "${widget.item.name}"?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                // Set the text to the last submitted number
+                setState(() {
+                  widget._controller.text = widget.number.toString();
+                });
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                widget.removeItem();
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
