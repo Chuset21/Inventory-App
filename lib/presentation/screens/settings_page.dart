@@ -20,6 +20,17 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = [
+      AppThemeSelector(
+        appTheme: appTheme,
+        onThemeUpdate: onThemeUpdate,
+      ),
+      SafeDeleteSelector(
+        isSafeDeleteOn: isSafeDeleteOn,
+        onSafeDeleteToggle: onSafeDeleteUpdate,
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -28,43 +39,31 @@ class SettingsPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 5.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Align to the left
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Center(
-                child: AppThemeSelector(
-                  appTheme: appTheme,
-                  onThemeUpdate: onThemeUpdate,
-                ),
-              ),
-            ),
-            const Divider(
-              indent: 10,
-              endIndent: 10,
-              thickness: 1,
-            ),
-            Flexible(
-              flex: 0,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Center(
-                  child: SafeDeleteSelector(
-                    isSafeDeleteOn: isSafeDeleteOn,
-                    onSafeDeleteToggle: onSafeDeleteUpdate,
-                  ),
-                ),
-              ),
-            ),
-            const Divider(
-              indent: 10,
-              endIndent: 10,
-              thickness: 1,
-            ),
-          ],
+        child: ListView(
+          children: addDividersBetween(settings),
         ),
       ),
     );
   }
+
+  Widget buildPaddedCenteredSetting(Widget child) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Center(
+          child: child,
+        ),
+      );
+
+  Widget buildDivider() => const Divider(
+        indent: 10,
+        endIndent: 10,
+        thickness: 1,
+      );
+
+  List<Widget> addDividersBetween(List<Widget> widgets) => widgets
+      .map((widget) => [
+            buildPaddedCenteredSetting(widget),
+            buildDivider(),
+          ])
+      .expand((e) => e)
+      .toList();
 }
