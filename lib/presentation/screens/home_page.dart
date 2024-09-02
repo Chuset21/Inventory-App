@@ -12,9 +12,11 @@ class HomePage extends StatefulWidget {
       {super.key,
       required this.title,
       required this.appTheme,
+      required this.isSafeDeleteOn,
       required this.onThemeUpdate});
 
   final String title;
+  final bool isSafeDeleteOn;
   final AppTheme appTheme;
   final Function(AppTheme) onThemeUpdate;
 
@@ -210,6 +212,7 @@ class _HomePageState extends State<HomePage> {
 
           return ItemDisplay(
             key: focusNodesAndKeys[index].key,
+            isSafeDeleteOn: widget.isSafeDeleteOn,
             item: entries[index].key,
             number: entries[index].value,
             numberFocusNode: focusNodesAndKeys[index].node,

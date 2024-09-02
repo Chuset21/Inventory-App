@@ -7,13 +7,16 @@ import 'core/services/local_storage.dart';
 void main() async {
   runApp(MyApp(
     appTheme: await LocalStorage.getAppTheme(),
+    isSafeDeleteOn: false, // TODO: make it come from a setting
   ));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key, required this.appTheme});
+  const MyApp(
+      {super.key, required this.appTheme, required this.isSafeDeleteOn});
 
   final AppTheme appTheme;
+  final bool isSafeDeleteOn;
 
   @override
   State<MyApp> createState() => _MyApp();
@@ -22,11 +25,13 @@ class MyApp extends StatefulWidget {
 /// This widget essentially keeps track of the theme
 class _MyApp extends State<MyApp> {
   AppTheme _appTheme = AppTheme.system;
+  late bool _isSafeDeleteOn;
 
   @override
   void initState() {
     super.initState();
     _appTheme = widget.appTheme;
+    _isSafeDeleteOn = widget.isSafeDeleteOn;
   }
 
   void _updateTheme(AppTheme theme) {
@@ -34,6 +39,13 @@ class _MyApp extends State<MyApp> {
       _appTheme = theme;
       // Update in local storage
       LocalStorage.updateAppTheme(_appTheme);
+    });
+  }
+
+  void _setSafeDelete(bool isSafeDeleteOn) {
+    setState(() {
+      _isSafeDeleteOn = isSafeDeleteOn;
+      // TODO: Update in local storage
     });
   }
 
@@ -45,8 +57,10 @@ class _MyApp extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       home: HomePage(
           title: 'Freezer Inventory Demo',
+          isSafeDeleteOn: _isSafeDeleteOn,
           appTheme: _appTheme,
-          onThemeUpdate: _updateTheme),
+          onThemeUpdate:
+              _updateTheme), // TODO: give callback for isSafeDeleteOn setting
     );
   }
 }

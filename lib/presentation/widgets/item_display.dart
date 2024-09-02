@@ -5,6 +5,7 @@ import '../../data/models/item.dart';
 class ItemDisplay extends StatefulWidget {
   final Item item;
   final int number;
+  final bool isSafeDeleteOn;
   final Function(int) setItemNumber;
   final Function() removeItem;
 
@@ -17,6 +18,7 @@ class ItemDisplay extends StatefulWidget {
       {super.key,
       required this.item,
       required this.number,
+      required this.isSafeDeleteOn,
       required this.setItemNumber,
       required this.removeItem,
       this.numberFocusNode}) {
@@ -70,8 +72,9 @@ class ItemDisplayState extends State<ItemDisplay> {
     int controllerNumber = _getControllerNumber() ?? 0;
     if (controllerNumber > 1) {
       widget.setItemNumber(controllerNumber - 1);
+    } else if (widget.isSafeDeleteOn) {
+      // TODO: Show message about being sure to delete
     } else {
-      // TODO: Maybe show message about being sure to delete?
       widget.removeItem();
     }
   }
@@ -81,8 +84,11 @@ class ItemDisplayState extends State<ItemDisplay> {
     if (number != null && number > 0) {
       widget.setItemNumber(number);
     } else if (number == 0) {
-      // TODO: Maybe show message about being sure to delete?
-      widget.removeItem();
+      if (widget.isSafeDeleteOn) {
+        // TODO: Show message about being sure to delete, if they cancel, set number to widget.number
+      } else {
+        widget.removeItem();
+      }
     } else {
       setTextToLastValidNumber();
     }
