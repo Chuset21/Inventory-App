@@ -13,12 +13,14 @@ class HomePage extends StatefulWidget {
       required this.title,
       required this.appTheme,
       required this.isSafeDeleteOn,
-      required this.onThemeUpdate});
+      required this.onThemeUpdate,
+      required this.onSafeDeleteUpdate});
 
   final String title;
   final bool isSafeDeleteOn;
   final AppTheme appTheme;
   final Function(AppTheme) onThemeUpdate;
+  final Function(bool isSafeDeleteOn) onSafeDeleteUpdate;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -250,6 +252,8 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => SettingsPage(
           appTheme: widget.appTheme,
           onThemeUpdate: widget.onThemeUpdate,
+          isSafeDeleteOn: widget.isSafeDeleteOn,
+          onSafeDeleteUpdate: widget.onSafeDeleteUpdate,
         ),
       ),
     );

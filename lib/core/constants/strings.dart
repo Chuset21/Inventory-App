@@ -10,6 +10,10 @@ final class ThemeText {
   static const systemDefault = 'System Default';
 }
 
+final class SafeDelete {
+  static const settingDescription = 'Safe Delete';
+}
+
 final class Tooltips {
   static const addButton = 'Add Item';
 }
