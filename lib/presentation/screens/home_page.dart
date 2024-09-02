@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
           navigateToSettings: _navigateToSettingsPage,
         ),
         body: Column(
-          children: <Widget>[
+          children: [
             // Conditionally render the search bar
             if (_isSearching)
               Container(
