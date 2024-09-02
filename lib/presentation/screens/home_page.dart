@@ -216,7 +216,10 @@ class _HomePageState extends State<HomePage> {
 
           return ItemDisplay(
             key: focusNodesAndKeys[index].key,
-            isSafeDeleteOn: settingsModel.isSafeDeleteOn,
+            isSafeDeleteOn: () => settingsModel.isSafeDeleteOn,
+            onSafeDeleteUpdate: settingsModel.updateSafeDelete,
+            appTheme: widget.appTheme,
+            onThemeUpdate: widget.onThemeUpdate,
             item: entries[index].key,
             number: entries[index].value,
             numberFocusNode: focusNodesAndKeys[index].node,

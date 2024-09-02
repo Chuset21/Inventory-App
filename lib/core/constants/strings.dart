@@ -11,7 +11,11 @@ final class ThemeText {
 }
 
 final class SafeDelete {
-  static const settingDescription = 'Safe Delete';
+  static const settingDescription = 'Show Item Deletion Warning';
+  static const turnOffWarningMessage = 'Turn this warning off in settings';
+  static const confirmDeletionTitle = 'Confirm Deletion';
+  static const cancel = 'Cancel';
+  static const confirm = 'Confirm';
 }
 
 final class Tooltips {

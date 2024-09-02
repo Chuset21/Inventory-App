@@ -6,12 +6,13 @@ import 'package:inventory_app/presentation/widgets/safe_delete_selector.dart';
 import '../../core/constants/strings.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage(
-      {super.key,
-      required this.appTheme,
-      required this.onThemeUpdate,
-      required this.onSafeDeleteUpdate,
-      required this.isSafeDeleteOn});
+  const SettingsPage({
+    super.key,
+    required this.appTheme,
+    required this.onThemeUpdate,
+    required this.onSafeDeleteUpdate,
+    required this.isSafeDeleteOn,
+  });
 
   final AppTheme appTheme;
   final Function(AppTheme) onThemeUpdate;

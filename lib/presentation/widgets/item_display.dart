@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/core/constants/strings.dart';
 
+import '../../core/utils/app_theme.dart';
 import '../../data/models/item.dart';
+import '../screens/settings_page.dart';
 
 class ItemDisplay extends StatefulWidget {
   final Item item;
   final int number;
-  final bool isSafeDeleteOn;
   final Function(int) setItemNumber;
   final Function() removeItem;
+  final AppTheme appTheme;
+  final Function(AppTheme) onThemeUpdate;
+  final bool Function() isSafeDeleteOn;
+  final Function(bool) onSafeDeleteUpdate;
 
   /// The focus node for the number
   final FocusNode? numberFocusNode;
@@ -18,9 +24,12 @@ class ItemDisplay extends StatefulWidget {
       {super.key,
       required this.item,
       required this.number,
-      required this.isSafeDeleteOn,
       required this.setItemNumber,
       required this.removeItem,
+      required this.appTheme,
+      required this.onThemeUpdate,
+      required this.isSafeDeleteOn,
+      required this.onSafeDeleteUpdate,
       this.numberFocusNode}) {
     _controller = TextEditingController(text: number.toString());
   }
@@ -74,7 +83,7 @@ class ItemDisplayState extends State<ItemDisplay> {
     int controllerNumber = _getControllerNumber() ?? 0;
     if (controllerNumber > 1) {
       widget.setItemNumber(controllerNumber - 1);
-    } else if (widget.isSafeDeleteOn) {
+    } else if (widget.isSafeDeleteOn()) {
       _showDeleteConfirmationDialog();
     } else {
       widget.removeItem();
@@ -86,7 +95,7 @@ class ItemDisplayState extends State<ItemDisplay> {
     if (number != null && number > 0) {
       widget.setItemNumber(number);
     } else if (number == 0) {
-      if (widget.isSafeDeleteOn) {
+      if (widget.isSafeDeleteOn()) {
         _showDeleteConfirmationDialog();
       } else {
         widget.removeItem();
@@ -225,27 +234,65 @@ class ItemDisplayState extends State<ItemDisplay> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Deletion'),
+          title: const Text(SafeDelete.confirmDeletionTitle),
           content:
               Text('Are you sure you want to remove "${widget.item.name}"?'),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                // Set the text to the last submitted number
-                setState(() {
-                  widget._controller.text = widget.number.toString();
-                });
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                widget.removeItem();
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Confirm'),
-            ),
+            Column(
+              children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 5.0),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (buildContext) => SettingsPage(
+                              appTheme: widget.appTheme,
+                              onThemeUpdate: widget.onThemeUpdate,
+                              isSafeDeleteOn: widget.isSafeDeleteOn,
+                              onSafeDeleteUpdate: widget.onSafeDeleteUpdate,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        SafeDelete.turnOffWarningMessage,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                        // Set the text to the last submitted number
+                        setState(() {
+                          widget._controller.text = widget.number.toString();
+                        });
+                      },
+                      child: const Text(SafeDelete.cancel),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        widget.removeItem();
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                      child: const Text(SafeDelete.confirm),
+                    ),
+                  ],
+                )
+              ],
+            )
           ],
         );
       },
