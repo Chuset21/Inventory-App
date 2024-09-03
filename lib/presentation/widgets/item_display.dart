@@ -10,7 +10,7 @@ class ItemDisplay extends StatefulWidget {
   final int number;
   final Function(int) setItemNumber;
   final Function() removeItem;
-  final AppTheme appTheme;
+  final AppTheme Function() getAppTheme;
   final Function(AppTheme) onThemeUpdate;
   final bool Function() isSafeDeleteOn;
   final Function(bool) onSafeDeleteUpdate;
@@ -26,7 +26,7 @@ class ItemDisplay extends StatefulWidget {
       required this.number,
       required this.setItemNumber,
       required this.removeItem,
-      required this.appTheme,
+      required this.getAppTheme,
       required this.onThemeUpdate,
       required this.isSafeDeleteOn,
       required this.onSafeDeleteUpdate,
@@ -58,7 +58,7 @@ class ItemDisplayState extends State<ItemDisplay> {
     _onSubmitted(widget._controller.text);
   }
 
-  void setTextToLastValidNumber() {
+  void _setTextToLastValidNumber() {
     setState(() {
       // Revert to the last valid number if the input is invalid
       widget._controller.text = _lastValidNumber.toString();
@@ -101,14 +101,14 @@ class ItemDisplayState extends State<ItemDisplay> {
         widget.removeItem();
       }
     } else {
-      setTextToLastValidNumber();
+      _setTextToLastValidNumber();
     }
   }
 
   void _onTextChanged(String value) {
     final int? number = int.tryParse(value);
     if (number == null || number < 0) {
-      setTextToLastValidNumber();
+      _setTextToLastValidNumber();
     } else {
       setState(() {
         widget._controller.text = number.toString();
@@ -126,10 +126,10 @@ class ItemDisplayState extends State<ItemDisplay> {
           width: 50,
           // For now it will have a fixed width, TODO: make it flexible
           child: TextField(
-            // Add data validation here, only allow numbers >= 0
             controller: widget._controller,
             focusNode: widget.numberFocusNode,
-            keyboardType: TextInputType.number,
+            keyboardType: const TextInputType.numberWithOptions(
+                signed: false, decimal: false),
             textAlign: TextAlign.center,
             textAlignVertical: TextAlignVertical.center,
             style: TextStyle(
@@ -141,27 +141,8 @@ class ItemDisplayState extends State<ItemDisplay> {
             onSubmitted: _onSubmitted,
             decoration: InputDecoration(
               isDense: true,
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                // Adjust radius for rounded corners
-                borderSide: BorderSide(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .secondary, // Border color when focused
-                  width: 2.0, // Border width when focused
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                // Adjust radius for rounded corners
-                borderSide: BorderSide(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .secondary
-                      .withOpacity(0.5), // Border color
-                  width: 1.0, // Border width
-                ),
-              ),
+              focusedBorder: _buildOutlineInputBorder(width: 2.0),
+              enabledBorder: _buildOutlineInputBorder(opacity: 0.5, width: 1.0),
             ),
             onTap: () {
               widget._controller.selection = TextSelection(
@@ -188,39 +169,27 @@ class ItemDisplayState extends State<ItemDisplay> {
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Column(
             children: [
-              GestureDetector(
-                onTap: _increment,
-                child: CircleAvatar(
-                  radius: 15, // Adjust the size of the circle
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.5),
-                  child: Icon(
-                    Icons.add,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+              _buildItemButton(
+                onTapCallback: _increment,
+                child: Icon(
+                  Icons.add,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(
                 height: 10,
               ),
-              GestureDetector(
-                onTap: _decrement,
-                child: CircleAvatar(
-                    radius: 15, // Adjust the size of the circle
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withOpacity(0.5),
-                    child: (_getControllerNumber() ?? 0) <=
-                            1 // Show a bin if there is only one item remaining
-                        ? const Icon(
-                            Icons.delete,
-                            color: Colors.red,
-                          )
-                        : Icon(
-                            Icons.remove,
-                            color: Theme.of(context).colorScheme.primary,
-                          )),
+              _buildItemButton(
+                onTapCallback: _decrement,
+                child: (_getControllerNumber() ?? 0) <= 1
+                    ? const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      )
+                    : Icon(
+                        Icons.remove,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
               ),
             ],
           ),
@@ -229,73 +198,127 @@ class ItemDisplayState extends State<ItemDisplay> {
     );
   }
 
+  GestureDetector _buildItemButton(
+          {double radius = 15,
+          required Widget child,
+          required void Function() onTapCallback}) =>
+      GestureDetector(
+        onTap: onTapCallback,
+        child: _buildCircleAvatar(
+          radius: radius,
+          child: child,
+        ),
+      );
+
+  CircleAvatar _buildCircleAvatar(
+          {required double radius, required Widget child}) =>
+      CircleAvatar(
+        radius: radius,
+        backgroundColor:
+            Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+        child: child,
+      );
+
+  OutlineInputBorder _buildOutlineInputBorder(
+          {double opacity = 1.0, required double width}) =>
+      OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide(
+          color: Theme.of(context)
+              .colorScheme
+              .secondary
+              .withOpacity(opacity), // Border color
+          width: width, // Border width
+        ),
+      );
+
   void _showDeleteConfirmationDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(SafeDelete.confirmDeletionTitle),
-          content:
-              Text('Are you sure you want to remove "${widget.item.name}"?'),
-          actions: [
-            Column(
-              children: [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 5.0),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close the dialog
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (buildContext) => SettingsPage(
-                              appTheme: widget.appTheme,
-                              onThemeUpdate: widget.onThemeUpdate,
-                              isSafeDeleteOn: widget.isSafeDeleteOn,
-                              onSafeDeleteUpdate: widget.onSafeDeleteUpdate,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        SafeDelete.turnOffWarningMessage,
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          decoration: TextDecoration.underline,
-                          decorationColor: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close the dialog
-                        // Set the text to the last submitted number
-                        setState(() {
-                          widget._controller.text = widget.number.toString();
-                        });
-                      },
-                      child: const Text(SafeDelete.cancel),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        widget.removeItem();
-                        Navigator.of(context).pop(); // Close the dialog
-                      },
-                      child: const Text(SafeDelete.confirm),
-                    ),
-                  ],
-                )
-              ],
-            )
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        icon: Transform.scale(
+          scale: 1.7,
+          child: Icon(
+            Icons.warning_amber,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        title: Text(
+          SafeDelete.buildAreYouSureMessage(itemName: widget.item.name),
+          textAlign: TextAlign.center,
+          softWrap: true,
+          overflow: TextOverflow.fade,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+        // Hint about turning off the warning message
+        content: TextButton(
+          onPressed: _navigateToSettings,
+          child: Text(
+            SafeDelete.turnOffWarningMessage,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              decoration: TextDecoration.underline,
+              decorationColor: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+        actionsPadding:
+            const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: [
+          _buildDialogButton(actionType: _ActionType.cancel),
+          _buildDialogButton(actionType: _ActionType.confirm),
+        ],
+      ),
+    ).then((value) {
+      // If the value is null, then that means that Navigator.of(context).pop() was called with no value
+      // This means that the dialog was dismissed
+      if (value == null) {
+        _setTextToLastSubmittedNumber();
+      }
+    });
+  }
+
+  void _navigateToSettings() {
+    Navigator.of(context).pop(); // Close the dialog
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SettingsPage(
+          getAppTheme: widget.getAppTheme,
+          onThemeUpdate: widget.onThemeUpdate,
+          isSafeDeleteOn: widget.isSafeDeleteOn,
+          onSafeDeleteUpdate: widget.onSafeDeleteUpdate,
+        ),
+      ),
     );
   }
+
+  void _setTextToLastSubmittedNumber() {
+    setState(() {
+      widget._controller.text = widget.number.toString();
+    });
+  }
+
+  TextButton _buildDialogButton({required _ActionType actionType}) =>
+      TextButton(
+        onPressed: () {
+          _performActionBasedOnActionType(actionType);
+          Navigator.of(context).pop(actionType); // Close the dialog
+        },
+        child: Text(actionType == _ActionType.cancel
+            ? SafeDelete.cancel
+            : SafeDelete.confirm),
+      );
+
+  void _performActionBasedOnActionType(_ActionType actionType) {
+    if (actionType == _ActionType.cancel) {
+      _setTextToLastSubmittedNumber();
+    } else if (actionType == _ActionType.confirm) {
+      widget.removeItem();
+    }
+  }
 }
+
+enum _ActionType { cancel, confirm }

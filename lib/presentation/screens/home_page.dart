@@ -13,11 +13,11 @@ class HomePage extends StatefulWidget {
   const HomePage(
       {super.key,
       required this.title,
-      required this.appTheme,
+      required this.getAppTheme,
       required this.onThemeUpdate});
 
   final String title;
-  final AppTheme appTheme;
+  final AppTheme Function() getAppTheme;
   final Function(AppTheme) onThemeUpdate;
 
   @override
@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage> {
             key: focusNodesAndKeys[index].key,
             isSafeDeleteOn: () => settingsModel.isSafeDeleteOn,
             onSafeDeleteUpdate: settingsModel.updateSafeDelete,
-            appTheme: widget.appTheme,
+            getAppTheme: widget.getAppTheme,
             onThemeUpdate: widget.onThemeUpdate,
             item: entries[index].key,
             number: entries[index].value,
@@ -255,7 +255,7 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (buildContext) => SettingsPage(
-          appTheme: widget.appTheme,
+          getAppTheme: widget.getAppTheme,
           onThemeUpdate: widget.onThemeUpdate,
           isSafeDeleteOn: () => settingsModel.isSafeDeleteOn,
           onSafeDeleteUpdate: settingsModel.updateSafeDelete,

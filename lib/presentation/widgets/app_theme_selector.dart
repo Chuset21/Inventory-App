@@ -6,9 +6,9 @@ import '../../core/utils/platform_utils.dart';
 
 class AppThemeSelector extends StatelessWidget {
   const AppThemeSelector(
-      {super.key, required this.appTheme, required this.onThemeUpdate});
+      {super.key, required this.getAppTheme, required this.onThemeUpdate});
 
-  final AppTheme appTheme;
+  final AppTheme Function() getAppTheme;
   final Function(AppTheme) onThemeUpdate;
 
   static final themeInfoMap = {
@@ -45,7 +45,7 @@ class AppThemeSelector extends StatelessWidget {
         buttonInfo.icon,
         Radio<AppTheme>(
           value: currentTheme,
-          groupValue: appTheme,
+          groupValue: getAppTheme(),
           onChanged: (AppTheme? mode) {
             if (mode != null) {
               onThemeUpdate(mode);

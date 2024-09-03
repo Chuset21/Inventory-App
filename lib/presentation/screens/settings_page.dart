@@ -8,13 +8,13 @@ import '../../core/constants/strings.dart';
 class SettingsPage extends StatelessWidget {
   const SettingsPage({
     super.key,
-    required this.appTheme,
+    required this.getAppTheme,
     required this.onThemeUpdate,
     required this.onSafeDeleteUpdate,
     required this.isSafeDeleteOn,
   });
 
-  final AppTheme appTheme;
+  final AppTheme Function() getAppTheme;
   final Function(AppTheme) onThemeUpdate;
   final bool Function() isSafeDeleteOn;
   final Function(bool) onSafeDeleteUpdate;
@@ -23,7 +23,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = [
       AppThemeSelector(
-        appTheme: appTheme,
+        getAppTheme: getAppTheme,
         onThemeUpdate: onThemeUpdate,
       ),
       SafeDeleteSelector(

@@ -55,7 +55,7 @@ class _MyApp extends State<MyApp> {
         create: (_) => SettingsModel(_isSafeDeleteOn),
         child: HomePage(
           title: 'Freezer Inventory Demo',
-          appTheme: _appTheme,
+          getAppTheme: () => _appTheme,
           onThemeUpdate: _updateTheme,
         ),
       ),
