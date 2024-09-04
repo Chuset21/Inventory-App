@@ -1,11 +1,11 @@
 final class Item {
   final String name;
-  final String type;
+  final String category;
   final String location;
 
   Item({
     required this.name,
-    required this.type,
+    required this.category,
     required this.location,
   });
 
@@ -14,10 +14,10 @@ final class Item {
     if (identical(this, other)) return true;
     return other is Item &&
         other.name == name &&
-        other.type == type &&
+        other.category == category &&
         other.location == location;
   }
 
   @override
-  int get hashCode => name.hashCode ^ type.hashCode ^ location.hashCode;
+  int get hashCode => name.hashCode ^ category.hashCode ^ location.hashCode;
 }

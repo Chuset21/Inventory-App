@@ -31,14 +31,54 @@ class _HomePageState extends State<HomePage> {
   Map<Item, int> items = {
     Item(
       name: 'Broccoli',
-      type: 'Vegetable',
+      category: 'Vegetables',
       location: 'Upstairs Freezer',
     ): 5,
     Item(
       name: 'Cauliflower',
-      type: 'Vegetable',
+      category: 'Vegetables',
       location: 'Upstairs Freezer',
     ): 2,
+    Item(
+      name: 'Chicken Breast (500g)',
+      category: 'Meat',
+      location: 'Upstairs Freezer',
+    ): 1,
+    Item(
+      name: 'Ground Beef',
+      category: 'Meat',
+      location: 'Upstairs Freezer',
+    ): 4,
+    Item(
+      name: 'Bagels',
+      category: 'Bread',
+      location: 'Downstairs Freezer',
+    ): 15,
+    Item(
+      name: 'Soda Bread',
+      category: 'Bread',
+      location: 'Downstairs Freezer',
+    ): 1,
+    Item(
+      name: 'Mango',
+      category: 'Fruit',
+      location: 'Upstairs Freezer',
+    ): 2,
+    Item(
+      name: 'Strawberries',
+      category: 'Fruit',
+      location: 'Upstairs Freezer',
+    ): 1,
+    Item(
+      name: 'Raspberries',
+      category: 'Fruit',
+      location: 'Upstairs Freezer',
+    ): 2,
+    Item(
+      name: 'Mixed Berries',
+      category: 'Fruit',
+      location: 'Upstairs Freezer',
+    ): 1,
   };
 
   late ListView _itemListView;
@@ -200,29 +240,48 @@ class _HomePageState extends State<HomePage> {
     ListView listView,
     List<({FocusNode node, GlobalKey<ItemDisplayState> key})> focusNodesAndKeys
   }) _buildItemListViewWithFocusNodesAndKeys(Map<Item, int> items) {
-    // Create a list of FocusNodes
-    final focusNodesAndKeys = List.generate(items.length,
-        (index) => (node: FocusNode(), key: GlobalKey<ItemDisplayState>()),
-        growable: false);
+    // Group items by their category
+    final Map<String, List<MapEntry<Item, int>>> groupedItems =
+        items.entries.fold(
+      {},
+      (map, entry) => map..putIfAbsent(entry.key.category, () => []).add(entry),
+    );
 
-    // Convert the map entries to a list
-    final entries = items.entries.toList(growable: false);
+    final sortedCategories = groupedItems.keys.toList()..sort();
 
-    return (
-      listView: ListView.builder(
-        itemCount: entries.length,
-        itemBuilder: (context, index) {
-          final item = entries[index].key;
+    // Create a list of FocusNodes and GlobalKeys
+    final focusNodesAndKeys = List.generate(
+      items.length,
+      (index) => (node: FocusNode(), key: GlobalKey<ItemDisplayState>()),
+      growable: false,
+    );
 
-          return ItemDisplay(
-            key: focusNodesAndKeys[index].key,
+    // Build the list of widgets
+    final List<Widget> itemWidgets = [];
+
+    int focusNodeAndKeyIndex = 0;
+
+    // Add widgets for each category in sorted order
+    for (String category in sortedCategories) {
+      final entries = groupedItems[category]!;
+
+      // Add the section header
+      itemWidgets.add(_buildHeader(category));
+
+      // Add the items under the section
+      for (MapEntry<Item, int> entry in entries) {
+        Item item = entry.key;
+
+        itemWidgets.add(
+          ItemDisplay(
+            key: focusNodesAndKeys[focusNodeAndKeyIndex].key,
             isSafeDeleteOn: () => settingsModel.isSafeDeleteOn,
             onSafeDeleteUpdate: settingsModel.updateSafeDelete,
             getAppTheme: widget.getAppTheme,
             onThemeUpdate: widget.onThemeUpdate,
-            item: entries[index].key,
-            number: entries[index].value,
-            numberFocusNode: focusNodesAndKeys[index].node,
+            item: item,
+            number: entry.value,
+            numberFocusNode: focusNodesAndKeys[focusNodeAndKeyIndex].node,
             setItemNumber: (itemNumber) {
               setState(() {
                 items.update(item, (oldValue) => itemNumber);
@@ -235,10 +294,42 @@ class _HomePageState extends State<HomePage> {
                 _syncItemListViewAndDependencies();
               });
             },
-          );
-        },
+          ),
+        );
+        focusNodeAndKeyIndex++;
+      }
+    }
+
+    return (
+      listView: ListView(
+        children: itemWidgets,
       ),
       focusNodesAndKeys: focusNodesAndKeys,
+    );
+  }
+
+  Widget _buildHeader(String category) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            category,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 22.0,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          Divider(
+            height: 8.0,
+            thickness: 3.0, // Height of the separator line
+            color: Theme.of(context).colorScheme.primaryContainer,
+          ),
+        ],
+      ),
     );
   }
 

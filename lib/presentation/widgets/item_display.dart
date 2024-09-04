@@ -47,13 +47,6 @@ class ItemDisplayState extends State<ItemDisplay> {
     _lastValidNumber = widget.number;
   }
 
-  @override
-  void dispose() {
-    widget.numberFocusNode?.dispose();
-    widget._controller.dispose();
-    super.dispose();
-  }
-
   void submitText() {
     _onSubmitted(widget._controller.text);
   }
