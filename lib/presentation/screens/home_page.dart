@@ -299,6 +299,11 @@ class _HomePageState extends State<HomePage> {
         focusNodeAndKeyIndex++;
       }
     }
+    // Add some padding at the bottom of the list to ensure that the
+    // 'add item' button doesn't obscure the last item's controls
+    itemWidgets.add(const SizedBox(
+      height: 100,
+    ));
 
     return (
       listView: ListView(
