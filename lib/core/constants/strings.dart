@@ -39,5 +39,7 @@ final class EditItemMessages {
   static const itemName = 'Item Name';
   static const quantity = 'Quantity';
   static const category = 'Category';
+  static const categoryHint = 'Select an existing category or enter a new one';
   static const location = 'Location';
+  static const locationHint = 'Select an existing location or enter a new one';
 }
