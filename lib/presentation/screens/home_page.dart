@@ -86,19 +86,9 @@ class _HomePageState extends State<HomePage> {
       _itemFocusNodesAndKeys;
   late SettingsModel settingsModel;
 
-  void _syncItemListViewAndDependencies() {
-    setState(() {
-      final (:listView, :focusNodesAndKeys) =
-          _buildItemListViewWithFocusNodesAndKeys(items);
-      _itemListView = listView;
-      _itemFocusNodesAndKeys = focusNodesAndKeys;
-    });
-  }
-
   @override
   void didChangeDependencies() {
     settingsModel = Provider.of<SettingsModel>(context);
-    _syncItemListViewAndDependencies();
     super.didChangeDependencies();
   }
 
@@ -138,6 +128,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final (:listView, :focusNodesAndKeys) =
+        _buildItemListViewWithFocusNodesAndKeys(items);
+    _itemListView = listView;
+    _itemFocusNodesAndKeys = focusNodesAndKeys;
+
     return GestureDetector(
       onTap: () {
         _searchFocusNode.unfocus();
@@ -263,7 +258,9 @@ class _HomePageState extends State<HomePage> {
 
     // Add widgets for each category in sorted order
     for (String category in sortedCategories) {
-      final entries = groupedItems[category]!;
+      // Sort by name
+      final entries = groupedItems[category]!
+        ..sort((a, b) => a.key.name.compareTo(b.key.name));
 
       // Add the section header
       itemWidgets.add(_buildHeader(category));
@@ -285,13 +282,11 @@ class _HomePageState extends State<HomePage> {
             setItemNumber: (itemNumber) {
               setState(() {
                 items.update(item, (oldValue) => itemNumber);
-                _syncItemListViewAndDependencies();
               });
             },
             removeItem: () {
               setState(() {
                 items.remove(item);
-                _syncItemListViewAndDependencies();
               });
             },
           ),
