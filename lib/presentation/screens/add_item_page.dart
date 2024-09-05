@@ -49,7 +49,7 @@ class _AddItemPageState extends State<AddItemPage> {
 
   void _onQuantityTextChanged(String value) {
     final int? number = int.tryParse(value);
-    if ((number == null || number < 0) && value.isNotEmpty) {
+    if ((number == null || number <= 0) && value.isNotEmpty) {
       _setQuantityTextToLastValidText();
     } else {
       setState(() {
