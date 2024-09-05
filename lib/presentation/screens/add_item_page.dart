@@ -149,7 +149,9 @@ class _AddItemPageState extends State<AddItemPage> {
               decoration:
                   const InputDecoration(labelText: EditItemMessages.itemName),
             ),
-            const SizedBox(height: 10),
+            const Spacer(
+              flex: 2,
+            ),
             TextField(
               controller: _quantityController,
               focusNode: _quantityFocusNode,
@@ -162,7 +164,9 @@ class _AddItemPageState extends State<AddItemPage> {
               keyboardType: const TextInputType.numberWithOptions(
                   signed: false, decimal: false),
             ),
-            const SizedBox(height: 10),
+            const Spacer(
+              flex: 2,
+            ),
             _buildDropdownMenu(
               controller: _categoryController,
               focusNode: _categoryFocusNode,
@@ -171,7 +175,9 @@ class _AddItemPageState extends State<AddItemPage> {
               label: EditItemMessages.category,
               menuEntries: widget.existingCategories,
             ),
-            const SizedBox(height: 10),
+            const Spacer(
+              flex: 2,
+            ),
             _buildDropdownMenu(
               controller: _locationController,
               focusNode: _locationFocusNode,
@@ -180,24 +186,31 @@ class _AddItemPageState extends State<AddItemPage> {
               label: EditItemMessages.location,
               menuEntries: widget.existingLocations,
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              focusNode: _addItemFocusNode,
-              // Enable the button if all options are valid
-              onPressed: _areAllOptionsValid()
-                  ? () {
-                      widget.addItemCallback(
-                        item: Item(
-                          name: _nameController.text.trim(),
-                          category: _categoryController.text.trim(),
-                          location: _locationController.text.trim(),
-                        ),
-                        quantity: _getQuantity(),
-                      );
-                      Navigator.pop(context);
-                    }
-                  : null,
-              child: const Text(EditItemMessages.addItem),
+            const Spacer(
+              flex: 3,
+            ),
+            Center(
+              child: ElevatedButton(
+                focusNode: _addItemFocusNode,
+                // Enable the button if all options are valid
+                onPressed: _areAllOptionsValid()
+                    ? () {
+                        widget.addItemCallback(
+                          item: Item(
+                            name: _nameController.text.trim(),
+                            category: _categoryController.text.trim(),
+                            location: _locationController.text.trim(),
+                          ),
+                          quantity: _getQuantity(),
+                        );
+                        Navigator.pop(context);
+                      }
+                    : null,
+                child: const Text(EditItemMessages.addItem),
+              ),
+            ),
+            const Spacer(
+              flex: 40,
             ),
           ],
         ),
