@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
 class LoadingPage extends StatelessWidget {
   const LoadingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Loading...'),
+    return const Scaffold(
+      appBar: DefaultAppBar(
+        title: Text('Loading...'),
       ),
-      body: const Center(
+      body: Center(
         child: CircularProgressIndicator(), // The loading spinner
       ),
     );

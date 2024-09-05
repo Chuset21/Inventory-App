@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
 import 'package:inventory_app/data/models/item.dart';
+import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
 class AddItemPage extends StatefulWidget {
   final Iterable<String> existingCategories;
@@ -127,10 +128,8 @@ class _AddItemPageState extends State<AddItemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).canvasColor,
-        title: const Text(EditItemMessages.addItem),
+      appBar: const DefaultAppBar(
+        title: Text(EditItemMessages.addItem),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

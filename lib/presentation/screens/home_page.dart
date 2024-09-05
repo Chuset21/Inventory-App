@@ -6,6 +6,7 @@ import 'package:inventory_app/data/models/item.dart';
 import 'package:inventory_app/presentation/screens/settings_page.dart';
 import 'package:inventory_app/presentation/widgets/add_items_suggestion.dart';
 import 'package:inventory_app/presentation/widgets/burger_menu.dart';
+import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 import 'package:inventory_app/presentation/widgets/item_display.dart';
 import 'package:provider/provider.dart';
 
@@ -148,9 +149,7 @@ class _HomePageState extends State<HomePage> {
         _unfocusAndSubmitItemNodes();
       },
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: Theme.of(context).canvasColor,
+        appBar: DefaultAppBar(
           title: Text(widget.title),
           actions: [
             IconButton(

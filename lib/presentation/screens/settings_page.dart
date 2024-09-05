@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:inventory_app/presentation/widgets/app_theme_selector.dart';
+import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 import 'package:inventory_app/presentation/widgets/safe_delete_selector.dart';
 
 import '../../core/constants/strings.dart';
@@ -33,10 +34,8 @@ class SettingsPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).canvasColor,
-        title: const Text(AppTitles.settings),
+      appBar: const DefaultAppBar(
+        title: Text(AppTitles.settings),
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 5.0),
