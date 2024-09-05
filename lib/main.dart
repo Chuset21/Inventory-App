@@ -54,7 +54,7 @@ class _MyApp extends State<MyApp> {
       home: ChangeNotifierProvider(
         create: (_) => SettingsModel(_isSafeDeleteOn),
         child: HomePage(
-          title: 'Freezer Inventory Demo',
+          title: 'Freezer Inventory',
           getAppTheme: () => _appTheme,
           onThemeUpdate: _updateTheme,
         ),
