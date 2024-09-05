@@ -9,6 +9,8 @@ import 'package:inventory_app/presentation/widgets/burger_menu.dart';
 import 'package:inventory_app/presentation/widgets/item_display.dart';
 import 'package:provider/provider.dart';
 
+import 'add_item_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage(
       {super.key,
@@ -90,6 +92,13 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     settingsModel = Provider.of<SettingsModel>(context);
     super.didChangeDependencies();
+  }
+
+  void _addItem({required Item item, required int quantity}) {
+    setState(() {
+      items.update(item, (prevValue) => prevValue + quantity,
+          ifAbsent: () => quantity);
+    });
   }
 
   void _unfocusAndSubmitItemNodes() {
@@ -216,8 +225,20 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          // TODO: route to add item page
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddItemPage(
+                  addItemCallback: _addItem,
+                  existingCategories:
+                      items.keys.map((item) => item.category).toSet().toList(),
+                  existingLocations:
+                      items.keys.map((item) => item.location).toSet().toList(),
+                ),
+              ),
+            );
+          },
           tooltip: Tooltips.addButton,
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).canvasColor,

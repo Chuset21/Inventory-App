@@ -33,3 +33,11 @@ final class Messages {
       'Start adding items to keep track of your inventory';
   static const emptyInventory = 'Your inventory is empty!';
 }
+
+final class EditItemMessages {
+  static const addItem = 'Add Item';
+  static const itemName = 'Item Name';
+  static const quantity = 'Quantity';
+  static const category = 'Category';
+  static const location = 'Location';
+}
