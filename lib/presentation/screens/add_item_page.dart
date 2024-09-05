@@ -28,6 +28,7 @@ class _AddItemPageState extends State<AddItemPage> {
   final FocusNode _quantityFocusNode = FocusNode();
   final FocusNode _categoryFocusNode = FocusNode();
   final FocusNode _locationFocusNode = FocusNode();
+  final FocusNode _addItemFocusNode = FocusNode();
 
   // This invisible entry is needed so that when a filter matches all possible values but none exactly, we don't get an index out of bounds from the menu
   static const _invisibleEntry = '';
@@ -59,6 +60,7 @@ class _AddItemPageState extends State<AddItemPage> {
     _locationController.removeListener(_menuControllerCallback);
     _locationController.dispose();
     _locationFocusNode.dispose();
+    _addItemFocusNode.dispose();
     super.dispose();
   }
 
@@ -136,6 +138,7 @@ class _AddItemPageState extends State<AddItemPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
+              textCapitalization: TextCapitalization.sentences,
               controller: _nameController,
               focusNode: _nameFocusNode,
               onChanged: (value) {
@@ -173,12 +176,14 @@ class _AddItemPageState extends State<AddItemPage> {
             _buildDropdownMenu(
               controller: _locationController,
               focusNode: _locationFocusNode,
+              nextFocusNode: _addItemFocusNode,
               helperText: EditItemMessages.locationHint,
               label: EditItemMessages.location,
               menuEntries: widget.existingLocations,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              focusNode: _addItemFocusNode,
               // Enable the button if all options are valid
               onPressed: _areAllOptionsValid()
                   ? () {
@@ -201,7 +206,8 @@ class _AddItemPageState extends State<AddItemPage> {
     );
   }
 
-  DropdownMenu<String> _buildDropdownMenu({
+  // Can't seem to bring up the keyboard capitalised in menus
+  Widget _buildDropdownMenu({
     required TextEditingController controller,
     required FocusNode focusNode,
     FocusNode? nextFocusNode,
@@ -223,6 +229,7 @@ class _AddItemPageState extends State<AddItemPage> {
         controller: controller,
         onSelected: (value) {
           setState(() {});
+          focusNode.unfocus();
           nextFocusNode?.requestFocus();
         },
         dropdownMenuEntries: menuEntries

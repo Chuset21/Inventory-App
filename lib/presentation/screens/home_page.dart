@@ -174,6 +174,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Expanded(
                       child: TextField(
+                        textCapitalization: TextCapitalization.sentences,
                         controller: _searchController,
                         focusNode: _searchFocusNode,
                         autofocus: true,
