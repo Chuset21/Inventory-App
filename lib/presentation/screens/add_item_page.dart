@@ -128,6 +128,7 @@ class _AddItemPageState extends State<AddItemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: const DefaultAppBar(
         title: Text(EditItemMessages.addItem),
       ),
