@@ -8,6 +8,7 @@ import '../../data/models/item.dart';
 import '../screens/settings_page.dart';
 
 class ItemDisplay extends StatefulWidget {
+  final Iterable<String> existingNames;
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
   final Item item;
@@ -28,6 +29,7 @@ class ItemDisplay extends StatefulWidget {
 
   ItemDisplay(
       {super.key,
+      required this.existingNames,
       required this.existingCategories,
       required this.existingLocations,
       required this.item,
@@ -98,7 +100,8 @@ class ItemDisplayState extends State<ItemDisplay> {
       MaterialPageRoute(
         builder: (context) => EditItemPage(
           editItemCallback: widget.editItem,
-          existingItem: widget.item,
+          itemToEdit: widget.item,
+          existingNames: widget.existingNames,
           existingQuantity: widget.number,
           existingCategories: widget.existingCategories,
           existingLocations: widget.existingLocations,

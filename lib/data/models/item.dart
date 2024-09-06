@@ -13,14 +13,11 @@ final class Item {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is Item &&
-        other.name.toLowerCase() == name.toLowerCase() &&
-        other.category.toLowerCase() == category.toLowerCase() &&
-        other.location.toLowerCase() == location.toLowerCase();
+        other.name == name &&
+        other.category == category &&
+        other.location == location;
   }
 
   @override
-  int get hashCode =>
-      name.toLowerCase().hashCode ^
-      category.toLowerCase().hashCode ^
-      location.toLowerCase().hashCode;
+  int get hashCode => name.hashCode ^ category.hashCode ^ location.hashCode;
 }

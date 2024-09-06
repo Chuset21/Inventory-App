@@ -99,6 +99,9 @@ class _HomePageState extends State<HomePage> {
   Iterable<String> get _existingLocations =>
       _getUniqueValuesFromItems((item) => item.location);
 
+  Iterable<String> get _existingNames =>
+      _getUniqueValuesFromItems((item) => item.name);
+
   void _searchControllerListener() {
     final currentText = _searchController.text.trim().toLowerCase();
     if (_previousSearchText != currentText) {
@@ -273,6 +276,7 @@ class _HomePageState extends State<HomePage> {
               MaterialPageRoute(
                 builder: (context) => AddItemPage(
                   addItemCallback: _addItem,
+                  existingNames: _existingNames,
                   existingCategories: _existingCategories,
                   existingLocations: _existingLocations,
                 ),
@@ -349,6 +353,7 @@ class _HomePageState extends State<HomePage> {
             onSafeDeleteUpdate: settingsModel.updateSafeDelete,
             getAppTheme: widget.getAppTheme,
             onThemeUpdate: widget.onThemeUpdate,
+            existingNames: _existingNames,
             existingCategories: _existingCategories,
             existingLocations: _existingLocations,
             item: item,

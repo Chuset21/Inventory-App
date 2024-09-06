@@ -3,9 +3,11 @@ import 'package:inventory_app/core/constants/strings.dart';
 import 'package:inventory_app/data/models/item.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
+import '../../core/utils/item_utils.dart';
 import '../../core/utils/widget_utils.dart';
 
 class AddItemPage extends StatefulWidget {
+  final Iterable<String> existingNames;
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
   final void Function({required Item item, required int quantity})
@@ -13,6 +15,7 @@ class AddItemPage extends StatefulWidget {
 
   const AddItemPage({
     super.key,
+    required this.existingNames,
     required this.existingCategories,
     required this.existingLocations,
     required this.addItemCallback,
@@ -216,9 +219,15 @@ class _AddItemPageState extends State<AddItemPage> {
                     ? () {
                         widget.addItemCallback(
                           item: Item(
-                            name: _nameController.text.trim(),
-                            category: _categoryController.text.trim(),
-                            location: _locationController.text.trim(),
+                            name: normaliseOption(
+                                chosenOption: _nameController.text,
+                                existingValues: widget.existingNames),
+                            category: normaliseOption(
+                                chosenOption: _categoryController.text,
+                                existingValues: widget.existingCategories),
+                            location: normaliseOption(
+                                chosenOption: _locationController.text,
+                                existingValues: widget.existingLocations),
                           ),
                           quantity: _getQuantity(),
                         );

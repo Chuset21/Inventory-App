@@ -4,21 +4,25 @@ import 'package:inventory_app/core/utils/widget_utils.dart';
 import 'package:inventory_app/data/models/item.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
+import '../../core/utils/item_utils.dart';
+
 // TODO: Refactor so that we're not copying so many things from add item page
 class EditItemPage extends StatefulWidget {
+  final Iterable<String> existingNames;
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
-  final Item existingItem;
+  final Item itemToEdit;
   final int existingQuantity;
   final void Function({required Item updatedItem, required int updatedQuantity})
       editItemCallback;
 
   const EditItemPage({
     super.key,
+    required this.existingNames,
     required this.existingCategories,
     required this.existingLocations,
     required this.editItemCallback,
-    required this.existingItem,
+    required this.itemToEdit,
     required this.existingQuantity,
   });
 
@@ -45,7 +49,7 @@ class _EditItemPageState extends State<EditItemPage> {
   void _onCategoryTextChange() {
     final currentText = _categoryController.text.trim().toLowerCase();
     // Only call setState if the menu hasn't just loaded and if the text has changed
-    if (_categoryController.text != widget.existingItem.category &&
+    if (_categoryController.text != widget.itemToEdit.category &&
         _previousCategoryText != currentText) {
       setState(() {});
     }
@@ -56,7 +60,7 @@ class _EditItemPageState extends State<EditItemPage> {
   void _onLocationTextChange() {
     final currentText = _locationController.text.trim().toLowerCase();
     // Only call setState if the menu hasn't just loaded and if the text has changed
-    if (_locationController.text != widget.existingItem.location &&
+    if (_locationController.text != widget.itemToEdit.location &&
         _previousLocationText != currentText) {
       setState(() {});
     }
@@ -65,13 +69,13 @@ class _EditItemPageState extends State<EditItemPage> {
 
   @override
   void initState() {
-    _nameController = TextEditingController(text: widget.existingItem.name);
+    _nameController = TextEditingController(text: widget.itemToEdit.name);
     _quantityController =
         TextEditingController(text: widget.existingQuantity.toString());
     _categoryController = TextEditingController();
     _locationController = TextEditingController();
-    _previousCategoryText = widget.existingItem.category;
-    _previousLocationText = widget.existingItem.location;
+    _previousCategoryText = widget.itemToEdit.category;
+    _previousLocationText = widget.itemToEdit.location;
     _categoryController.addListener(_onCategoryTextChange);
     _locationController.addListener(_onLocationTextChange);
     super.initState();
@@ -122,10 +126,20 @@ class _EditItemPageState extends State<EditItemPage> {
         _categoryController,
         _locationController,
       ].every((controller) => controller.text.isNotEmpty) &&
-      !(widget.existingItem.name == _nameController.text &&
+      // Not all values are the same as their initial values
+      !(widget.itemToEdit.name ==
+              normaliseOption(
+                  chosenOption: _nameController.text,
+                  existingValues: widget.existingNames) &&
           widget.existingQuantity.toString() == _quantityController.text &&
-          widget.existingItem.category == _categoryController.text &&
-          widget.existingItem.location == _locationController.text);
+          widget.itemToEdit.category ==
+              normaliseOption(
+                  chosenOption: _categoryController.text,
+                  existingValues: widget.existingCategories) &&
+          widget.itemToEdit.location ==
+              normaliseOption(
+                  chosenOption: _locationController.text,
+                  existingValues: widget.existingLocations));
 
   List<DropdownMenuEntry<String>> _filterCallback(
       List<DropdownMenuEntry<String>> entries, String filter) {
@@ -194,7 +208,7 @@ class _EditItemPageState extends State<EditItemPage> {
               flex: 2,
             ),
             _buildDropdownMenu(
-              initialSelection: widget.existingItem.category,
+              initialSelection: widget.itemToEdit.category,
               controller: _categoryController,
               focusNode: _categoryFocusNode,
               helperText: EditItemMessages.categoryHint,
@@ -205,7 +219,7 @@ class _EditItemPageState extends State<EditItemPage> {
               flex: 2,
             ),
             _buildDropdownMenu(
-              initialSelection: widget.existingItem.location,
+              initialSelection: widget.itemToEdit.location,
               controller: _locationController,
               focusNode: _locationFocusNode,
               helperText: EditItemMessages.locationHint,
@@ -228,9 +242,15 @@ class _EditItemPageState extends State<EditItemPage> {
             ? () {
                 widget.editItemCallback(
                   updatedItem: Item(
-                    name: _nameController.text.trim(),
-                    category: _categoryController.text.trim(),
-                    location: _locationController.text.trim(),
+                    name: normaliseOption(
+                        chosenOption: _nameController.text,
+                        existingValues: widget.existingNames),
+                    category: normaliseOption(
+                        chosenOption: _categoryController.text,
+                        existingValues: widget.existingCategories),
+                    location: normaliseOption(
+                        chosenOption: _locationController.text,
+                        existingValues: widget.existingLocations),
                   ),
                   updatedQuantity: _getQuantity(),
                 );
