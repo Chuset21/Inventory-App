@@ -4,6 +4,7 @@ import 'package:inventory_app/core/utils/widget_utils.dart';
 import 'package:inventory_app/data/models/item.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
+// TODO: Refactor so that we're not copying so many things from add item page
 class EditItemPage extends StatefulWidget {
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
