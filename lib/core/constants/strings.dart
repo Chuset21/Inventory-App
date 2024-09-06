@@ -31,8 +31,11 @@ final class Placeholders {
 }
 
 final class Messages {
+  static const refineSearchSuggestion =
+      'Try simplifying or refining your search for better results';
   static const addItemsSuggestion =
       'Start adding items to keep track of your inventory';
+  static const emptySearch = 'Looks like no items match your search!';
   static const emptyInventory = 'Your inventory is empty!';
 }
 

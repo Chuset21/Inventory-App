@@ -4,7 +4,7 @@ import 'package:inventory_app/core/services/settings_model.dart';
 import 'package:inventory_app/core/utils/app_theme.dart';
 import 'package:inventory_app/data/models/item.dart';
 import 'package:inventory_app/presentation/screens/settings_page.dart';
-import 'package:inventory_app/presentation/widgets/add_items_suggestion.dart';
+import 'package:inventory_app/presentation/widgets/empty_inventory.dart';
 import 'package:inventory_app/presentation/widgets/burger_menu.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 import 'package:inventory_app/presentation/widgets/item_display.dart';
@@ -147,6 +147,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: use actual search results
+    final int numberOfItems = 0;
+
     final (:listView, :focusNodesAndKeys) =
         _buildItemListViewWithFocusNodesAndKeys(items);
     _itemListView = listView;
@@ -222,14 +225,25 @@ class _HomePageState extends State<HomePage> {
               ),
             // The rest of the body content
             Expanded(
-              child: items.isEmpty
-                  ? const Center(
-                      child: AddItemsSuggestion(),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: _itemListView,
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: items.isEmpty
+                    ? const Center(
+                        child: EmptyInventory(
+                          mainMessage: Messages.emptyInventory,
+                          suggestionMessage: Messages.addItemsSuggestion,
+                        ),
+                      )
+                    : (_isSearching && numberOfItems == 0
+                        ? const Center(
+                            child: EmptyInventory(
+                              mainMessage: Messages.emptySearch,
+                              suggestionMessage:
+                                  Messages.refineSearchSuggestion,
+                            ),
+                          )
+                        : _itemListView),
+              ),
             ),
           ],
         ),
