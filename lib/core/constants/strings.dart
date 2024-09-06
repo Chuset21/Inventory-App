@@ -22,6 +22,8 @@ final class SafeDelete {
 
 final class Tooltips {
   static const addButton = 'Add Item';
+  static const confirmEditItem = 'Confirm item changes';
+  static const changeOneField = 'Change at least one field to edit item';
 }
 
 final class Placeholders {
@@ -36,6 +38,7 @@ final class Messages {
 
 final class EditItemMessages {
   static const addItem = 'Add Item';
+  static const editItem = 'Edit Item';
   static const itemName = 'Item Name';
   static const quantity = 'Quantity';
   static const category = 'Category';

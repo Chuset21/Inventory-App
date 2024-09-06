@@ -89,6 +89,15 @@ class _HomePageState extends State<HomePage> {
       _itemFocusNodesAndKeys;
   late SettingsModel settingsModel;
 
+  Iterable<T> _getUniqueValuesFromItems<T>(T Function(Item) fieldExtractor) =>
+      items.keys.map(fieldExtractor).toSet();
+
+  Iterable<String> get _existingCategories =>
+      _getUniqueValuesFromItems((item) => item.category);
+
+  Iterable<String> get _existingLocations =>
+      _getUniqueValuesFromItems((item) => item.location);
+
   @override
   void didChangeDependencies() {
     settingsModel = Provider.of<SettingsModel>(context);
@@ -231,10 +240,8 @@ class _HomePageState extends State<HomePage> {
               MaterialPageRoute(
                 builder: (context) => AddItemPage(
                   addItemCallback: _addItem,
-                  existingCategories:
-                      items.keys.map((item) => item.category).toSet().toList(),
-                  existingLocations:
-                      items.keys.map((item) => item.location).toSet().toList(),
+                  existingCategories: _existingCategories,
+                  existingLocations: _existingLocations,
                 ),
               ),
             );
@@ -297,6 +304,8 @@ class _HomePageState extends State<HomePage> {
             onSafeDeleteUpdate: settingsModel.updateSafeDelete,
             getAppTheme: widget.getAppTheme,
             onThemeUpdate: widget.onThemeUpdate,
+            existingCategories: _existingCategories,
+            existingLocations: _existingLocations,
             item: item,
             number: entry.value,
             numberFocusNode: focusNodesAndKeys[focusNodeAndKeyIndex].node,
@@ -308,6 +317,13 @@ class _HomePageState extends State<HomePage> {
             removeItem: () {
               setState(() {
                 items.remove(item);
+              });
+            },
+            editItem: (
+                {required Item updatedItem, required int updatedQuantity}) {
+              setState(() {
+                items.remove(item);
+                _addItem(item: updatedItem, quantity: updatedQuantity);
               });
             },
           ),

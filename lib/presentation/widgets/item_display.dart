@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
+import 'package:inventory_app/presentation/screens/edit_item_page.dart';
 
 import '../../core/utils/app_theme.dart';
+import '../../core/utils/widget_utils.dart';
 import '../../data/models/item.dart';
 import '../screens/settings_page.dart';
 
 class ItemDisplay extends StatefulWidget {
+  final Iterable<String> existingCategories;
+  final Iterable<String> existingLocations;
   final Item item;
   final int number;
   final Function(int) setItemNumber;
   final Function() removeItem;
+  final void Function({required Item updatedItem, required int updatedQuantity})
+      editItem;
   final AppTheme Function() getAppTheme;
   final Function(AppTheme) onThemeUpdate;
   final bool Function() isSafeDeleteOn;
@@ -22,10 +28,13 @@ class ItemDisplay extends StatefulWidget {
 
   ItemDisplay(
       {super.key,
+      required this.existingCategories,
+      required this.existingLocations,
       required this.item,
       required this.number,
       required this.setItemNumber,
       required this.removeItem,
+      required this.editItem,
       required this.getAppTheme,
       required this.onThemeUpdate,
       required this.isSafeDeleteOn,
@@ -83,6 +92,21 @@ class ItemDisplayState extends State<ItemDisplay> {
     }
   }
 
+  void _editItem() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditItemPage(
+          editItemCallback: widget.editItem,
+          existingItem: widget.item,
+          existingQuantity: widget.number,
+          existingCategories: widget.existingCategories,
+          existingLocations: widget.existingLocations,
+        ),
+      ),
+    );
+  }
+
   void _onSubmitted(String value) {
     final int? number = int.tryParse(value);
     if (number != null && number > 0) {
@@ -137,12 +161,7 @@ class ItemDisplayState extends State<ItemDisplay> {
               focusedBorder: _buildOutlineInputBorder(width: 2.0),
               enabledBorder: _buildOutlineInputBorder(opacity: 0.5, width: 1.0),
             ),
-            onTap: () {
-              widget._controller.selection = TextSelection(
-                baseOffset: 0,
-                extentOffset: widget._controller.text.length,
-              ); // Select all text when tapped
-            },
+            onTap: () => selectAllText(widget._controller),
           ),
         ),
         Expanded(
@@ -160,29 +179,47 @@ class ItemDisplayState extends State<ItemDisplay> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Column(
+          child: Row(
             children: [
-              _buildItemButton(
-                onTapCallback: _increment,
-                child: Icon(
-                  Icons.add,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+              Column(
+                children: [
+                  _buildItemButton(
+                    onTapCallback: _increment,
+                    child: Icon(
+                      Icons.add,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  _buildItemButton(
+                    onTapCallback: _decrement,
+                    child: (_getControllerNumber() ?? 0) <= 1
+                        ? const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          )
+                        : Icon(
+                            Icons.remove,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                  ),
+                ],
               ),
               const SizedBox(
-                height: 10,
+                width: 10,
               ),
-              _buildItemButton(
-                onTapCallback: _decrement,
-                child: (_getControllerNumber() ?? 0) <= 1
-                    ? const Icon(
-                        Icons.delete,
-                        color: Colors.red,
-                      )
-                    : Icon(
-                        Icons.remove,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+              Column(
+                children: [
+                  _buildItemButton(
+                    onTapCallback: _editItem,
+                    child: Icon(
+                      Icons.edit,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

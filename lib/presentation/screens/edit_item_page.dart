@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
+import 'package:inventory_app/core/utils/widget_utils.dart';
 import 'package:inventory_app/data/models/item.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
-import '../../core/utils/widget_utils.dart';
-
-class AddItemPage extends StatefulWidget {
+class EditItemPage extends StatefulWidget {
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
-  final void Function({required Item item, required int quantity})
-      addItemCallback;
+  final Item existingItem;
+  final int existingQuantity;
+  final void Function({required Item updatedItem, required int updatedQuantity})
+      editItemCallback;
 
-  const AddItemPage({
+  const EditItemPage({
     super.key,
     required this.existingCategories,
     required this.existingLocations,
-    required this.addItemCallback,
+    required this.editItemCallback,
+    required this.existingItem,
+    required this.existingQuantity,
   });
 
   @override
-  State<AddItemPage> createState() => _AddItemPageState();
+  State<EditItemPage> createState() => _EditItemPageState();
 }
 
-class _AddItemPageState extends State<AddItemPage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-  final FocusNode _nameFocusNode = FocusNode();
-  final FocusNode _quantityFocusNode = FocusNode();
+class _EditItemPageState extends State<EditItemPage> {
+  late TextEditingController _nameController;
+  late TextEditingController _quantityController;
+  late TextEditingController _categoryController;
+  late TextEditingController _locationController;
   final FocusNode _categoryFocusNode = FocusNode();
   final FocusNode _locationFocusNode = FocusNode();
-  final FocusNode _addItemFocusNode = FocusNode();
 
   // This invisible entry is needed so that when a filter matches all possible values but none exactly, we don't get an index out of bounds from the menu
   static const _invisibleEntry = '';
@@ -40,12 +40,20 @@ class _AddItemPageState extends State<AddItemPage> {
 
   // When the menu text is changed, be sure to call setState so that the menu rebuilds and the menu height is updated accordingly
   void _menuControllerCallback() {
-    setState(() {});
+    // Only call setState if the menu hasn't just loaded
+    if (_categoryController.text != widget.existingItem.category &&
+        _locationController.text != widget.existingItem.location) {
+      setState(() {});
+    }
   }
 
   @override
   void initState() {
-    _nameFocusNode.requestFocus();
+    _nameController = TextEditingController(text: widget.existingItem.name);
+    _quantityController =
+        TextEditingController(text: widget.existingQuantity.toString());
+    _categoryController = TextEditingController();
+    _locationController = TextEditingController();
     _categoryController.addListener(_menuControllerCallback);
     _locationController.addListener(_menuControllerCallback);
     super.initState();
@@ -54,16 +62,13 @@ class _AddItemPageState extends State<AddItemPage> {
   @override
   void dispose() {
     _nameController.dispose();
-    _nameFocusNode.dispose();
     _quantityController.dispose();
-    _quantityFocusNode.dispose();
     _categoryController.removeListener(_menuControllerCallback);
     _categoryController.dispose();
     _categoryFocusNode.dispose();
     _locationController.removeListener(_menuControllerCallback);
     _locationController.dispose();
     _locationFocusNode.dispose();
-    _addItemFocusNode.dispose();
     super.dispose();
   }
 
@@ -92,12 +97,17 @@ class _AddItemPageState extends State<AddItemPage> {
   /// Assume that this function will only be called when the controller has text
   int _getQuantity() => int.tryParse(_quantityController.text)!;
 
-  bool _areAllOptionsValid() => [
+  bool _areAllOptionsValid() =>
+      [
         _nameController,
         _quantityController,
         _categoryController,
         _locationController,
-      ].every((controller) => controller.text.isNotEmpty);
+      ].every((controller) => controller.text.isNotEmpty) &&
+      !(widget.existingItem.name == _nameController.text &&
+          widget.existingQuantity.toString() == _quantityController.text &&
+          widget.existingItem.category == _categoryController.text &&
+          widget.existingItem.location == _locationController.text);
 
   List<DropdownMenuEntry<String>> _filterCallback(
       List<DropdownMenuEntry<String>> entries, String filter) {
@@ -129,10 +139,12 @@ class _AddItemPageState extends State<AddItemPage> {
 
   @override
   Widget build(BuildContext context) {
+    final areAllOptionsValid = _areAllOptionsValid();
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: const DefaultAppBar(
-        title: Text(EditItemMessages.addItem),
+        title: Text(EditItemMessages.editItem),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -142,12 +154,8 @@ class _AddItemPageState extends State<AddItemPage> {
             TextField(
               textCapitalization: TextCapitalization.sentences,
               controller: _nameController,
-              focusNode: _nameFocusNode,
               onChanged: (value) {
                 setState(() {});
-              },
-              onSubmitted: (value) {
-                _quantityFocusNode.requestFocus();
               },
               decoration:
                   const InputDecoration(labelText: EditItemMessages.itemName),
@@ -157,11 +165,7 @@ class _AddItemPageState extends State<AddItemPage> {
             ),
             TextField(
               controller: _quantityController,
-              focusNode: _quantityFocusNode,
               onChanged: _onQuantityTextChanged,
-              onSubmitted: (value) {
-                _categoryFocusNode.requestFocus();
-              },
               decoration:
                   const InputDecoration(labelText: EditItemMessages.quantity),
               keyboardType: const TextInputType.numberWithOptions(
@@ -172,9 +176,9 @@ class _AddItemPageState extends State<AddItemPage> {
               flex: 2,
             ),
             _buildDropdownMenu(
+              initialSelection: widget.existingItem.category,
               controller: _categoryController,
               focusNode: _categoryFocusNode,
-              nextFocusNode: _locationFocusNode,
               helperText: EditItemMessages.categoryHint,
               label: EditItemMessages.category,
               menuEntries: widget.existingCategories,
@@ -183,35 +187,12 @@ class _AddItemPageState extends State<AddItemPage> {
               flex: 2,
             ),
             _buildDropdownMenu(
+              initialSelection: widget.existingItem.location,
               controller: _locationController,
               focusNode: _locationFocusNode,
-              nextFocusNode: _addItemFocusNode,
               helperText: EditItemMessages.locationHint,
               label: EditItemMessages.location,
               menuEntries: widget.existingLocations,
-            ),
-            const Spacer(
-              flex: 3,
-            ),
-            Center(
-              child: ElevatedButton(
-                focusNode: _addItemFocusNode,
-                // Enable the button if all options are valid
-                onPressed: _areAllOptionsValid()
-                    ? () {
-                        widget.addItemCallback(
-                          item: Item(
-                            name: _nameController.text.trim(),
-                            category: _categoryController.text.trim(),
-                            location: _locationController.text.trim(),
-                          ),
-                          quantity: _getQuantity(),
-                        );
-                        Navigator.pop(context);
-                      }
-                    : null,
-                child: const Text(EditItemMessages.addItem),
-              ),
             ),
             const Spacer(
               flex: 40,
@@ -219,19 +200,49 @@ class _AddItemPageState extends State<AddItemPage> {
           ],
         ),
       ),
+      floatingActionButton: _buildFloatingActionButton(areAllOptionsValid),
     );
   }
 
+  Widget _buildFloatingActionButton(bool areAllOptionsValid) =>
+      FloatingActionButton(
+        onPressed: areAllOptionsValid
+            ? () {
+                widget.editItemCallback(
+                  updatedItem: Item(
+                    name: _nameController.text.trim(),
+                    category: _categoryController.text.trim(),
+                    location: _locationController.text.trim(),
+                  ),
+                  updatedQuantity: _getQuantity(),
+                );
+                Navigator.pop(context);
+              }
+            : null,
+        tooltip: areAllOptionsValid
+            ? Tooltips.confirmEditItem
+            : Tooltips.changeOneField,
+        backgroundColor: areAllOptionsValid
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
+        // Disabled state
+        foregroundColor: areAllOptionsValid
+            ? Theme.of(context).canvasColor
+            : Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
+        child: const Icon(Icons.check),
+      );
+
   // Can't seem to bring up the keyboard capitalised in menus
   Widget _buildDropdownMenu({
+    required String initialSelection,
     required TextEditingController controller,
     required FocusNode focusNode,
-    FocusNode? nextFocusNode,
     required String helperText,
     required String label,
     required Iterable<String> menuEntries,
   }) =>
       DropdownMenu<String>(
+        initialSelection: initialSelection,
         expandedInsets: EdgeInsets.zero,
         helperText: helperText,
         requestFocusOnTap: true,
@@ -246,7 +257,6 @@ class _AddItemPageState extends State<AddItemPage> {
         onSelected: (value) {
           setState(() {});
           focusNode.unfocus();
-          nextFocusNode?.requestFocus();
         },
         dropdownMenuEntries: menuEntries
             .map((value) => DropdownMenuEntry(
