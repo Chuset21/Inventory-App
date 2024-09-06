@@ -48,7 +48,7 @@ class _MyApp extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Freezer Inventory Demo',
+      title: 'Freezer Inventory',
       theme: getThemeData(_appTheme),
       debugShowCheckedModeBanner: false,
       home: ChangeNotifierProvider(
