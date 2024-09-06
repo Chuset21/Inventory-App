@@ -38,14 +38,29 @@ class _EditItemPageState extends State<EditItemPage> {
   static const _invisibleEntry = '';
 
   String _lastValidQuantityText = '';
+  late String _previousCategoryText;
+  late String _previousLocationText;
 
   // When the menu text is changed, be sure to call setState so that the menu rebuilds and the menu height is updated accordingly
-  void _menuControllerCallback() {
-    // Only call setState if the menu hasn't just loaded
+  void _onCategoryTextChange() {
+    final currentText = _categoryController.text.trim().toLowerCase();
+    // Only call setState if the menu hasn't just loaded and if the text has changed
     if (_categoryController.text != widget.existingItem.category &&
-        _locationController.text != widget.existingItem.location) {
+        _previousCategoryText != currentText) {
       setState(() {});
     }
+    _previousCategoryText = currentText;
+  }
+
+  // Same as above but with the location text
+  void _onLocationTextChange() {
+    final currentText = _locationController.text.trim().toLowerCase();
+    // Only call setState if the menu hasn't just loaded and if the text has changed
+    if (_locationController.text != widget.existingItem.location &&
+        _previousLocationText != currentText) {
+      setState(() {});
+    }
+    _previousLocationText = currentText;
   }
 
   @override
@@ -55,8 +70,10 @@ class _EditItemPageState extends State<EditItemPage> {
         TextEditingController(text: widget.existingQuantity.toString());
     _categoryController = TextEditingController();
     _locationController = TextEditingController();
-    _categoryController.addListener(_menuControllerCallback);
-    _locationController.addListener(_menuControllerCallback);
+    _previousCategoryText = widget.existingItem.category;
+    _previousLocationText = widget.existingItem.location;
+    _categoryController.addListener(_onCategoryTextChange);
+    _locationController.addListener(_onLocationTextChange);
     super.initState();
   }
 
@@ -64,10 +81,10 @@ class _EditItemPageState extends State<EditItemPage> {
   void dispose() {
     _nameController.dispose();
     _quantityController.dispose();
-    _categoryController.removeListener(_menuControllerCallback);
+    _categoryController.removeListener(_onCategoryTextChange);
     _categoryController.dispose();
     _categoryFocusNode.dispose();
-    _locationController.removeListener(_menuControllerCallback);
+    _locationController.removeListener(_onLocationTextChange);
     _locationController.dispose();
     _locationFocusNode.dispose();
     super.dispose();

@@ -30,6 +30,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
+  String _previousSearchText = '';
   final FocusNode _searchFocusNode = FocusNode();
   Map<Item, int> items = {
     Item(
@@ -98,6 +99,20 @@ class _HomePageState extends State<HomePage> {
   Iterable<String> get _existingLocations =>
       _getUniqueValuesFromItems((item) => item.location);
 
+  void _searchControllerListener() {
+    final currentText = _searchController.text.trim().toLowerCase();
+    if (_previousSearchText != currentText) {
+      setState(() {});
+    }
+    _previousSearchText = currentText;
+  }
+
+  @override
+  void initState() {
+    _searchController.addListener(_searchControllerListener);
+    super.initState();
+  }
+
   @override
   void didChangeDependencies() {
     settingsModel = Provider.of<SettingsModel>(context);
@@ -106,10 +121,13 @@ class _HomePageState extends State<HomePage> {
 
   void _addItem({required Item item, required int quantity}) {
     setState(() {
-      items.update(item, (prevValue) => prevValue + quantity,
-          ifAbsent: () => quantity);
+      _addItemInternal(item: item, quantity: quantity);
     });
   }
+
+  void _addItemInternal({required Item item, required int quantity}) =>
+      items.update(item, (prevValue) => prevValue + quantity,
+          ifAbsent: () => quantity);
 
   void _unfocusAndSubmitItemNodes() {
     // Unfocus each item focus node
@@ -138,6 +156,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _searchFocusNode.dispose();
+    _searchController.removeListener(_searchControllerListener);
     _searchController.dispose();
     for (var nodeAndKey in _itemFocusNodesAndKeys) {
       nodeAndKey.node.dispose();
@@ -147,11 +166,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: use actual search results
-    final int numberOfItems = 0;
+    final filteredItems = _isSearchEmpty() ? items : _filterItems();
+    final numberOfItems = filteredItems.length;
 
     final (:listView, :focusNodesAndKeys) =
-        _buildItemListViewWithFocusNodesAndKeys(items);
+        _buildItemListViewWithFocusNodesAndKeys(filteredItems);
     _itemListView = listView;
     _itemFocusNodesAndKeys = focusNodesAndKeys;
 
@@ -269,6 +288,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  bool get isSearchControllerEmpty => _searchController.text.trim().isEmpty;
+
+  // Use this as it will get more complicated once we start adding categories and locations
+  bool _isSearchEmpty() => isSearchControllerEmpty;
+
+  Map<Item, int> _filterItems() {
+    final nameSearch = _searchController.text.trim().toLowerCase();
+
+    return Map.fromEntries(items.entries
+        .where((entry) => entry.key.name.toLowerCase().contains(nameSearch)));
+  }
+
   /// Build the list view with focus nodes.
   /// Returns the list view with a reference to the focus node list too.
   /// This returns the focus nodes for the numbers as they are needed to be able to unfocus them when the user presses elsewhere on the screen.
@@ -337,7 +368,7 @@ class _HomePageState extends State<HomePage> {
                 {required Item updatedItem, required int updatedQuantity}) {
               setState(() {
                 items.remove(item);
-                _addItem(item: updatedItem, quantity: updatedQuantity);
+                _addItemInternal(item: updatedItem, quantity: updatedQuantity);
               });
             },
           ),

@@ -27,7 +27,7 @@ final class Tooltips {
 }
 
 final class Placeholders {
-  static const searchHint = 'Search...';
+  static const searchHint = 'Filter by name';
 }
 
 final class Messages {

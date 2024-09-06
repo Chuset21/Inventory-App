@@ -37,17 +37,32 @@ class _AddItemPageState extends State<AddItemPage> {
   static const _invisibleEntry = '';
 
   String _lastValidQuantityText = '';
+  String _previousCategoryText = '';
+  String _previousLocationText = '';
 
   // When the menu text is changed, be sure to call setState so that the menu rebuilds and the menu height is updated accordingly
-  void _menuControllerCallback() {
-    setState(() {});
+  void _onCategoryTextChange() {
+    final currentText = _categoryController.text.trim().toLowerCase();
+    if (_previousCategoryText != currentText) {
+      setState(() {});
+    }
+    _previousCategoryText = currentText;
+  }
+
+  // Same as above but with the location text
+  void _onLocationTextChange() {
+    final currentText = _locationController.text.trim().toLowerCase();
+    if (_previousLocationText != currentText) {
+      setState(() {});
+    }
+    _previousLocationText = currentText;
   }
 
   @override
   void initState() {
     _nameFocusNode.requestFocus();
-    _categoryController.addListener(_menuControllerCallback);
-    _locationController.addListener(_menuControllerCallback);
+    _categoryController.addListener(_onCategoryTextChange);
+    _locationController.addListener(_onLocationTextChange);
     super.initState();
   }
 
@@ -57,10 +72,10 @@ class _AddItemPageState extends State<AddItemPage> {
     _nameFocusNode.dispose();
     _quantityController.dispose();
     _quantityFocusNode.dispose();
-    _categoryController.removeListener(_menuControllerCallback);
+    _categoryController.removeListener(_onCategoryTextChange);
     _categoryController.dispose();
     _categoryFocusNode.dispose();
-    _locationController.removeListener(_menuControllerCallback);
+    _locationController.removeListener(_onLocationTextChange);
     _locationController.dispose();
     _locationFocusNode.dispose();
     _addItemFocusNode.dispose();
