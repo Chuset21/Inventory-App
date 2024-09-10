@@ -7,6 +7,7 @@ import 'package:inventory_app/presentation/screens/settings_page.dart';
 import 'package:inventory_app/presentation/widgets/empty_inventory.dart';
 import 'package:inventory_app/presentation/widgets/burger_menu.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
+import 'package:inventory_app/presentation/widgets/filter_dropdown.dart';
 import 'package:inventory_app/presentation/widgets/item_display.dart';
 import 'package:provider/provider.dart';
 
@@ -29,6 +30,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool _isSearching = false;
+  bool _isFilterVisible = false;
   final TextEditingController _searchController = TextEditingController();
   String _previousSearchText = '';
   final FocusNode _searchFocusNode = FocusNode();
@@ -85,7 +87,9 @@ class _HomePageState extends State<HomePage> {
     ): 1,
   };
 
-  late ListView _itemListView;
+  List<String> _selectedCategories = [];
+  List<String> _selectedLocations = [];
+
   late List<({FocusNode node, GlobalKey<ItemDisplayState> key})>
       _itemFocusNodesAndKeys;
   late SettingsModel settingsModel;
@@ -122,13 +126,13 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
   }
 
-  void _addItem({required Item item, required int quantity}) {
+  void _addItemWithState({required Item item, required int quantity}) {
     setState(() {
-      _addItemInternal(item: item, quantity: quantity);
+      _addItem(item: item, quantity: quantity);
     });
   }
 
-  void _addItemInternal({required Item item, required int quantity}) =>
+  void _addItem({required Item item, required int quantity}) =>
       items.update(item, (prevValue) => prevValue + quantity,
           ifAbsent: () => quantity);
 
@@ -147,13 +151,26 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _isSearching = !_isSearching;
       if (!_isSearching) {
-        _searchController.clear();
+        _clearAllFilters();
+        _isFilterVisible = false;
         _searchFocusNode.unfocus();
       } else {
         _unfocusAndSubmitItemNodes();
         _searchFocusNode.requestFocus();
       }
     });
+  }
+
+  void _toggleFilterVisibility() {
+    setState(() {
+      _isFilterVisible = !_isFilterVisible;
+    });
+  }
+
+  void _clearAllFilters() {
+    _searchController.clear();
+    _selectedCategories.clear();
+    _selectedLocations.clear();
   }
 
   @override
@@ -167,14 +184,26 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  void _updateSelectedCategories(List<String> newSelectedCategories) {
+    setState(() {
+      _selectedCategories = newSelectedCategories;
+    });
+  }
+
+  void _updateSelectedLocations(List<String> newSelectedLocations) {
+    setState(() {
+      _selectedLocations = newSelectedLocations;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filteredItems = _isSearchEmpty() ? items : _filterItems();
+    final filteredItems = _isFilterEmpty ? items : _filterItems();
     final numberOfItems = filteredItems.length;
 
     final (:listView, :focusNodesAndKeys) =
         _buildItemListViewWithFocusNodesAndKeys(filteredItems);
-    _itemListView = listView;
+    final itemListView = listView;
     _itemFocusNodesAndKeys = focusNodesAndKeys;
 
     return GestureDetector(
@@ -203,45 +232,72 @@ class _HomePageState extends State<HomePage> {
               Container(
                 color: Theme.of(context).colorScheme.primary,
                 padding: const EdgeInsets.all(8.0),
-                child: Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        textCapitalization: TextCapitalization.sentences,
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          hintText: Placeholders.searchHint,
-                          hintStyle: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondary
-                                .withOpacity(0.8),
-                            fontSize: 18.0,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            textCapitalization: TextCapitalization.sentences,
+                            controller: _searchController,
+                            focusNode: _searchFocusNode,
+                            autofocus: true,
+                            decoration: InputDecoration(
+                              hintText: Placeholders.searchHint,
+                              hintStyle: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondary
+                                    .withOpacity(0.8),
+                                fontSize: 18.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                            ),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 18.0,
+                            ),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            // borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Theme.of(context).colorScheme.primaryFixed,
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 16.0),
                         ),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontSize: 18.0,
+                        _buildFilterButton(),
+                      ],
+                    ),
+                    if (_isFilterVisible)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: Column(
+                          children: [
+                            FilterDropdown(
+                              initialSelectedItems: _selectedCategories,
+                              dropdownOptions: _existingCategories.toList(),
+                              onSelectedItemsUpdated: _updateSelectedCategories,
+                              noResultsFoundText:
+                                  FilterMessages.noCategoryFound,
+                              hintText: FilterMessages.categoryFilterHint,
+                            ),
+                            const SizedBox(
+                              height: 12.0,
+                            ),
+                            FilterDropdown(
+                              initialSelectedItems: _selectedLocations,
+                              dropdownOptions: _existingLocations.toList(),
+                              onSelectedItemsUpdated: _updateSelectedLocations,
+                              noResultsFoundText:
+                                  FilterMessages.noLocationFound,
+                              hintText: FilterMessages.locationFilterHint,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.filter_list),
-                      color: Theme.of(context).colorScheme.primaryFixed,
-                      onPressed: () {
-                        // TODO: Handle filter action here
-                      },
-                    ),
                   ],
                 ),
               ),
@@ -264,7 +320,7 @@ class _HomePageState extends State<HomePage> {
                                   Messages.refineSearchSuggestion,
                             ),
                           )
-                        : _itemListView),
+                        : itemListView),
               ),
             ),
           ],
@@ -275,7 +331,7 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(
                 builder: (context) => AddItemPage(
-                  addItemCallback: _addItem,
+                  addItemCallback: _addItemWithState,
                   existingNames: _existingNames,
                   existingCategories: _existingCategories,
                   existingLocations: _existingLocations,
@@ -292,16 +348,87 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  static const _filterRotationDuration = Duration(milliseconds: 400);
+  static const _badgeOpacityAnimationDuration = Duration(milliseconds: 400);
+
+  Widget _buildFilterButton() => Stack(
+        // Ensure badge can go outside the button's bounds
+        clipBehavior: Clip.none,
+        children: [
+          AnimatedRotation(
+            turns: _isFilterVisible ? 0.5 : 0.0,
+            // Rotate 180 degrees when filter is visible
+            duration: _filterRotationDuration,
+            child: IconButton(
+              icon: const Icon(
+                Icons.filter_list,
+              ),
+              color: Theme.of(context).colorScheme.primaryContainer,
+              onPressed: _toggleFilterVisibility,
+            ),
+          ),
+
+          // Only show badge if there are active filters and the filter is not visible
+          Positioned(
+            right: 2,
+            top: 1,
+            child: AnimatedOpacity(
+              opacity:
+                  (_activeFiltersCount > 0 && !_isFilterVisible) ? 1.0 : 0.0,
+              duration: _badgeOpacityAnimationDuration,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                constraints: const BoxConstraints(
+                  minWidth: 20,
+                  minHeight: 20,
+                ),
+                child: Center(
+                  child: Text(
+                    _activeFiltersCount.toString(),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+
   bool get isSearchControllerEmpty => _searchController.text.trim().isEmpty;
 
-  // Use this as it will get more complicated once we start adding categories and locations
-  bool _isSearchEmpty() => isSearchControllerEmpty;
+  bool get _isFilterEmpty =>
+      isSearchControllerEmpty &&
+      _selectedCategories.isEmpty &&
+      _selectedLocations.isEmpty;
+
+  int get _activeFiltersCount =>
+      _selectedCategories.length + _selectedLocations.length;
 
   Map<Item, int> _filterItems() {
     final nameSearch = _searchController.text.trim().toLowerCase();
 
-    return Map.fromEntries(items.entries
-        .where((entry) => entry.key.name.toLowerCase().contains(nameSearch)));
+    return Map.fromEntries(
+      items.entries.where((entry) {
+        final item = entry.key;
+
+        final matchesName = item.name.toLowerCase().contains(nameSearch);
+        final matchesCategory = _selectedCategories.isEmpty ||
+            _selectedCategories.contains(item.category);
+        final matchesLocation = _selectedLocations.isEmpty ||
+            _selectedLocations.contains(item.location);
+
+        return matchesName && matchesCategory && matchesLocation;
+      }),
+    );
   }
 
   /// Build the list view with focus nodes.
@@ -373,7 +500,7 @@ class _HomePageState extends State<HomePage> {
                 {required Item updatedItem, required int updatedQuantity}) {
               setState(() {
                 items.remove(item);
-                _addItemInternal(item: updatedItem, quantity: updatedQuantity);
+                _addItem(item: updatedItem, quantity: updatedQuantity);
               });
             },
           ),

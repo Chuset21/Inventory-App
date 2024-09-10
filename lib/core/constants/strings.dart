@@ -30,6 +30,13 @@ final class Placeholders {
   static const searchHint = 'Filter by name';
 }
 
+final class FilterMessages {
+  static const noCategoryFound = 'No categories match your search';
+  static const categoryFilterHint = 'Filter by category';
+  static const noLocationFound = 'No locations match your search';
+  static const locationFilterHint = 'Filter by location';
+}
+
 final class Messages {
   static const refineSearchSuggestion =
       'Try simplifying or refining your search for better results';
