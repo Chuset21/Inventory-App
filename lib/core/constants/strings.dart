@@ -33,6 +33,10 @@ final class Tooltips {
   static const decrementQuantity = 'Decrement Quantity';
   static const editItem = 'Edit Item';
   static const moveItem = 'Move Item';
+  static const openAdvancedFilter = 'Open advanced filters';
+  static const hideAdvancedFilter = 'Hide advanced filters';
+  static const openSearch = 'Press to filter items';
+  static const closeSearch = 'Stop filtering';
 
   static buildInvalidQuantityMessage({required int maxQuantity}) =>
       maxQuantity == 1

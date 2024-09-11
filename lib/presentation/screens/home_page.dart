@@ -216,6 +216,8 @@ class _HomePageState extends State<HomePage> {
           title: Text(widget.title),
           actions: [
             IconButton(
+              tooltip:
+                  _isSearching ? Tooltips.closeSearch : Tooltips.openSearch,
               icon: Icon(_isSearching ? Icons.close : Icons.search),
               onPressed: _toggleSearch,
             ),
@@ -360,6 +362,9 @@ class _HomePageState extends State<HomePage> {
             // Rotate 180 degrees when filter is visible
             duration: _filterRotationDuration,
             child: IconButton(
+              tooltip: _isFilterVisible
+                  ? Tooltips.hideAdvancedFilter
+                  : Tooltips.openAdvancedFilter,
               icon: const Icon(
                 Icons.filter_list,
               ),
