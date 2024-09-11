@@ -5,6 +5,7 @@ import 'package:inventory_app/presentation/screens/item_info_page.dart';
 import 'package:inventory_app/presentation/screens/move_item_page.dart';
 
 import '../../core/utils/app_theme.dart';
+import '../../core/utils/font_utils.dart';
 import '../../core/utils/widget_utils.dart';
 import '../../data/models/item.dart';
 import '../screens/settings_page.dart';
@@ -56,11 +57,24 @@ class ItemDisplay extends StatefulWidget {
 
 class ItemDisplayState extends State<ItemDisplay> {
   late int _lastValidNumber;
+  late double _quantityFontSize;
+  static const _quantityBoxSize = 50.0;
 
   @override
   void initState() {
     super.initState();
     _lastValidNumber = widget.quantity;
+    _updateQuantityFontSize();
+  }
+
+  void _updateQuantityFontSize() {
+    _quantityFontSize = getAdjustedFontSizeByCharacters(
+      text: widget._controller.text,
+      maxFontSize: 18.0,
+      fontAdjustOffset: 2,
+      minFontSize: 8.0,
+      scaleFactor: 3,
+    );
   }
 
   void submitText() {
@@ -68,14 +82,12 @@ class ItemDisplayState extends State<ItemDisplay> {
   }
 
   void _setTextToLastValidNumber() {
-    setState(() {
-      // Revert to the last valid number if the input is invalid
-      widget._controller.text = _lastValidNumber.toString();
-      // Move the cursor to the end of the text
-      widget._controller.selection = TextSelection.fromPosition(
-        TextPosition(offset: widget._controller.text.length),
-      );
-    });
+    // Revert to the last valid number if the input is invalid
+    widget._controller.text = _lastValidNumber.toString();
+    // Move the cursor to the end of the text
+    widget._controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: widget._controller.text.length),
+    );
   }
 
   int? _getControllerNumber() {
@@ -152,20 +164,23 @@ class ItemDisplayState extends State<ItemDisplay> {
         widget.removeItem();
       }
     } else {
-      _setTextToLastValidNumber();
+      setState(() {
+        _setTextToLastValidNumber();
+      });
     }
   }
 
   void _onTextChanged(String value) {
     final int? number = int.tryParse(value);
-    if (number == null || number < 0) {
-      _setTextToLastValidNumber();
-    } else {
-      setState(() {
+    setState(() {
+      if (number == null || number < 0) {
+        _setTextToLastValidNumber();
+      } else {
         widget._controller.text = number.toString();
         _lastValidNumber = number;
-      });
-    }
+      }
+      _updateQuantityFontSize();
+    });
   }
 
   @override
@@ -173,8 +188,8 @@ class ItemDisplayState extends State<ItemDisplay> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
-            width: 50,
-            // For now it will have a fixed width, TODO: make it flexible
+            width: _quantityBoxSize,
+            height: _quantityBoxSize,
             child: TextField(
               controller: widget._controller,
               focusNode: widget.numberFocusNode,
@@ -183,14 +198,14 @@ class ItemDisplayState extends State<ItemDisplay> {
               textAlign: TextAlign.center,
               textAlignVertical: TextAlignVertical.center,
               style: TextStyle(
-                fontSize: 18.0,
+                fontSize: _quantityFontSize,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.secondary,
               ),
               onChanged: _onTextChanged,
               onSubmitted: _onSubmitted,
               decoration: InputDecoration(
-                isDense: true,
+                contentPadding: EdgeInsets.zero,
                 focusedBorder: _buildOutlineInputBorder(width: 2.0),
                 enabledBorder:
                     _buildOutlineInputBorder(opacity: 0.5, width: 1.0),
