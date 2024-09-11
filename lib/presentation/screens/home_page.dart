@@ -475,57 +475,75 @@ class _HomePageState extends State<HomePage> {
         final quantity = entry.value;
 
         itemWidgets.add(
-          ItemDisplay(
-            key: focusNodesAndKeys[focusNodeAndKeyIndex].key,
-            isSafeDeleteOn: () => settingsModel.isSafeDeleteOn,
-            onSafeDeleteUpdate: settingsModel.updateSafeDelete,
-            getAppTheme: widget.getAppTheme,
-            onThemeUpdate: widget.onThemeUpdate,
-            existingNames: _existingNames,
-            existingCategories: _existingCategories,
-            existingLocations: _existingLocations,
-            item: item,
-            quantity: quantity,
-            numberFocusNode: focusNodesAndKeys[focusNodeAndKeyIndex].node,
-            setItemNumber: (itemNumber) {
-              setState(() {
-                items.update(item, (oldValue) => itemNumber);
-              });
-            },
-            removeItem: () {
-              setState(() {
-                items.remove(item);
-              });
-            },
-            editItem: (
-                {required Item updatedItem, required int updatedQuantity}) {
-              setState(() {
-                items.remove(item);
-                _addItem(item: updatedItem, quantity: updatedQuantity);
-              });
-            },
-            moveItem: (
-                {required String newLocation, required int quantityToMove}) {
-              setState(() {
-                if (quantityToMove == quantity) {
-                  items.remove(item);
-                } else {
-                  items.update(item, (oldValue) => oldValue - quantityToMove);
-                }
-                items.update(item.copyWith(location: newLocation),
-                    (oldValue) => oldValue + quantityToMove,
-                    ifAbsent: () => quantityToMove);
-              });
-            },
+          Column(
+            children: [
+              ItemDisplay(
+                key: focusNodesAndKeys[focusNodeAndKeyIndex].key,
+                isSafeDeleteOn: () => settingsModel.isSafeDeleteOn,
+                onSafeDeleteUpdate: settingsModel.updateSafeDelete,
+                getAppTheme: widget.getAppTheme,
+                onThemeUpdate: widget.onThemeUpdate,
+                existingNames: _existingNames,
+                existingCategories: _existingCategories,
+                existingLocations: _existingLocations,
+                item: item,
+                quantity: quantity,
+                numberFocusNode: focusNodesAndKeys[focusNodeAndKeyIndex].node,
+                setItemNumber: (itemNumber) {
+                  setState(() {
+                    items.update(item, (oldValue) => itemNumber);
+                  });
+                },
+                removeItem: () {
+                  setState(() {
+                    items.remove(item);
+                  });
+                },
+                editItem: (
+                    {required Item updatedItem, required int updatedQuantity}) {
+                  setState(() {
+                    items.remove(item);
+                    _addItem(item: updatedItem, quantity: updatedQuantity);
+                  });
+                },
+                moveItem: ({
+                  required String newLocation,
+                  required int quantityToMove,
+                }) {
+                  setState(() {
+                    // First update the existing item
+                    if (quantityToMove == quantity) {
+                      items.remove(item);
+                    } else {
+                      items.update(
+                          item, (oldValue) => oldValue - quantityToMove);
+                    }
+                    // Next update the item with the new location
+                    items.update(item.copyWith(location: newLocation),
+                        (oldValue) => oldValue + quantityToMove,
+                        ifAbsent: () => quantityToMove);
+                  });
+                },
+              ),
+              Divider(
+                height: 10.0,
+                thickness: 1,
+                color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+              ),
+            ],
           ),
         );
         focusNodeAndKeyIndex++;
       }
+      // Add some spacing before the next heading
+      itemWidgets.add(const SizedBox(
+        height: 5,
+      ));
     }
     // Add some padding at the bottom of the list to ensure that the
     // 'add item' button doesn't obscure the last item's controls
     itemWidgets.add(const SizedBox(
-      height: 100,
+      height: 90,
     ));
 
     return (
@@ -553,7 +571,7 @@ class _HomePageState extends State<HomePage> {
           ),
           Divider(
             height: 8.0,
-            thickness: 3.0, // Height of the separator line
+            thickness: 3.5,
             color: Theme.of(context).colorScheme.primaryContainer,
           ),
         ],
