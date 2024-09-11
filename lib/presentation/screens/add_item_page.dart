@@ -110,7 +110,7 @@ class _AddItemPageState extends State<AddItemPage> {
   /// Assume that this function will only be called when the controller has text
   int _getQuantity() => int.tryParse(_quantityController.text)!;
 
-  bool _areAllOptionsValid() => [
+  bool get _areAllOptionsValid => [
         _nameController,
         _quantityController,
         _categoryController,
@@ -147,6 +147,8 @@ class _AddItemPageState extends State<AddItemPage> {
 
   @override
   Widget build(BuildContext context) {
+    final areAllOptionsValid = _areAllOptionsValid;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: const DefaultAppBar(
@@ -213,9 +215,27 @@ class _AddItemPageState extends State<AddItemPage> {
             ),
             Center(
               child: ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(
+                    areAllOptionsValid
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.12),
+                  ),
+                  foregroundColor: WidgetStatePropertyAll(
+                    areAllOptionsValid
+                        ? Theme.of(context).canvasColor
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.38),
+                  ),
+                ),
                 focusNode: _addItemFocusNode,
                 // Enable the button if all options are valid
-                onPressed: _areAllOptionsValid()
+                onPressed: areAllOptionsValid
                     ? () {
                         widget.addItemCallback(
                           item: Item(
