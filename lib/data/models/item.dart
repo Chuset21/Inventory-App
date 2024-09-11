@@ -9,6 +9,18 @@ final class Item {
     required this.location,
   });
 
+  Item copyWith({
+    String? name,
+    String? category,
+    String? location,
+  }) {
+    return Item(
+      name: name ?? this.name,
+      category: category ?? this.category,
+      location: location ?? this.location,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

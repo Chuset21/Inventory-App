@@ -15,7 +15,11 @@ class DefaultAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).canvasColor,
-      title: title,
+      title: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.center,
+        child: title,
+      ),
       centerTitle: true,
       actions: actions,
     );

@@ -49,6 +49,7 @@ final class Messages {
 final class EditItemMessages {
   static const addItem = 'Add Item';
   static const editItem = 'Edit Item';
+  static const moveItem = 'Move some or all items to a different location';
   static const itemName = 'Item Name';
   static const quantity = 'Quantity';
   static const category = 'Category';

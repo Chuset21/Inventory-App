@@ -6,61 +6,45 @@ import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
 import '../../core/utils/item_utils.dart';
 
-// TODO: Refactor so that we're not copying so many things from add item page
-class EditItemPage extends StatefulWidget {
-  final Iterable<String> existingNames;
-  final Iterable<String> existingCategories;
+// TODO: Refactor so that we're not copying so many things from edit item page
+class MoveItemPage extends StatefulWidget {
   final Iterable<String> existingLocations;
-  final Item itemToEdit;
+  final Item itemToMove;
   final int existingQuantity;
-  final void Function({required Item updatedItem, required int updatedQuantity})
-      editItemCallback;
+  final void Function(
+      {required String newLocation,
+      required int quantityToMove}) moveItemCallback;
 
-  const EditItemPage({
+  const MoveItemPage({
     super.key,
-    required this.existingNames,
-    required this.existingCategories,
     required this.existingLocations,
-    required this.editItemCallback,
-    required this.itemToEdit,
+    required this.moveItemCallback,
+    required this.itemToMove,
     required this.existingQuantity,
   });
 
   @override
-  State<EditItemPage> createState() => _EditItemPageState();
+  State<MoveItemPage> createState() => _MoveItemPageState();
 }
 
-class _EditItemPageState extends State<EditItemPage> {
+class _MoveItemPageState extends State<MoveItemPage> {
   late TextEditingController _nameController;
   late TextEditingController _quantityController;
   late TextEditingController _categoryController;
   late TextEditingController _locationController;
-  final FocusNode _categoryFocusNode = FocusNode();
   final FocusNode _locationFocusNode = FocusNode();
 
   // This invisible entry is needed so that when a filter matches all possible values but none exactly, we don't get an index out of bounds from the menu
   static const _invisibleEntry = '';
 
   late String _lastValidQuantityText;
-  late String _previousCategoryText;
   late String _previousLocationText;
 
   // When the menu text is changed, be sure to call setState so that the menu rebuilds and the menu height is updated accordingly
-  void _onCategoryTextChange() {
-    final currentText = _categoryController.text.trim().toLowerCase();
-    // Only call setState if the menu hasn't just loaded and if the text has changed
-    if (_categoryController.text != widget.itemToEdit.category &&
-        _previousCategoryText != currentText) {
-      setState(() {});
-    }
-    _previousCategoryText = currentText;
-  }
-
-  // Same as above but with the location text
   void _onLocationTextChange() {
     final currentText = _locationController.text.trim().toLowerCase();
     // Only call setState if the menu hasn't just loaded and if the text has changed
-    if (_locationController.text != widget.itemToEdit.location &&
+    if (_locationController.text != widget.itemToMove.location &&
         _previousLocationText != currentText) {
       setState(() {});
     }
@@ -69,14 +53,13 @@ class _EditItemPageState extends State<EditItemPage> {
 
   @override
   void initState() {
-    _nameController = TextEditingController(text: widget.itemToEdit.name);
+    _nameController = TextEditingController(text: widget.itemToMove.name);
     _lastValidQuantityText = widget.existingQuantity.toString();
     _quantityController = TextEditingController(text: _lastValidQuantityText);
-    _categoryController = TextEditingController();
+    _categoryController =
+        TextEditingController(text: widget.itemToMove.category);
     _locationController = TextEditingController();
-    _previousCategoryText = widget.itemToEdit.category;
-    _previousLocationText = widget.itemToEdit.location;
-    _categoryController.addListener(_onCategoryTextChange);
+    _previousLocationText = widget.itemToMove.location;
     _locationController.addListener(_onLocationTextChange);
     super.initState();
   }
@@ -85,9 +68,7 @@ class _EditItemPageState extends State<EditItemPage> {
   void dispose() {
     _nameController.dispose();
     _quantityController.dispose();
-    _categoryController.removeListener(_onCategoryTextChange);
     _categoryController.dispose();
-    _categoryFocusNode.dispose();
     _locationController.removeListener(_onLocationTextChange);
     _locationController.dispose();
     _locationFocusNode.dispose();
@@ -107,7 +88,8 @@ class _EditItemPageState extends State<EditItemPage> {
 
   void _onQuantityTextChanged(String value) {
     final int? number = int.tryParse(value);
-    if ((number == null || number <= 0) && value.isNotEmpty) {
+    if ((number == null || number <= 0 || number > widget.existingQuantity) &&
+        value.isNotEmpty) {
       _setQuantityTextToLastValidText();
     } else {
       setState(() {
@@ -117,29 +99,24 @@ class _EditItemPageState extends State<EditItemPage> {
   }
 
   /// Assume that this function will only be called when the controller has text
-  int _getQuantity() => int.tryParse(_quantityController.text)!;
+  int _getQuantity() => _tryGetQuantity()!;
 
-  bool _areAllOptionsValid() =>
-      [
-        _nameController,
-        _quantityController,
-        _categoryController,
-        _locationController,
-      ].every((controller) => controller.text.isNotEmpty) &&
-      // Not all values are the same as their initial values
-      !(widget.itemToEdit.name ==
-              normaliseOption(
-                  chosenOption: _nameController.text,
-                  existingValues: widget.existingNames) &&
-          widget.existingQuantity.toString() == _quantityController.text &&
-          widget.itemToEdit.category ==
-              normaliseOption(
-                  chosenOption: _categoryController.text,
-                  existingValues: widget.existingCategories) &&
-          widget.itemToEdit.location ==
-              normaliseOption(
-                  chosenOption: _locationController.text,
-                  existingValues: widget.existingLocations));
+  int? _tryGetQuantity() => int.tryParse(_quantityController.text);
+
+  bool _areAllOptionsValid() {
+    final int? quantity = _tryGetQuantity();
+    return [
+          _quantityController,
+          _locationController,
+        ].every((controller) => controller.text.isNotEmpty) &&
+        widget.itemToMove.location !=
+            normaliseOption(
+                chosenOption: _locationController.text,
+                existingValues: widget.existingLocations) &&
+        quantity != null &&
+        1 <= quantity &&
+        quantity <= widget.existingQuantity;
+  }
 
   List<DropdownMenuEntry<String>> _filterCallback(
       List<DropdownMenuEntry<String>> entries, String filter) {
@@ -176,7 +153,10 @@ class _EditItemPageState extends State<EditItemPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: const DefaultAppBar(
-        title: Text(EditItemMessages.editItem),
+        title: Text(
+          EditItemMessages.moveItem,
+          textAlign: TextAlign.center,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -184,13 +164,10 @@ class _EditItemPageState extends State<EditItemPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              textCapitalization: TextCapitalization.sentences,
               controller: _nameController,
-              onChanged: (value) {
-                setState(() {});
-              },
               decoration:
                   const InputDecoration(labelText: EditItemMessages.itemName),
+              readOnly: true,
             ),
             const Spacer(
               flex: 2,
@@ -207,19 +184,17 @@ class _EditItemPageState extends State<EditItemPage> {
             const Spacer(
               flex: 2,
             ),
-            _buildDropdownMenu(
-              initialSelection: widget.itemToEdit.category,
+            TextField(
               controller: _categoryController,
-              focusNode: _categoryFocusNode,
-              helperText: EditItemMessages.categoryHint,
-              label: EditItemMessages.category,
-              menuEntries: widget.existingCategories,
+              decoration:
+                  const InputDecoration(labelText: EditItemMessages.category),
+              readOnly: true,
             ),
             const Spacer(
               flex: 2,
             ),
             _buildDropdownMenu(
-              initialSelection: widget.itemToEdit.location,
+              initialSelection: widget.itemToMove.location,
               controller: _locationController,
               focusNode: _locationFocusNode,
               helperText: EditItemMessages.locationHint,
@@ -240,19 +215,11 @@ class _EditItemPageState extends State<EditItemPage> {
       FloatingActionButton(
         onPressed: areAllOptionsValid
             ? () {
-                widget.editItemCallback(
-                  updatedItem: Item(
-                    name: normaliseOption(
-                        chosenOption: _nameController.text,
-                        existingValues: widget.existingNames),
-                    category: normaliseOption(
-                        chosenOption: _categoryController.text,
-                        existingValues: widget.existingCategories),
-                    location: normaliseOption(
-                        chosenOption: _locationController.text,
-                        existingValues: widget.existingLocations),
-                  ),
-                  updatedQuantity: _getQuantity(),
+                widget.moveItemCallback(
+                  newLocation: normaliseOption(
+                      chosenOption: _locationController.text,
+                      existingValues: widget.existingLocations),
+                  quantityToMove: _getQuantity(),
                 );
                 Navigator.pop(context);
               }

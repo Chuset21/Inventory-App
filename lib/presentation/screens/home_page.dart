@@ -471,7 +471,8 @@ class _HomePageState extends State<HomePage> {
 
       // Add the items under the section
       for (MapEntry<Item, int> entry in entries) {
-        Item item = entry.key;
+        final item = entry.key;
+        final quantity = entry.value;
 
         itemWidgets.add(
           ItemDisplay(
@@ -484,7 +485,7 @@ class _HomePageState extends State<HomePage> {
             existingCategories: _existingCategories,
             existingLocations: _existingLocations,
             item: item,
-            number: entry.value,
+            quantity: quantity,
             numberFocusNode: focusNodesAndKeys[focusNodeAndKeyIndex].node,
             setItemNumber: (itemNumber) {
               setState(() {
@@ -501,6 +502,19 @@ class _HomePageState extends State<HomePage> {
               setState(() {
                 items.remove(item);
                 _addItem(item: updatedItem, quantity: updatedQuantity);
+              });
+            },
+            moveItem: (
+                {required String newLocation, required int quantityToMove}) {
+              setState(() {
+                if (quantityToMove == quantity) {
+                  items.remove(item);
+                } else {
+                  items.update(item, (oldValue) => oldValue - quantityToMove);
+                }
+                items.update(item.copyWith(location: newLocation),
+                    (oldValue) => oldValue + quantityToMove,
+                    ifAbsent: () => quantityToMove);
               });
             },
           ),

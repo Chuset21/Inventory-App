@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
 import 'package:inventory_app/presentation/screens/edit_item_page.dart';
+import 'package:inventory_app/presentation/screens/move_item_page.dart';
 
 import '../../core/utils/app_theme.dart';
 import '../../core/utils/widget_utils.dart';
@@ -12,11 +13,13 @@ class ItemDisplay extends StatefulWidget {
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
   final Item item;
-  final int number;
+  final int quantity;
   final Function(int) setItemNumber;
   final Function() removeItem;
   final void Function({required Item updatedItem, required int updatedQuantity})
       editItem;
+  final void Function(
+      {required String newLocation, required int quantityToMove}) moveItem;
   final AppTheme Function() getAppTheme;
   final Function(AppTheme) onThemeUpdate;
   final bool Function() isSafeDeleteOn;
@@ -33,16 +36,17 @@ class ItemDisplay extends StatefulWidget {
       required this.existingCategories,
       required this.existingLocations,
       required this.item,
-      required this.number,
+      required this.quantity,
       required this.setItemNumber,
       required this.removeItem,
       required this.editItem,
+      required this.moveItem,
       required this.getAppTheme,
       required this.onThemeUpdate,
       required this.isSafeDeleteOn,
       required this.onSafeDeleteUpdate,
       this.numberFocusNode}) {
-    _controller = TextEditingController(text: number.toString());
+    _controller = TextEditingController(text: quantity.toString());
   }
 
   @override
@@ -55,7 +59,7 @@ class ItemDisplayState extends State<ItemDisplay> {
   @override
   void initState() {
     super.initState();
-    _lastValidNumber = widget.number;
+    _lastValidNumber = widget.quantity;
   }
 
   void submitText() {
@@ -102,8 +106,22 @@ class ItemDisplayState extends State<ItemDisplay> {
           editItemCallback: widget.editItem,
           itemToEdit: widget.item,
           existingNames: widget.existingNames,
-          existingQuantity: widget.number,
+          existingQuantity: widget.quantity,
           existingCategories: widget.existingCategories,
+          existingLocations: widget.existingLocations,
+        ),
+      ),
+    );
+  }
+
+  void _moveItem() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MoveItemPage(
+          moveItemCallback: widget.moveItem,
+          itemToMove: widget.item,
+          existingQuantity: widget.quantity,
           existingLocations: widget.existingLocations,
         ),
       ),
@@ -222,6 +240,16 @@ class ItemDisplayState extends State<ItemDisplay> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  _buildItemButton(
+                    onTapCallback: _moveItem,
+                    child: Icon(
+                      Icons.swap_horiz,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -231,7 +259,7 @@ class ItemDisplayState extends State<ItemDisplay> {
     );
   }
 
-  GestureDetector _buildItemButton(
+  Widget _buildItemButton(
           {double radius = 15,
           required Widget child,
           required void Function() onTapCallback}) =>
@@ -243,8 +271,7 @@ class ItemDisplayState extends State<ItemDisplay> {
         ),
       );
 
-  CircleAvatar _buildCircleAvatar(
-          {required double radius, required Widget child}) =>
+  Widget _buildCircleAvatar({required double radius, required Widget child}) =>
       CircleAvatar(
         radius: radius,
         backgroundColor:
@@ -330,12 +357,11 @@ class ItemDisplayState extends State<ItemDisplay> {
 
   void _setTextToLastSubmittedNumber() {
     setState(() {
-      widget._controller.text = widget.number.toString();
+      widget._controller.text = widget.quantity.toString();
     });
   }
 
-  TextButton _buildDialogButton({required _ActionType actionType}) =>
-      TextButton(
+  Widget _buildDialogButton({required _ActionType actionType}) => TextButton(
         onPressed: () {
           _performActionBasedOnActionType(actionType);
           Navigator.of(context).pop(actionType); // Close the dialog
