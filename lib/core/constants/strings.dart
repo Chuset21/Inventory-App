@@ -24,6 +24,14 @@ final class Tooltips {
   static const addButton = 'Add Item';
   static const confirmEditItem = 'Confirm item changes';
   static const changeOneField = 'Change at least one field to edit item';
+  static const confirmMoveItem = 'Move chosen quantity to specified location';
+  static const changeLocation =
+      'Choose a different or valid location to move the item/s to';
+
+  static buildInvalidQuantityMessage({required int maxQuantity}) =>
+      maxQuantity == 1
+          ? 'Quantity must be 1'
+          : 'Quantity must be between 1 and $maxQuantity inclusive';
 }
 
 final class Placeholders {

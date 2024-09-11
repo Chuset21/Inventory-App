@@ -103,17 +103,18 @@ class _MoveItemPageState extends State<MoveItemPage> {
 
   int? _tryGetQuantity() => int.tryParse(_quantityController.text);
 
-  bool _areAllOptionsValid() {
+  bool get _areAllOptionsValid => _isLocationValid && _isQuantityValid;
+
+  bool get _isLocationValid =>
+      _locationController.text.isNotEmpty &&
+      widget.itemToMove.location !=
+          normaliseOption(
+              chosenOption: _locationController.text,
+              existingValues: widget.existingLocations);
+
+  bool get _isQuantityValid {
     final int? quantity = _tryGetQuantity();
-    return [
-          _quantityController,
-          _locationController,
-        ].every((controller) => controller.text.isNotEmpty) &&
-        widget.itemToMove.location !=
-            normaliseOption(
-                chosenOption: _locationController.text,
-                existingValues: widget.existingLocations) &&
-        quantity != null &&
+    return quantity != null &&
         1 <= quantity &&
         quantity <= widget.existingQuantity;
   }
@@ -148,7 +149,7 @@ class _MoveItemPageState extends State<MoveItemPage> {
 
   @override
   Widget build(BuildContext context) {
-    final areAllOptionsValid = _areAllOptionsValid();
+    final areAllOptionsValid = _areAllOptionsValid;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -207,11 +208,18 @@ class _MoveItemPageState extends State<MoveItemPage> {
           ],
         ),
       ),
-      floatingActionButton: _buildFloatingActionButton(areAllOptionsValid),
+      floatingActionButton: _buildFloatingActionButton(
+        areAllOptionsValid: areAllOptionsValid,
+        isLocationValid: _isLocationValid,
+        isQuantityValid: _isQuantityValid,
+      ),
     );
   }
 
-  Widget _buildFloatingActionButton(bool areAllOptionsValid) =>
+  Widget _buildFloatingActionButton(
+          {required bool areAllOptionsValid,
+          required bool isLocationValid,
+          required bool isQuantityValid}) =>
       FloatingActionButton(
         onPressed: areAllOptionsValid
             ? () {
@@ -224,9 +232,12 @@ class _MoveItemPageState extends State<MoveItemPage> {
                 Navigator.pop(context);
               }
             : null,
-        tooltip: areAllOptionsValid
-            ? Tooltips.confirmEditItem
-            : Tooltips.changeOneField,
+        tooltip: isLocationValid
+            ? isQuantityValid
+                ? Tooltips.confirmMoveItem
+                : Tooltips.buildInvalidQuantityMessage(
+                    maxQuantity: widget.existingQuantity)
+            : Tooltips.changeLocation,
         backgroundColor: areAllOptionsValid
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
