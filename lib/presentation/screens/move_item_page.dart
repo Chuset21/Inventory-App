@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
+import 'package:inventory_app/core/utils/color_utils.dart';
 import 'package:inventory_app/core/utils/widget_utils.dart';
 import 'package:inventory_app/data/models/item.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
@@ -238,13 +239,8 @@ class _MoveItemPageState extends State<MoveItemPage> {
                 : Tooltips.buildInvalidQuantityMessage(
                     maxQuantity: widget.existingQuantity)
             : Tooltips.changeLocation,
-        backgroundColor: areAllOptionsValid
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
-        // Disabled state
-        foregroundColor: areAllOptionsValid
-            ? Theme.of(context).canvasColor
-            : Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
+        backgroundColor: getButtonBackgroundColor(context, areAllOptionsValid),
+        foregroundColor: getButtonForegroundColor(context, areAllOptionsValid),
         child: const Icon(Icons.check),
       );
 

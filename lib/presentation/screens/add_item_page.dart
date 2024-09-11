@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
+import 'package:inventory_app/core/utils/color_utils.dart';
 import 'package:inventory_app/data/models/item.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
@@ -217,20 +218,10 @@ class _AddItemPageState extends State<AddItemPage> {
               child: ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: WidgetStatePropertyAll(
-                    areAllOptionsValid
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.12),
+                    getButtonBackgroundColor(context, areAllOptionsValid),
                   ),
                   foregroundColor: WidgetStatePropertyAll(
-                    areAllOptionsValid
-                        ? Theme.of(context).canvasColor
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.38),
+                    getButtonForegroundColor(context, areAllOptionsValid),
                   ),
                 ),
                 focusNode: _addItemFocusNode,
