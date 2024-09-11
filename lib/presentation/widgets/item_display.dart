@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
 import 'package:inventory_app/presentation/screens/edit_item_page.dart';
+import 'package:inventory_app/presentation/screens/item_info_page.dart';
 import 'package:inventory_app/presentation/screens/move_item_page.dart';
 
 import '../../core/utils/app_theme.dart';
@@ -128,6 +129,18 @@ class ItemDisplayState extends State<ItemDisplay> {
     );
   }
 
+  void _showItemInfo() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ItemInfoPage(
+          item: widget.item,
+          quantity: widget.quantity,
+        ),
+      ),
+    );
+  }
+
   void _onSubmitted(String value) {
     final int? number = int.tryParse(value);
     if (number != null && number > 0) {
@@ -156,108 +169,125 @@ class ItemDisplayState extends State<ItemDisplay> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(
-          width: 50,
-          // For now it will have a fixed width, TODO: make it flexible
-          child: TextField(
-            controller: widget._controller,
-            focusNode: widget.numberFocusNode,
-            keyboardType: const TextInputType.numberWithOptions(
-                signed: false, decimal: false),
-            textAlign: TextAlign.center,
-            textAlignVertical: TextAlignVertical.center,
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            onChanged: _onTextChanged,
-            onSubmitted: _onSubmitted,
-            decoration: InputDecoration(
-              isDense: true,
-              focusedBorder: _buildOutlineInputBorder(width: 2.0),
-              enabledBorder: _buildOutlineInputBorder(opacity: 0.5, width: 1.0),
-            ),
-            onTap: () => selectAllText(widget._controller),
-          ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              widget.item.name,
+  Widget build(BuildContext context) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            width: 50,
+            // For now it will have a fixed width, TODO: make it flexible
+            child: TextField(
+              controller: widget._controller,
+              focusNode: widget.numberFocusNode,
+              keyboardType: const TextInputType.numberWithOptions(
+                  signed: false, decimal: false),
+              textAlign: TextAlign.center,
+              textAlignVertical: TextAlignVertical.center,
               style: TextStyle(
                 fontSize: 18.0,
-                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.secondary,
               ),
-              overflow: TextOverflow.ellipsis,
+              onChanged: _onTextChanged,
+              onSubmitted: _onSubmitted,
+              decoration: InputDecoration(
+                isDense: true,
+                focusedBorder: _buildOutlineInputBorder(width: 2.0),
+                enabledBorder:
+                    _buildOutlineInputBorder(opacity: 0.5, width: 1.0),
+              ),
+              onTap: () => selectAllText(widget._controller),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Row(
-            children: [
-              Column(
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Row(
                 children: [
-                  _buildItemButton(
-                    onTapCallback: _increment,
-                    child: Icon(
-                      Icons.add,
+                  IconButton(
+                    icon: Icon(
+                      Icons.info,
+                      size: 30,
                       color: Theme.of(context).colorScheme.primary,
                     ),
+                    onPressed: _showItemInfo,
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  _buildItemButton(
-                    onTapCallback: _decrement,
-                    child: (_getControllerNumber() ?? 0) <= 1
-                        ? const Icon(
-                            Icons.delete,
-                            color: Colors.red,
-                          )
-                        : Icon(
-                            Icons.remove,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              Column(
-                children: [
-                  _buildItemButton(
-                    onTapCallback: _editItem,
-                    child: Icon(
-                      Icons.edit,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  _buildItemButton(
-                    onTapCallback: _moveItem,
-                    child: Icon(
-                      Icons.swap_horiz,
-                      color: Theme.of(context).colorScheme.primary,
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        textAlign: TextAlign.start,
+                        widget.item.name,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ],
-    );
-  }
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              children: [
+                Column(
+                  children: [
+                    _buildItemButton(
+                      onTapCallback: _increment,
+                      child: Icon(
+                        Icons.add,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    _buildItemButton(
+                      onTapCallback: _decrement,
+                      child: (_getControllerNumber() ?? 0) <= 1
+                          ? const Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            )
+                          : Icon(
+                              Icons.remove,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Column(
+                  children: [
+                    _buildItemButton(
+                      onTapCallback: _editItem,
+                      child: Icon(
+                        Icons.edit,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    _buildItemButton(
+                      onTapCallback: _moveItem,
+                      child: Icon(
+                        Icons.swap_horiz,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
 
   Widget _buildItemButton(
           {double radius = 15,
