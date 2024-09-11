@@ -219,6 +219,7 @@ class ItemDisplayState extends State<ItemDisplay> {
               child: Row(
                 children: [
                   IconButton(
+                    tooltip: Tooltips.itemInfo,
                     icon: Icon(
                       Icons.info,
                       size: 30,
@@ -251,6 +252,7 @@ class ItemDisplayState extends State<ItemDisplay> {
                 Column(
                   children: [
                     _buildItemButton(
+                      tooltipMessage: Tooltips.incrementQuantity,
                       onTapCallback: _increment,
                       child: Icon(
                         Icons.add,
@@ -261,6 +263,7 @@ class ItemDisplayState extends State<ItemDisplay> {
                       height: 10,
                     ),
                     _buildItemButton(
+                      tooltipMessage: Tooltips.decrementQuantity,
                       onTapCallback: _decrement,
                       child: (_getControllerNumber() ?? 0) <= 1
                           ? const Icon(
@@ -280,6 +283,7 @@ class ItemDisplayState extends State<ItemDisplay> {
                 Column(
                   children: [
                     _buildItemButton(
+                      tooltipMessage: Tooltips.editItem,
                       onTapCallback: _editItem,
                       child: Icon(
                         Icons.edit,
@@ -290,6 +294,7 @@ class ItemDisplayState extends State<ItemDisplay> {
                       height: 10,
                     ),
                     _buildItemButton(
+                      tooltipMessage: Tooltips.moveItem,
                       onTapCallback: _moveItem,
                       child: Icon(
                         Icons.swap_horiz,
@@ -307,12 +312,16 @@ class ItemDisplayState extends State<ItemDisplay> {
   Widget _buildItemButton(
           {double radius = 15,
           required Widget child,
+          required String tooltipMessage,
           required void Function() onTapCallback}) =>
-      GestureDetector(
-        onTap: onTapCallback,
-        child: _buildCircleAvatar(
-          radius: radius,
-          child: child,
+      Tooltip(
+        message: tooltipMessage,
+        child: GestureDetector(
+          onTap: onTapCallback,
+          child: _buildCircleAvatar(
+            radius: radius,
+            child: child,
+          ),
         ),
       );
 

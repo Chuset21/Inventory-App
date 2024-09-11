@@ -119,27 +119,29 @@ class _EditItemPageState extends State<EditItemPage> {
   /// Assume that this function will only be called when the controller has text
   int _getQuantity() => int.tryParse(_quantityController.text)!;
 
-  bool _areAllOptionsValid() =>
-      [
+  bool get _areAllOptionsValid =>
+      _areAllControllersNonEmpty && _haveValuesChanged;
+
+  bool get _areAllControllersNonEmpty => [
         _nameController,
         _quantityController,
         _categoryController,
         _locationController,
-      ].every((controller) => controller.text.isNotEmpty) &&
-      // Not all values are the same as their initial values
-      !(widget.itemToEdit.name ==
-              normaliseOption(
-                  chosenOption: _nameController.text,
-                  existingValues: widget.existingNames) &&
-          widget.existingQuantity.toString() == _quantityController.text &&
-          widget.itemToEdit.category ==
-              normaliseOption(
-                  chosenOption: _categoryController.text,
-                  existingValues: widget.existingCategories) &&
-          widget.itemToEdit.location ==
-              normaliseOption(
-                  chosenOption: _locationController.text,
-                  existingValues: widget.existingLocations));
+      ].every((controller) => controller.text.isNotEmpty);
+
+  bool get _haveValuesChanged => !(widget.itemToEdit.name ==
+          normaliseOption(
+              chosenOption: _nameController.text,
+              existingValues: widget.existingNames) &&
+      widget.existingQuantity.toString() == _quantityController.text &&
+      widget.itemToEdit.category ==
+          normaliseOption(
+              chosenOption: _categoryController.text,
+              existingValues: widget.existingCategories) &&
+      widget.itemToEdit.location ==
+          normaliseOption(
+              chosenOption: _locationController.text,
+              existingValues: widget.existingLocations));
 
   List<DropdownMenuEntry<String>> _filterCallback(
       List<DropdownMenuEntry<String>> entries, String filter) {
@@ -171,7 +173,7 @@ class _EditItemPageState extends State<EditItemPage> {
 
   @override
   Widget build(BuildContext context) {
-    final areAllOptionsValid = _areAllOptionsValid();
+    final areAllOptionsValid = _areAllOptionsValid;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,

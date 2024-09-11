@@ -23,10 +23,16 @@ final class SafeDelete {
 final class Tooltips {
   static const addButton = 'Add Item';
   static const confirmEditItem = 'Confirm item changes';
-  static const changeOneField = 'Change at least one field to edit item';
+  static const changeOneField =
+      'Change at least one field to edit item. Fields cannot be empty';
   static const confirmMoveItem = 'Move chosen quantity to specified location';
   static const changeLocation =
       'Choose a different or valid location to move the item/s to';
+  static const itemInfo = 'Item Information';
+  static const incrementQuantity = 'Increment Quantity';
+  static const decrementQuantity = 'Decrement Quantity';
+  static const editItem = 'Edit Item';
+  static const moveItem = 'Move Item';
 
   static buildInvalidQuantityMessage({required int maxQuantity}) =>
       maxQuantity == 1
