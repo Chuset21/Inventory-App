@@ -9,6 +9,7 @@ final class Item {
     required this.location,
   });
 
+  /// Creates a copy of this item but with the given fields replaced with the new values.
   Item copyWith({
     String? name,
     String? category,
