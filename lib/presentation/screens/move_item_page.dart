@@ -56,6 +56,7 @@ class _MoveItemPageState extends State<MoveItemPage> {
 
   @override
   void initState() {
+    super.initState();
     _nameController = TextEditingController(text: widget.itemToMove.name);
     _lastValidQuantityText = widget.existingQuantity.toString();
     _quantityController = TextEditingController(text: _lastValidQuantityText);
@@ -71,8 +72,6 @@ class _MoveItemPageState extends State<MoveItemPage> {
         _isInitialized = true;
       });
     });
-
-    super.initState();
   }
 
   @override

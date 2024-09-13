@@ -64,10 +64,10 @@ class _AddItemPageState extends State<AddItemPage> {
 
   @override
   void initState() {
+    super.initState();
     _nameFocusNode.requestFocus();
     _categoryController.addListener(_onCategoryTextChange);
     _locationController.addListener(_onLocationTextChange);
-    super.initState();
   }
 
   @override

@@ -116,8 +116,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _searchController.addListener(_searchControllerListener);
     super.initState();
+    _searchController.addListener(_searchControllerListener);
   }
 
   @override

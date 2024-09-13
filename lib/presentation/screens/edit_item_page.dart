@@ -69,6 +69,7 @@ class _EditItemPageState extends State<EditItemPage> {
 
   @override
   void initState() {
+    super.initState();
     _nameController = TextEditingController(text: widget.itemToEdit.name);
     _lastValidQuantityText = widget.existingQuantity.toString();
     _quantityController = TextEditingController(text: _lastValidQuantityText);
@@ -85,8 +86,6 @@ class _EditItemPageState extends State<EditItemPage> {
         _isInitialized = true;
       });
     });
-
-    super.initState();
   }
 
   @override
