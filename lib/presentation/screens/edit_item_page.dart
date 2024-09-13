@@ -45,13 +45,13 @@ class _EditItemPageState extends State<EditItemPage> {
   late String _lastValidQuantityText;
   late String _previousCategoryText;
   late String _previousLocationText;
+  bool _isInitialized = false;
 
   // When the menu text is changed, be sure to call setState so that the menu rebuilds and the menu height is updated accordingly
   void _onCategoryTextChange() {
     final currentText = _categoryController.text.trim().toLowerCase();
-    // Only call setState if the menu hasn't just loaded and if the text has changed
-    if (_categoryController.text != widget.itemToEdit.category &&
-        _previousCategoryText != currentText) {
+    // Call setState if the widget has initialized and the category text has changed
+    if (_isInitialized && _previousCategoryText != currentText) {
       setState(() {});
     }
     _previousCategoryText = currentText;
@@ -60,9 +60,8 @@ class _EditItemPageState extends State<EditItemPage> {
   // Same as above but with the location text
   void _onLocationTextChange() {
     final currentText = _locationController.text.trim().toLowerCase();
-    // Only call setState if the menu hasn't just loaded and if the text has changed
-    if (_locationController.text != widget.itemToEdit.location &&
-        _previousLocationText != currentText) {
+    // Call setState if the widget has initialized and the location text has changed
+    if (_isInitialized && _previousLocationText != currentText) {
       setState(() {});
     }
     _previousLocationText = currentText;
@@ -79,6 +78,14 @@ class _EditItemPageState extends State<EditItemPage> {
     _previousLocationText = widget.itemToEdit.location;
     _categoryController.addListener(_onCategoryTextChange);
     _locationController.addListener(_onLocationTextChange);
+
+    // Wait for the first build cycle to complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _isInitialized = true;
+      });
+    });
+
     super.initState();
   }
 
@@ -291,7 +298,6 @@ class _EditItemPageState extends State<EditItemPage> {
         focusNode: focusNode,
         controller: controller,
         onSelected: (value) {
-          setState(() {});
           focusNode.unfocus();
         },
         dropdownMenuEntries: menuEntries

@@ -40,15 +40,17 @@ class _MoveItemPageState extends State<MoveItemPage> {
 
   late String _lastValidQuantityText;
   late String _previousLocationText;
+  bool _isInitialized = false;
 
   // When the menu text is changed, be sure to call setState so that the menu rebuilds and the menu height is updated accordingly
   void _onLocationTextChange() {
     final currentText = _locationController.text.trim().toLowerCase();
-    // Only call setState if the menu hasn't just loaded and if the text has changed
-    if (_locationController.text != widget.itemToMove.location &&
-        _previousLocationText != currentText) {
+
+    // Call setState if the widget has initialized and the location text has changed
+    if (_isInitialized && _previousLocationText != currentText) {
       setState(() {});
     }
+
     _previousLocationText = currentText;
   }
 
@@ -62,6 +64,14 @@ class _MoveItemPageState extends State<MoveItemPage> {
     _locationController = TextEditingController();
     _previousLocationText = widget.itemToMove.location;
     _locationController.addListener(_onLocationTextChange);
+
+    // Wait for the first build cycle to complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _isInitialized = true;
+      });
+    });
+
     super.initState();
   }
 
@@ -177,6 +187,7 @@ class _MoveItemPageState extends State<MoveItemPage> {
             TextField(
               controller: _quantityController,
               onChanged: _onQuantityTextChanged,
+              onSubmitted: (value) => _locationFocusNode.requestFocus(),
               decoration:
                   const InputDecoration(labelText: EditItemMessages.quantity),
               keyboardType: const TextInputType.numberWithOptions(
@@ -267,7 +278,6 @@ class _MoveItemPageState extends State<MoveItemPage> {
         focusNode: focusNode,
         controller: controller,
         onSelected: (value) {
-          setState(() {});
           focusNode.unfocus();
         },
         dropdownMenuEntries: menuEntries
