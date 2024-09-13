@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/strings.dart';
 import 'package:inventory_app/core/utils/color_utils.dart';
 import 'package:inventory_app/data/models/item.dart';
+import 'package:inventory_app/presentation/widgets/custom_dropdown_menu.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
 import '../../core/utils/item_utils.dart';
@@ -36,9 +37,6 @@ class _AddItemPageState extends State<AddItemPage> {
   final FocusNode _categoryFocusNode = FocusNode();
   final FocusNode _locationFocusNode = FocusNode();
   final FocusNode _addItemFocusNode = FocusNode();
-
-  // This invisible entry is needed so that when a filter matches all possible values but none exactly, we don't get an index out of bounds from the menu
-  static const _invisibleEntry = '';
 
   String _lastValidQuantityText = '';
   String _previousCategoryText = '';
@@ -118,34 +116,6 @@ class _AddItemPageState extends State<AddItemPage> {
         _locationController,
       ].every((controller) => controller.text.isNotEmpty);
 
-  List<DropdownMenuEntry<String>> _filterCallback(
-      List<DropdownMenuEntry<String>> entries, String filter) {
-    final realEntries =
-        entries.where((entry) => entry.label != _invisibleEntry);
-    final trimmedFilter = filter.trim();
-
-    if (trimmedFilter.isEmpty) {
-      return realEntries.toList();
-    }
-    final trimmedLowercaseFilter = trimmedFilter.toLowerCase();
-
-    final filteredEntries = realEntries
-        .where(
-          (entry) => entry.label.toLowerCase().contains(trimmedLowercaseFilter),
-        )
-        .toSet();
-
-    if (!filteredEntries
-        .any((entry) => entry.label.toLowerCase() == trimmedLowercaseFilter)) {
-      filteredEntries.add(DropdownMenuEntry(
-        value: trimmedFilter,
-        label: trimmedFilter,
-      ));
-    }
-
-    return filteredEntries.toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     final areAllOptionsValid = _areAllOptionsValid;
@@ -192,7 +162,7 @@ class _AddItemPageState extends State<AddItemPage> {
             const Spacer(
               flex: 2,
             ),
-            _buildDropdownMenu(
+            CustomDropdownMenu(
               controller: _categoryController,
               focusNode: _categoryFocusNode,
               nextFocusNode: _locationFocusNode,
@@ -203,7 +173,7 @@ class _AddItemPageState extends State<AddItemPage> {
             const Spacer(
               flex: 2,
             ),
-            _buildDropdownMenu(
+            CustomDropdownMenu(
               controller: _locationController,
               focusNode: _locationFocusNode,
               nextFocusNode: _addItemFocusNode,
@@ -256,48 +226,4 @@ class _AddItemPageState extends State<AddItemPage> {
       ),
     );
   }
-
-  // Can't seem to bring up the keyboard capitalised in menus
-  Widget _buildDropdownMenu({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    FocusNode? nextFocusNode,
-    required String helperText,
-    required String label,
-    required Iterable<String> menuEntries,
-  }) =>
-      DropdownMenu<String>(
-        expandedInsets: EdgeInsets.zero,
-        helperText: helperText,
-        requestFocusOnTap: true,
-        enableFilter: true,
-        filterCallback: _filterCallback,
-        menuHeight: menuEntries.isEmpty && controller.text.isEmpty ? 0 : null,
-        menuStyle: const MenuStyle(
-          minimumSize: WidgetStatePropertyAll(Size.zero),
-        ),
-        focusNode: focusNode,
-        controller: controller,
-        onSelected: (value) {
-          setState(() {});
-          focusNode.unfocus();
-          nextFocusNode?.requestFocus();
-        },
-        dropdownMenuEntries: menuEntries
-            .map((value) => DropdownMenuEntry(
-                  value: value,
-                  label: value,
-                ))
-            .toList()
-          // Add the invisible entry
-          ..add(const DropdownMenuEntry(
-            labelWidget: SizedBox(
-              width: 0,
-              height: 0,
-            ),
-            value: _invisibleEntry,
-            label: _invisibleEntry,
-          )),
-        label: Text(label),
-      );
 }

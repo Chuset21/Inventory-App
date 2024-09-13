@@ -3,6 +3,7 @@ import 'package:inventory_app/core/constants/strings.dart';
 import 'package:inventory_app/core/utils/color_utils.dart';
 import 'package:inventory_app/core/utils/widget_utils.dart';
 import 'package:inventory_app/data/models/item.dart';
+import 'package:inventory_app/presentation/widgets/custom_dropdown_menu.dart';
 import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
 
 import '../../core/utils/item_utils.dart';
@@ -34,9 +35,6 @@ class _MoveItemPageState extends State<MoveItemPage> {
   late TextEditingController _categoryController;
   late TextEditingController _locationController;
   final FocusNode _locationFocusNode = FocusNode();
-
-  // This invisible entry is needed so that when a filter matches all possible values but none exactly, we don't get an index out of bounds from the menu
-  static const _invisibleEntry = '';
 
   late String _lastValidQuantityText;
   late String _previousLocationText;
@@ -129,34 +127,6 @@ class _MoveItemPageState extends State<MoveItemPage> {
         quantity <= widget.existingQuantity;
   }
 
-  List<DropdownMenuEntry<String>> _filterCallback(
-      List<DropdownMenuEntry<String>> entries, String filter) {
-    final realEntries =
-        entries.where((entry) => entry.label != _invisibleEntry);
-    final trimmedFilter = filter.trim();
-
-    if (trimmedFilter.isEmpty) {
-      return realEntries.toList();
-    }
-    final trimmedLowercaseFilter = trimmedFilter.toLowerCase();
-
-    final filteredEntries = realEntries
-        .where(
-          (entry) => entry.label.toLowerCase().contains(trimmedLowercaseFilter),
-        )
-        .toSet();
-
-    if (!filteredEntries
-        .any((entry) => entry.label.toLowerCase() == trimmedLowercaseFilter)) {
-      filteredEntries.add(DropdownMenuEntry(
-        value: trimmedFilter,
-        label: trimmedFilter,
-      ));
-    }
-
-    return filteredEntries.toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     final areAllOptionsValid = _areAllOptionsValid;
@@ -205,7 +175,7 @@ class _MoveItemPageState extends State<MoveItemPage> {
             const Spacer(
               flex: 2,
             ),
-            _buildDropdownMenu(
+            CustomDropdownMenu(
               initialSelection: widget.itemToMove.location,
               controller: _locationController,
               focusNode: _locationFocusNode,
@@ -252,48 +222,5 @@ class _MoveItemPageState extends State<MoveItemPage> {
         backgroundColor: getButtonBackgroundColor(context, areAllOptionsValid),
         foregroundColor: getButtonForegroundColor(context, areAllOptionsValid),
         child: const Icon(Icons.check),
-      );
-
-  // Can't seem to bring up the keyboard capitalised in menus
-  Widget _buildDropdownMenu({
-    required String initialSelection,
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required String helperText,
-    required String label,
-    required Iterable<String> menuEntries,
-  }) =>
-      DropdownMenu<String>(
-        initialSelection: initialSelection,
-        expandedInsets: EdgeInsets.zero,
-        helperText: helperText,
-        requestFocusOnTap: true,
-        enableFilter: true,
-        filterCallback: _filterCallback,
-        menuHeight: menuEntries.isEmpty && controller.text.isEmpty ? 0 : null,
-        menuStyle: const MenuStyle(
-          minimumSize: WidgetStatePropertyAll(Size.zero),
-        ),
-        focusNode: focusNode,
-        controller: controller,
-        onSelected: (value) {
-          focusNode.unfocus();
-        },
-        dropdownMenuEntries: menuEntries
-            .map((value) => DropdownMenuEntry(
-                  value: value,
-                  label: value,
-                ))
-            .toList()
-          // Add the invisible entry
-          ..add(const DropdownMenuEntry(
-            labelWidget: SizedBox(
-              width: 0,
-              height: 0,
-            ),
-            value: _invisibleEntry,
-            label: _invisibleEntry,
-          )),
-        label: Text(label),
       );
 }
