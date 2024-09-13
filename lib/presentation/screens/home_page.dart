@@ -245,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                             focusNode: _searchFocusNode,
                             autofocus: true,
                             decoration: InputDecoration(
-                              hintText: Placeholders.searchHint,
+                              hintText: FilterMessages.searchHint,
                               hintStyle: TextStyle(
                                 color: Theme.of(context)
                                     .colorScheme

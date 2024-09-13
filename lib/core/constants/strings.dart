@@ -1,16 +1,22 @@
 final class AppTitles {
+  AppTitles._();
+
   static const settings = 'Settings';
   static const home = 'Home';
   static const menu = 'Menu';
 }
 
 final class ThemeText {
+  ThemeText._();
+
   static const light = 'Light';
   static const dark = 'Dark';
   static const systemDefault = 'System Default';
 }
 
 final class SafeDelete {
+  SafeDelete._();
+
   static const settingDescription = 'Show Item Deletion Warning';
   static const turnOffWarningMessage = 'Turn this warning off in settings';
   static const cancel = 'Cancel';
@@ -21,6 +27,8 @@ final class SafeDelete {
 }
 
 final class Tooltips {
+  Tooltips._();
+
   static const addButton = 'Add Item';
   static const confirmEditItem = 'Confirm item changes';
   static const changeOneField =
@@ -44,11 +52,10 @@ final class Tooltips {
           : 'Quantity must be between 1 and $maxQuantity inclusive';
 }
 
-final class Placeholders {
-  static const searchHint = 'Filter by name';
-}
-
 final class FilterMessages {
+  FilterMessages._();
+
+  static const searchHint = 'Filter by name';
   static const noCategoryFound = 'No categories match your search';
   static const categoryFilterHint = 'Filter by category';
   static const noLocationFound = 'No locations match your search';
@@ -56,6 +63,8 @@ final class FilterMessages {
 }
 
 final class Messages {
+  Messages._();
+
   static const refineSearchSuggestion =
       'Try simplifying or refining your search for better results';
   static const addItemsSuggestion =
@@ -65,6 +74,8 @@ final class Messages {
 }
 
 final class EditItemMessages {
+  EditItemMessages._();
+
   static const addItem = 'Add Item';
   static const editItem = 'Edit Item';
   static const moveItem = 'Move some or all items to a different location';
