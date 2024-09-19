@@ -3,13 +3,7 @@ import 'package:inventory_app/core/services/services.dart';
 import 'package:inventory_app/core/themes/themes.dart';
 
 class ThemeNotifier extends StateNotifier<AppTheme> {
-  ThemeNotifier() : super(AppTheme.system) {
-    _loadTheme();
-  }
-
-  Future<void> _loadTheme() async {
-    state = await LocalStorage.getAppTheme();
-  }
+  ThemeNotifier(super.initialTheme);
 
   void updateTheme(AppTheme newTheme) {
     state = newTheme;
@@ -17,6 +11,7 @@ class ThemeNotifier extends StateNotifier<AppTheme> {
   }
 }
 
-final themeProvider = StateNotifierProvider<ThemeNotifier, AppTheme>((ref) {
-  return ThemeNotifier();
-});
+final themeProvider = StateNotifierProvider<ThemeNotifier, AppTheme>(
+  // Default, fake implementation
+  (ref) => ThemeNotifier(AppTheme.system),
+);
