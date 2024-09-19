@@ -1,3 +1,4 @@
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/constants.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
@@ -12,14 +13,16 @@ class SettingsPage extends StatelessWidget {
       const SafeDeleteSelector(),
     ];
 
-    return Scaffold(
-      appBar: const DefaultAppBar(
-        title: Text(AppTitles.settings),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 5.0),
-        child: ListView(
-          children: addDividersBetween(settings),
+    return ThemeSwitchingArea(
+      child: Scaffold(
+        appBar: const DefaultAppBar(
+          title: Text(AppTitles.settings),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.only(top: 5.0),
+          child: ListView(
+            children: addDividersBetween(settings),
+          ),
         ),
       ),
     );

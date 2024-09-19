@@ -1,3 +1,4 @@
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/constants/constants.dart';
@@ -37,21 +38,29 @@ class AppThemeSelector extends ConsumerWidget {
     );
   }
 
-  Row _buildThemeRadioButton(AppTheme currentTheme, AppTheme selectedTheme,
-      Function(AppTheme) updateTheme) {
+  Row _buildThemeRadioButton(
+    AppTheme currentTheme,
+    AppTheme selectedTheme,
+    Function(AppTheme) updateTheme,
+  ) {
     final buttonInfo = AppThemeSelector.themeInfoMap[currentTheme]!;
 
     return Row(
       children: [
         buttonInfo.icon,
-        Radio<AppTheme>(
-          value: currentTheme,
-          groupValue: selectedTheme,
-          onChanged: (AppTheme? mode) {
-            if (mode != null) {
-              updateTheme(mode);
-            }
-          },
+        ThemeSwitcher.withTheme(
+          builder: (context, switcher, theme) => Radio<AppTheme>(
+            value: currentTheme,
+            groupValue: selectedTheme,
+            onChanged: (AppTheme? theme) {
+              if (theme != null) {
+                ThemeSwitcher.of(context).changeTheme(
+                  theme: getThemeData(theme),
+                );
+                updateTheme(theme);
+              }
+            },
+          ),
         ),
         buttonInfo.themeText,
       ],

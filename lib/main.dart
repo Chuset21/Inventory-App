@@ -1,3 +1,4 @@
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/providers/providers.dart';
@@ -17,24 +18,27 @@ void main() async {
         safeDeleteProvider
             .overrideWith((ref) => SafeDeleteNotifier(isSafeDeleteOn)),
       ],
-      child: const MyApp(),
+      child: MyApp(initialTheme: initialTheme),
     ),
   );
 }
 
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key, required this.initialTheme});
+
+  final AppTheme initialTheme;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final appTheme = ref.watch(themeProvider);
-
-    return MaterialApp(
-      title: 'Freezer Inventory',
-      theme: getThemeData(appTheme),
-      debugShowCheckedModeBanner: false,
-      home: const HomePage(
+  Widget build(BuildContext context) {
+    return ThemeProvider(
+      initTheme: getThemeData(initialTheme),
+      builder: (context, myTheme) => MaterialApp(
         title: 'Freezer Inventory',
+        theme: myTheme,
+        debugShowCheckedModeBanner: false,
+        home: const HomePage(
+          title: 'Freezer Inventory',
+        ),
       ),
     );
   }
