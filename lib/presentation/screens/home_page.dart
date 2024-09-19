@@ -416,6 +416,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // TODO: lazily build this list, as this is causing a lot of lag, especially apparent when switching themes
   /// Build the list view with focus nodes.
   /// Returns the list view with a reference to the focus node list too.
   /// This returns the focus nodes for the numbers as they are needed to be able to unfocus them when the user presses elsewhere on the screen.
