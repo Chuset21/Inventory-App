@@ -11,8 +11,14 @@ Appwrite requires [Docker Compose Version 2](https://docs.docker.com/compose/ins
 
 In the [appwrite directory](/appwrite), run the following command:
 ```bash
+docker compose up --remove-orphans
+```
+
+Note, if you would like to run this service in the background instead, run:
+```bash
 docker compose up -d --remove-orphans
 ```
+
 
 ### Stopping the Appwrite server
 
