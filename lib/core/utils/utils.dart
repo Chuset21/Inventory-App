@@ -1,4 +1,3 @@
-export 'app_theme.dart';
 export 'color_utils.dart';
 export 'font_utils.dart';
 export 'item_utils.dart';

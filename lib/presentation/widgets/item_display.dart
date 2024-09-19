@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/providers/providers.dart';
 import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
 import 'package:inventory_app/presentation/screens/screens.dart';
 
-class ItemDisplay extends StatefulWidget {
+class ItemDisplay extends ConsumerStatefulWidget {
   final Iterable<String> existingNames;
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
@@ -16,54 +18,47 @@ class ItemDisplay extends StatefulWidget {
       editItem;
   final void Function(
       {required String newLocation, required int quantityToMove}) moveItem;
-  final AppTheme Function() getAppTheme;
-  final Function(AppTheme) onThemeUpdate;
-  final bool Function() isSafeDeleteOn;
-  final Function(bool) onSafeDeleteUpdate;
 
   /// The focus node for the number
   final FocusNode? numberFocusNode;
 
-  late final TextEditingController _controller;
-
-  ItemDisplay(
-      {super.key,
-      required this.existingNames,
-      required this.existingCategories,
-      required this.existingLocations,
-      required this.item,
-      required this.quantity,
-      required this.setItemNumber,
-      required this.removeItem,
-      required this.editItem,
-      required this.moveItem,
-      required this.getAppTheme,
-      required this.onThemeUpdate,
-      required this.isSafeDeleteOn,
-      required this.onSafeDeleteUpdate,
-      this.numberFocusNode}) {
-    _controller = TextEditingController(text: quantity.toString());
-  }
+  const ItemDisplay({
+    super.key,
+    required this.existingNames,
+    required this.existingCategories,
+    required this.existingLocations,
+    required this.item,
+    required this.quantity,
+    required this.setItemNumber,
+    required this.removeItem,
+    required this.editItem,
+    required this.moveItem,
+    this.numberFocusNode,
+  });
 
   @override
-  State<ItemDisplay> createState() => ItemDisplayState();
+  ConsumerState<ItemDisplay> createState() => ItemDisplayState();
 }
 
-class ItemDisplayState extends State<ItemDisplay> {
+class ItemDisplayState extends ConsumerState<ItemDisplay> {
+  bool get isSafeDeleteOn => ref.read(safeDeleteProvider);
+
   late int _lastValidNumber;
   late double _quantityFontSize;
   static const _quantityBoxSize = 50.0;
+  late TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
     _lastValidNumber = widget.quantity;
+    _controller = TextEditingController(text: widget.quantity.toString());
     _updateQuantityFontSize();
   }
 
   void _updateQuantityFontSize() {
     _quantityFontSize = getAdjustedFontSizeByCharacters(
-      text: widget._controller.text,
+      text: _controller.text,
       maxFontSize: 18.0,
       fontAdjustOffset: 2,
       minFontSize: 8.0,
@@ -72,33 +67,30 @@ class ItemDisplayState extends State<ItemDisplay> {
   }
 
   void submitText() {
-    _onSubmitted(widget._controller.text);
+    _onSubmitted(_controller.text);
   }
 
   void _setTextToLastValidNumber() {
     // Revert to the last valid number if the input is invalid
-    widget._controller.text = _lastValidNumber.toString();
+    _controller.text = _lastValidNumber.toString();
     // Move the cursor to the end of the text
-    widget._controller.selection = TextSelection.fromPosition(
-      TextPosition(offset: widget._controller.text.length),
+    _controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: _controller.text.length),
     );
   }
 
-  int? _getControllerNumber() {
-    final text = widget._controller.text;
-    return int.tryParse(text);
-  }
+  int? _tryGetControllerNumber() => int.tryParse(_controller.text);
 
   void _increment() {
-    int controllerNumber = _getControllerNumber() ?? 0;
+    final controllerNumber = _tryGetControllerNumber() ?? 0;
     widget.setItemNumber(controllerNumber + 1);
   }
 
   void _decrement() {
-    int controllerNumber = _getControllerNumber() ?? 0;
+    final controllerNumber = _tryGetControllerNumber() ?? 0;
     if (controllerNumber > 1) {
       widget.setItemNumber(controllerNumber - 1);
-    } else if (widget.isSafeDeleteOn()) {
+    } else if (isSafeDeleteOn) {
       _showDeleteConfirmationDialog();
     } else {
       widget.removeItem();
@@ -152,7 +144,7 @@ class ItemDisplayState extends State<ItemDisplay> {
     if (number != null && number > 0) {
       widget.setItemNumber(number);
     } else if (number == 0) {
-      if (widget.isSafeDeleteOn()) {
+      if (isSafeDeleteOn) {
         _showDeleteConfirmationDialog();
       } else {
         widget.removeItem();
@@ -170,7 +162,7 @@ class ItemDisplayState extends State<ItemDisplay> {
       if (number == null || number < 0) {
         _setTextToLastValidNumber();
       } else {
-        widget._controller.text = number.toString();
+        _controller.text = number.toString();
         _lastValidNumber = number;
       }
       _updateQuantityFontSize();
@@ -178,130 +170,133 @@ class ItemDisplayState extends State<ItemDisplay> {
   }
 
   @override
-  Widget build(BuildContext context) => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(
-            width: _quantityBoxSize,
-            height: _quantityBoxSize,
-            child: TextField(
-              controller: widget._controller,
-              focusNode: widget.numberFocusNode,
-              keyboardType: const TextInputType.numberWithOptions(
-                  signed: false, decimal: false),
-              textAlign: TextAlign.center,
-              textAlignVertical: TextAlignVertical.center,
-              style: TextStyle(
-                fontSize: _quantityFontSize,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              onChanged: _onTextChanged,
-              onSubmitted: _onSubmitted,
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.zero,
-                focusedBorder: _buildOutlineInputBorder(width: 2.0),
-                enabledBorder:
-                    _buildOutlineInputBorder(opacity: 0.5, width: 1.0),
-              ),
-              onTap: () => selectAllText(widget._controller),
+  Widget build(BuildContext context) {
+    ref.watch(safeDeleteProvider);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        SizedBox(
+          width: _quantityBoxSize,
+          height: _quantityBoxSize,
+          child: TextField(
+            controller: _controller,
+            focusNode: widget.numberFocusNode,
+            keyboardType: const TextInputType.numberWithOptions(
+                signed: false, decimal: false),
+            textAlign: TextAlign.center,
+            textAlignVertical: TextAlignVertical.center,
+            style: TextStyle(
+              fontSize: _quantityFontSize,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.secondary,
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    tooltip: Tooltips.itemInfo,
-                    icon: Icon(
-                      Icons.info,
-                      size: 30,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: _showItemInfo,
-                  ),
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        textAlign: TextAlign.start,
-                        widget.item.name,
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            onChanged: _onTextChanged,
+            onSubmitted: _onSubmitted,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.zero,
+              focusedBorder: _buildOutlineInputBorder(width: 2.0),
+              enabledBorder: _buildOutlineInputBorder(opacity: 0.5, width: 1.0),
             ),
+            onTap: () => selectAllText(_controller),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8.0),
             child: Row(
               children: [
-                Column(
-                  children: [
-                    _buildItemButton(
-                      tooltipMessage: Tooltips.incrementQuantity,
-                      onTapCallback: _increment,
-                      child: Icon(
-                        Icons.add,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _buildItemButton(
-                      tooltipMessage: Tooltips.decrementQuantity,
-                      onTapCallback: _decrement,
-                      child: (_getControllerNumber() ?? 0) <= 1
-                          ? const Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                            )
-                          : Icon(
-                              Icons.remove,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                    ),
-                  ],
+                IconButton(
+                  tooltip: Tooltips.itemInfo,
+                  icon: Icon(
+                    Icons.info,
+                    size: 30,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  onPressed: _showItemInfo,
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Column(
-                  children: [
-                    _buildItemButton(
-                      tooltipMessage: Tooltips.editItem,
-                      onTapCallback: _editItem,
-                      child: Icon(
-                        Icons.edit,
-                        color: Theme.of(context).colorScheme.primary,
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      textAlign: TextAlign.start,
+                      widget.item.name,
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _buildItemButton(
-                      tooltipMessage: Tooltips.moveItem,
-                      onTapCallback: _moveItem,
-                      child: Icon(
-                        Icons.swap_horiz,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
           ),
-        ],
-      );
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            children: [
+              Column(
+                children: [
+                  _buildItemButton(
+                    tooltipMessage: Tooltips.incrementQuantity,
+                    onTapCallback: _increment,
+                    child: Icon(
+                      Icons.add,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  _buildItemButton(
+                    tooltipMessage: (_tryGetControllerNumber() ?? 0) <= 1 ? Tooltips.deleteItem : Tooltips.decrementQuantity,
+                    onTapCallback: _decrement,
+                    child: (_tryGetControllerNumber() ?? 0) <= 1
+                        ? const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          )
+                        : Icon(
+                            Icons.remove,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Column(
+                children: [
+                  _buildItemButton(
+                    tooltipMessage: Tooltips.editItem,
+                    onTapCallback: _editItem,
+                    child: Icon(
+                      Icons.edit,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  _buildItemButton(
+                    tooltipMessage: Tooltips.moveItem,
+                    onTapCallback: _moveItem,
+                    child: Icon(
+                      Icons.swap_horiz,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildItemButton(
           {double radius = 15,
@@ -358,7 +353,6 @@ class ItemDisplayState extends State<ItemDisplay> {
           overflow: TextOverflow.fade,
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
-        // Hint about turning off the warning message
         content: TextButton(
           onPressed: _navigateToSettings,
           child: Text(
@@ -380,8 +374,6 @@ class ItemDisplayState extends State<ItemDisplay> {
         ],
       ),
     ).then((value) {
-      // If the value is null, then that means that Navigator.of(context).pop() was called with no value
-      // This means that the dialog was dismissed
       if (value == null) {
         _setTextToLastSubmittedNumber();
       }
@@ -393,19 +385,14 @@ class ItemDisplayState extends State<ItemDisplay> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SettingsPage(
-          getAppTheme: widget.getAppTheme,
-          onThemeUpdate: widget.onThemeUpdate,
-          isSafeDeleteOn: widget.isSafeDeleteOn,
-          onSafeDeleteUpdate: widget.onSafeDeleteUpdate,
-        ),
+        builder: (context) => const SettingsPage(),
       ),
     );
   }
 
   void _setTextToLastSubmittedNumber() {
     setState(() {
-      widget._controller.text = widget.quantity.toString();
+      _controller.text = widget.quantity.toString();
     });
   }
 

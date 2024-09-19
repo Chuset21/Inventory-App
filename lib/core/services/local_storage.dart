@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/constants.dart';
-import 'package:inventory_app/core/utils/utils.dart';
+import 'package:inventory_app/core/themes/themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorage {

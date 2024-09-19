@@ -1,62 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/services/services.dart';
-import 'package:inventory_app/core/utils/utils.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inventory_app/core/providers/providers.dart';
+import 'package:inventory_app/core/themes/themes.dart';
+import 'package:inventory_app/presentation/screens/screens.dart';
 
-import 'presentation/screens/screens.dart';
-
-void main() async {
-  runApp(MyApp(
-    appTheme: await LocalStorage.getAppTheme(),
-    isSafeDeleteOn: await LocalStorage.isSafeDeleteOn(),
-  ));
+void main() {
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp(
-      {super.key, required this.appTheme, required this.isSafeDeleteOn});
-
-  final AppTheme appTheme;
-  final bool isSafeDeleteOn;
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyApp();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appTheme = ref.watch(themeProvider);
 
-/// This widget essentially keeps track of local settings
-class _MyApp extends State<MyApp> {
-  // Load the app in the system theme, since we need a theme for loading
-  AppTheme _appTheme = AppTheme.system;
-  late bool _isSafeDeleteOn;
-
-  @override
-  void initState() {
-    super.initState();
-    _appTheme = widget.appTheme;
-    _isSafeDeleteOn = widget.isSafeDeleteOn;
-  }
-
-  void _updateTheme(AppTheme theme) {
-    setState(() {
-      _appTheme = theme;
-      // Update in local storage
-      LocalStorage.updateAppTheme(_appTheme);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Freezer Inventory',
-      theme: getThemeData(_appTheme),
+      theme: getThemeData(appTheme),
       debugShowCheckedModeBanner: false,
-      home: ChangeNotifierProvider(
-        create: (_) => SettingsModel(_isSafeDeleteOn),
-        child: HomePage(
-          title: 'Freezer Inventory',
-          getAppTheme: () => _appTheme,
-          onThemeUpdate: _updateTheme,
-        ),
+      home: const HomePage(
+        title: 'Freezer Inventory',
       ),
     );
   }

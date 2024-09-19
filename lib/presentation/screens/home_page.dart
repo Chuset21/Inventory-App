@@ -1,24 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/constants.dart';
-import 'package:inventory_app/core/services/services.dart';
-import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
-import 'package:provider/provider.dart';
 
 import 'add_item_page.dart';
 import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage(
-      {super.key,
-      required this.title,
-      required this.getAppTheme,
-      required this.onThemeUpdate});
+  const HomePage({super.key, required this.title});
 
   final String title;
-  final AppTheme Function() getAppTheme;
-  final Function(AppTheme) onThemeUpdate;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -88,7 +79,6 @@ class _HomePageState extends State<HomePage> {
 
   late List<({FocusNode node, GlobalKey<ItemDisplayState> key})>
       _itemFocusNodesAndKeys;
-  late SettingsModel settingsModel;
 
   Iterable<T> _getUniqueValuesFromItems<T>(T Function(Item) fieldExtractor) =>
       items.keys.map(fieldExtractor).toSet();
@@ -114,12 +104,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _searchController.addListener(_searchControllerListener);
-  }
-
-  @override
-  void didChangeDependencies() {
-    settingsModel = Provider.of<SettingsModel>(context);
-    super.didChangeDependencies();
   }
 
   void _addItemWithState({required Item item, required int quantity}) {
@@ -480,10 +464,6 @@ class _HomePageState extends State<HomePage> {
             children: [
               ItemDisplay(
                 key: focusNodesAndKeys[focusNodeAndKeyIndex].key,
-                isSafeDeleteOn: () => settingsModel.isSafeDeleteOn,
-                onSafeDeleteUpdate: settingsModel.updateSafeDelete,
-                getAppTheme: widget.getAppTheme,
-                onThemeUpdate: widget.onThemeUpdate,
                 existingNames: _existingNames,
                 existingCategories: _existingCategories,
                 existingLocations: _existingLocations,
@@ -592,12 +572,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (buildContext) => SettingsPage(
-          getAppTheme: widget.getAppTheme,
-          onThemeUpdate: widget.onThemeUpdate,
-          isSafeDeleteOn: () => settingsModel.isSafeDeleteOn,
-          onSafeDeleteUpdate: settingsModel.updateSafeDelete,
-        ),
+        builder: (buildContext) => const SettingsPage(),
       ),
     );
   }

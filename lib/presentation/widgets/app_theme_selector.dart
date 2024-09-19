@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/providers/providers.dart';
+import 'package:inventory_app/core/themes/themes.dart';
 import 'package:inventory_app/core/utils/utils.dart';
 
-class AppThemeSelector extends StatelessWidget {
-  const AppThemeSelector(
-      {super.key, required this.getAppTheme, required this.onThemeUpdate});
-
-  final AppTheme Function() getAppTheme;
-  final Function(AppTheme) onThemeUpdate;
+class AppThemeSelector extends ConsumerWidget {
+  const AppThemeSelector({super.key});
 
   static final themeInfoMap = {
     AppTheme.light: (
@@ -26,16 +25,20 @@ class AppThemeSelector extends StatelessWidget {
   };
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appTheme = ref.watch(themeProvider);
+    final updateTheme = ref.read(themeProvider.notifier).updateTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: AppTheme.values
-          .map((value) => _buildThemeRadioButton(value))
+          .map((value) => _buildThemeRadioButton(value, appTheme, updateTheme))
           .toList(),
     );
   }
 
-  Row _buildThemeRadioButton(AppTheme currentTheme) {
+  Row _buildThemeRadioButton(AppTheme currentTheme, AppTheme selectedTheme,
+      Function(AppTheme) updateTheme) {
     final buttonInfo = AppThemeSelector.themeInfoMap[currentTheme]!;
 
     return Row(
@@ -43,10 +46,10 @@ class AppThemeSelector extends StatelessWidget {
         buttonInfo.icon,
         Radio<AppTheme>(
           value: currentTheme,
-          groupValue: getAppTheme(),
+          groupValue: selectedTheme,
           onChanged: (AppTheme? mode) {
             if (mode != null) {
-              onThemeUpdate(mode);
+              updateTheme(mode);
             }
           },
         ),

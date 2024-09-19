@@ -39,6 +39,7 @@ final class Tooltips {
   static const itemInfo = 'Item Information';
   static const incrementQuantity = 'Increment Quantity';
   static const decrementQuantity = 'Decrement Quantity';
+  static const deleteItem = 'Delete Item';
   static const editItem = 'Edit Item';
   static const moveItem = 'Move Item';
   static const openAdvancedFilter = 'Open advanced filters';
