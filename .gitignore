@@ -12,6 +12,10 @@ pubspec.lock
 .dart_tool/
 .packages
 
+# Files created by the builder
+*.g.dart
+
+
 # IntelliJ related
 *.iml
 *.ipr
