@@ -2,15 +2,28 @@
 
 Flutter project for an inventory app that will primarily be used to keep track of freezer inventory.
 
-## Getting Started
+## Running the appwrite server
 
-This project is a starting point for a Flutter application.
+You must have [Docker CLI](https://www.docker.com/products/docker-desktop/) installed to run the appwrite server.  
+Appwrite requires [Docker Compose Version 2](https://docs.docker.com/compose/install/). To install Appwrite, make sure your Docker installation is updated to support Composer V2.
 
-A few resources to get you started if this is your first Flutter project:
+### Starting the appwrite server
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+In the [appwrite directory](/appwrite), run the following command:
+```bash
+docker compose up -d --remove-orphans
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Stopping the appwrite server
+
+In the [appwrite directory](/appwrite), run the following command:
+```bash
+docker compose stop
+```
+
+### Uninstalling the appwrite server
+
+In the [appwrite directory](/appwrite), run the following command:
+```bash
+docker compose down -v
+```
