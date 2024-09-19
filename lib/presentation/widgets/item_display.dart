@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/constants/strings.dart';
-import 'package:inventory_app/presentation/screens/edit_item_page.dart';
-import 'package:inventory_app/presentation/screens/item_info_page.dart';
-import 'package:inventory_app/presentation/screens/move_item_page.dart';
-
-import '../../core/utils/app_theme.dart';
-import '../../core/utils/font_utils.dart';
-import '../../core/utils/widget_utils.dart';
-import '../../data/models/item.dart';
-import '../screens/settings_page.dart';
+import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/utils/utils.dart';
+import 'package:inventory_app/data/models/models.dart';
+import 'package:inventory_app/presentation/screens/screens.dart';
 
 class ItemDisplay extends StatefulWidget {
   final Iterable<String> existingNames;

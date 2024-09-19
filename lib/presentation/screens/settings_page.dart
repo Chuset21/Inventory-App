@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/utils/app_theme.dart';
-import 'package:inventory_app/presentation/widgets/app_theme_selector.dart';
-import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
-import 'package:inventory_app/presentation/widgets/safe_delete_selector.dart';
-
-import '../../core/constants/strings.dart';
+import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/utils/utils.dart';
+import 'package:inventory_app/presentation/widgets/widgets.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({

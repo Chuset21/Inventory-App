@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/constants/strings.dart';
-import 'package:inventory_app/core/services/settings_model.dart';
-import 'package:inventory_app/core/utils/app_theme.dart';
-import 'package:inventory_app/data/models/item.dart';
-import 'package:inventory_app/presentation/screens/settings_page.dart';
-import 'package:inventory_app/presentation/widgets/empty_inventory.dart';
-import 'package:inventory_app/presentation/widgets/burger_menu.dart';
-import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
-import 'package:inventory_app/presentation/widgets/filter_dropdown.dart';
-import 'package:inventory_app/presentation/widgets/item_display.dart';
+import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/services/services.dart';
+import 'package:inventory_app/core/utils/utils.dart';
+import 'package:inventory_app/data/models/models.dart';
+import 'package:inventory_app/presentation/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
 import 'add_item_page.dart';
+import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage(
@@ -35,52 +31,52 @@ class _HomePageState extends State<HomePage> {
   String _previousSearchText = '';
   final FocusNode _searchFocusNode = FocusNode();
   Map<Item, int> items = {
-    Item(
+    const Item(
       name: 'Broccoli',
       category: 'Vegetables',
       location: 'Upstairs Freezer',
     ): 5,
-    Item(
+    const Item(
       name: 'Cauliflower',
       category: 'Vegetables',
       location: 'Upstairs Freezer',
     ): 2,
-    Item(
+    const Item(
       name: 'Chicken Breast (500g)',
       category: 'Meat',
       location: 'Upstairs Freezer',
     ): 1,
-    Item(
+    const Item(
       name: 'Ground Beef',
       category: 'Meat',
       location: 'Upstairs Freezer',
     ): 4,
-    Item(
+    const Item(
       name: 'Bagels',
       category: 'Bread',
       location: 'Downstairs Freezer',
     ): 15,
-    Item(
+    const Item(
       name: 'Soda Bread',
       category: 'Bread',
       location: 'Downstairs Freezer',
     ): 1,
-    Item(
+    const Item(
       name: 'Mango',
       category: 'Fruit',
       location: 'Upstairs Freezer',
     ): 2,
-    Item(
+    const Item(
       name: 'Strawberries',
       category: 'Fruit',
       location: 'Upstairs Freezer',
     ): 1,
-    Item(
+    const Item(
       name: 'Raspberries',
       category: 'Fruit',
       location: 'Upstairs Freezer',
     ): 2,
-    Item(
+    const Item(
       name: 'Mixed Berries',
       category: 'Fruit',
       location: 'Upstairs Freezer',

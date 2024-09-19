@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/constants/strings.dart';
+import 'package:inventory_app/core/constants/constants.dart';
 
 class SafeDeleteSelector extends StatefulWidget {
   const SafeDeleteSelector({

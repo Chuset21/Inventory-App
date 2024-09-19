@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/services/settings_model.dart';
-import 'package:inventory_app/core/utils/app_theme.dart';
-import 'package:inventory_app/presentation/screens/home_page.dart';
+import 'package:inventory_app/core/services/services.dart';
+import 'package:inventory_app/core/utils/utils.dart';
 import 'package:provider/provider.dart';
 
-import 'core/services/local_storage.dart';
+import 'presentation/screens/screens.dart';
 
 void main() async {
   runApp(MyApp(

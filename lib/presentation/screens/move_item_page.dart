@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/constants/strings.dart';
-import 'package:inventory_app/core/utils/color_utils.dart';
-import 'package:inventory_app/core/utils/widget_utils.dart';
-import 'package:inventory_app/data/models/item.dart';
-import 'package:inventory_app/presentation/widgets/custom_dropdown_menu.dart';
-import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
-
-import '../../core/utils/item_utils.dart';
+import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/utils/utils.dart';
+import 'package:inventory_app/data/models/models.dart';
+import 'package:inventory_app/presentation/widgets/widgets.dart';
 
 // TODO: Refactor so that we're not copying so many things from edit item page
 class MoveItemPage extends StatefulWidget {

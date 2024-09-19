@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/constants/strings.dart';
-import 'package:inventory_app/data/models/item.dart';
-import 'package:inventory_app/presentation/widgets/default_app_bar.dart';
+import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/data/models/models.dart';
+import 'package:inventory_app/presentation/widgets/widgets.dart';
 
 class ItemInfoPage extends StatelessWidget {
   final Item item;

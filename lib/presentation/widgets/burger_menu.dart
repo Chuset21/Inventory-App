@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../core/constants/strings.dart';
+import 'package:inventory_app/core/constants/constants.dart';
 
 class BurgerMenu extends StatelessWidget {
   const BurgerMenu(

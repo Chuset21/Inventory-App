@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/utils/app_theme.dart';
+import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../constants/keys.dart';
 
 class LocalStorage {
   static const _isSafeDeleteOnDefault = true;

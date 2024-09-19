@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_app/core/themes/app_themes.dart';
 
-import '../themes/app_themes.dart';
 import 'platform_utils.dart';
 
 enum AppTheme {

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_app/core/constants/strings.dart';
-
-import '../../core/utils/app_theme.dart';
-import '../../core/utils/platform_utils.dart';
+import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/utils/utils.dart';
 
 class AppThemeSelector extends StatelessWidget {
   const AppThemeSelector(
