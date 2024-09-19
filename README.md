@@ -14,7 +14,7 @@ In the [appwrite directory](/appwrite), run the following command:
 docker compose up --remove-orphans
 ```
 
-Note, if you would like to run this service in the background instead, run:
+**Note**: If you would prefer to run this service in the background, use:
 ```bash
 docker compose up -d --remove-orphans
 ```
