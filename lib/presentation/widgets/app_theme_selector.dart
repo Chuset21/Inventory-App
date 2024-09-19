@@ -48,8 +48,8 @@ class AppThemeSelector extends ConsumerWidget {
     return Row(
       children: [
         buttonInfo.icon,
-        ThemeSwitcher.withTheme(
-          builder: (context, switcher, theme) => Radio<AppTheme>(
+        ThemeSwitcher(
+          builder: (context) => Radio<AppTheme>(
             value: currentTheme,
             groupValue: selectedTheme,
             onChanged: (AppTheme? theme) {
