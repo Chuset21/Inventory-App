@@ -5,7 +5,7 @@ import 'package:inventory_app/core/constants/appwrite.dart';
 abstract class Dependency {
   static Provider<Client> get client => _clientProvider;
 
-  static Provider<Databases> get database => _databaseProvider;
+  static Provider<Databases> get databases => _databasesProvider;
 
   static Provider<Account> get account => _accountProvider;
 
@@ -19,7 +19,7 @@ final _clientProvider = Provider<Client>(
     .setEndpoint(appwriteEndpoint),
 );
 
-final _databaseProvider =
+final _databasesProvider =
     Provider<Databases>((ref) => Databases(ref.read(_clientProvider)));
 
 final _accountProvider = Provider<Account>(

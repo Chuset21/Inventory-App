@@ -11,8 +11,7 @@ class EditItemPage extends StatefulWidget {
   final Iterable<String> existingLocations;
   final Item itemToEdit;
   final int existingQuantity;
-  final void Function({required Item updatedItem, required int updatedQuantity})
-      editItemCallback;
+  final void Function({required Item updatedItem}) editItemCallback;
 
   const EditItemPage({
     super.key,
@@ -226,8 +225,8 @@ class _EditItemPageState extends State<EditItemPage> {
                     location: normaliseOption(
                         chosenOption: _locationController.text,
                         existingValues: widget.existingLocations),
+                    quantity: _getQuantity(),
                   ),
-                  updatedQuantity: _getQuantity(),
                 );
                 Navigator.pop(context);
               }

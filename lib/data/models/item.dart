@@ -1,3 +1,8 @@
+import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:equatable/equatable.dart';
+
+part 'item.g.dart';
+
 class _ItemFieldNames {
   static const String id = '\$id';
   static const String name = 'name';
@@ -6,15 +11,16 @@ class _ItemFieldNames {
   static const String quantity = 'quantity';
 }
 
-class Item {
-  final String id;
+@CopyWith()
+class Item extends Equatable {
+  final String? id;
   final String name;
   final String category;
   final String location;
   final int quantity;
 
   const Item({
-    required this.id,
+    this.id,
     required this.name,
     required this.category,
     required this.location,
@@ -22,7 +28,7 @@ class Item {
   });
 
   Map<String, dynamic> toJson() => {
-        _ItemFieldNames.id: id,
+        if (id != null) _ItemFieldNames.id: id,
         _ItemFieldNames.name: name,
         _ItemFieldNames.category: category,
         _ItemFieldNames.location: location,
@@ -36,4 +42,7 @@ class Item {
         location: doc[_ItemFieldNames.location],
         quantity: doc[_ItemFieldNames.quantity],
       );
+
+  @override
+  List<Object?> get props => [id, name, category, location, quantity];
 }

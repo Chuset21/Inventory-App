@@ -11,11 +11,9 @@ class ItemDisplay extends ConsumerStatefulWidget {
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
   final Item item;
-  final int quantity;
   final Function(int) setItemNumber;
   final Function() removeItem;
-  final void Function({required Item updatedItem, required int updatedQuantity})
-      editItem;
+  final void Function({required Item updatedItem}) editItem;
   final void Function(
       {required String newLocation, required int quantityToMove}) moveItem;
 
@@ -28,13 +26,14 @@ class ItemDisplay extends ConsumerStatefulWidget {
     required this.existingCategories,
     required this.existingLocations,
     required this.item,
-    required this.quantity,
     required this.setItemNumber,
     required this.removeItem,
     required this.editItem,
     required this.moveItem,
     this.numberFocusNode,
   });
+
+  int get quantity => item.quantity;
 
   @override
   ConsumerState<ItemDisplay> createState() => ItemDisplayState();
@@ -251,7 +250,9 @@ class ItemDisplayState extends ConsumerState<ItemDisplay> {
                     height: 10,
                   ),
                   _buildItemButton(
-                    tooltipMessage: (_tryGetControllerNumber() ?? 0) <= 1 ? Tooltips.deleteItem : Tooltips.decrementQuantity,
+                    tooltipMessage: (_tryGetControllerNumber() ?? 0) <= 1
+                        ? Tooltips.deleteItem
+                        : Tooltips.decrementQuantity,
                     onTapCallback: _decrement,
                     child: (_tryGetControllerNumber() ?? 0) <= 1
                         ? const Icon(

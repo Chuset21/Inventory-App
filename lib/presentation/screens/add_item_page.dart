@@ -9,8 +9,7 @@ class AddItemPage extends StatefulWidget {
   final Iterable<String> existingNames;
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
-  final void Function({required Item item, required int quantity})
-      addItemCallback;
+  final void Function({required Item item}) addItemCallback;
 
   const AddItemPage({
     super.key,
@@ -206,8 +205,8 @@ class _AddItemPageState extends State<AddItemPage> {
                             location: normaliseOption(
                                 chosenOption: _locationController.text,
                                 existingValues: widget.existingLocations),
+                            quantity: _getQuantity(),
                           ),
-                          quantity: _getQuantity(),
                         );
                         Navigator.pop(context);
                       }

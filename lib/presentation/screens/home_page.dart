@@ -21,58 +21,68 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   String _previousSearchText = '';
   final FocusNode _searchFocusNode = FocusNode();
-  Map<Item, int> items = {
+  List<Item> items = [
     const Item(
       name: 'Broccoli',
       category: 'Vegetables',
       location: 'Upstairs Freezer',
-    ): 5,
+      quantity: 5,
+    ),
     const Item(
       name: 'Cauliflower',
       category: 'Vegetables',
       location: 'Upstairs Freezer',
-    ): 2,
+      quantity: 2,
+    ),
     const Item(
       name: 'Chicken Breast (500g)',
       category: 'Meat',
       location: 'Upstairs Freezer',
-    ): 1,
+      quantity: 1,
+    ),
     const Item(
       name: 'Ground Beef',
       category: 'Meat',
       location: 'Upstairs Freezer',
-    ): 4,
+      quantity: 4,
+    ),
     const Item(
       name: 'Bagels',
       category: 'Bread',
       location: 'Downstairs Freezer',
-    ): 15,
+      quantity: 15,
+    ),
     const Item(
       name: 'Soda Bread',
       category: 'Bread',
       location: 'Downstairs Freezer',
-    ): 1,
+      quantity: 1,
+    ),
     const Item(
       name: 'Mango',
       category: 'Fruit',
       location: 'Upstairs Freezer',
-    ): 2,
+      quantity: 2,
+    ),
     const Item(
       name: 'Strawberries',
       category: 'Fruit',
       location: 'Upstairs Freezer',
-    ): 1,
+      quantity: 1,
+    ),
     const Item(
       name: 'Raspberries',
       category: 'Fruit',
       location: 'Upstairs Freezer',
-    ): 2,
+      quantity: 2,
+    ),
     const Item(
       name: 'Mixed Berries',
       category: 'Fruit',
       location: 'Upstairs Freezer',
-    ): 1,
-  };
+      quantity: 1,
+    ),
+  ];
 
   List<String> _selectedCategories = [];
   List<String> _selectedLocations = [];
@@ -81,7 +91,7 @@ class _HomePageState extends State<HomePage> {
       _itemFocusNodesAndKeys = [];
 
   Iterable<T> _getUniqueValuesFromItems<T>(T Function(Item) fieldExtractor) =>
-      items.keys.map(fieldExtractor).toSet();
+      items.map(fieldExtractor).toSet();
 
   Iterable<String> get _existingCategories =>
       _getUniqueValuesFromItems((item) => item.category);
@@ -106,15 +116,47 @@ class _HomePageState extends State<HomePage> {
     _searchController.addListener(_searchControllerListener);
   }
 
-  void _addItemWithState({required Item item, required int quantity}) {
+  void _addItemWithState({required Item item}) {
     setState(() {
-      _addItem(item: item, quantity: quantity);
+      _addItem(newItem: item);
     });
   }
 
-  void _addItem({required Item item, required int quantity}) =>
-      items.update(item, (prevValue) => prevValue + quantity,
-          ifAbsent: () => quantity);
+  void _addItem({required Item newItem}) {
+    final existingItemIndex = _getItemIndex(newItem);
+
+    if (existingItemIndex >= 0) {
+      // Item exists
+      final existingItem = items[existingItemIndex];
+      final updatedItem = existingItem.copyWith(
+          quantity: existingItem.quantity + newItem.quantity);
+      _updateItemAtIndex(existingItemIndex, updatedItem);
+    } else {
+      items.add(newItem);
+    }
+  }
+
+  void _updateItemAtIndex(int existingItemIndex, Item newItem) {
+    items[existingItemIndex] = newItem;
+  }
+
+  void _setItemQuantity(
+      {required Item itemToUpdate, required int newQuantity}) {
+    final existingItemIndex = _getItemIndex(itemToUpdate);
+
+    if (existingItemIndex != -1) {
+      // Update the item's quantity
+      final existingItem = items[existingItemIndex];
+      final updatedItem = existingItem.copyWith(quantity: newQuantity);
+      _updateItemAtIndex(existingItemIndex, updatedItem);
+    }
+  }
+
+  // Returns the item index of a matching item, if the item is not present, returns -1
+  int _getItemIndex(Item newItem) => items.indexWhere((item) =>
+      item.name == newItem.name &&
+      item.category == newItem.category &&
+      item.location == newItem.location);
 
   void _unfocusAndSubmitItemNodes() {
     // Unfocus each item focus node
@@ -412,22 +454,18 @@ class _HomePageState extends State<HomePage> {
   int get _activeFiltersCount =>
       _selectedCategories.length + _selectedLocations.length;
 
-  Map<Item, int> _filterItems() {
+  Iterable<Item> _filterItems() {
     final nameSearch = _searchController.text.trim().toLowerCase();
 
-    return Map.fromEntries(
-      items.entries.where((entry) {
-        final item = entry.key;
+    return items.where((item) {
+      final matchesName = item.name.toLowerCase().contains(nameSearch);
+      final matchesCategory = _selectedCategories.isEmpty ||
+          _selectedCategories.contains(item.category);
+      final matchesLocation = _selectedLocations.isEmpty ||
+          _selectedLocations.contains(item.location);
 
-        final matchesName = item.name.toLowerCase().contains(nameSearch);
-        final matchesCategory = _selectedCategories.isEmpty ||
-            _selectedCategories.contains(item.category);
-        final matchesLocation = _selectedLocations.isEmpty ||
-            _selectedLocations.contains(item.location);
-
-        return matchesName && matchesCategory && matchesLocation;
-      }),
-    );
+      return matchesName && matchesCategory && matchesLocation;
+    });
   }
 
   // TODO: lazily build this list, as this is causing a lot of lag, especially apparent when switching themes
@@ -438,19 +476,19 @@ class _HomePageState extends State<HomePage> {
   ({
     ListView listView,
     List<({FocusNode node, GlobalKey<ItemDisplayState> key})> focusNodesAndKeys
-  }) _buildItemListViewWithFocusNodesAndKeys(Map<Item, int> items) {
+  }) _buildItemListViewWithFocusNodesAndKeys(Iterable<Item> itemsToShow) {
     // Group items by their category
-    final Map<String, List<MapEntry<Item, int>>> groupedItems =
-        items.entries.fold(
+    final Map<String, List<Item>> groupedItems = itemsToShow.fold(
       {},
-      (map, entry) => map..putIfAbsent(entry.key.category, () => []).add(entry),
+      (map, item) => map..putIfAbsent(item.category, () => []).add(item),
     );
 
-    final sortedCategories = groupedItems.keys.toList()..sort();
+    final sortedCategories = groupedItems.keys.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
     // Create a list of FocusNodes and GlobalKeys
     final focusNodesAndKeys = List.generate(
-      items.length,
+      itemsToShow.length,
       (index) => (node: FocusNode(), key: GlobalKey<ItemDisplayState>()),
       growable: false,
     );
@@ -463,24 +501,17 @@ class _HomePageState extends State<HomePage> {
     // Add widgets for each category in sorted order
     for (String category in sortedCategories) {
       // Sort by name
-      final entries = groupedItems[category]!
-        ..sort((a, b) => a.key.name.compareTo(b.key.name));
+      final items = groupedItems[category]!
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
       // Add the section header
       itemWidgets.add(_buildHeader(category));
 
       // Add the items under the section
-      for (MapEntry<Item, int> entry in entries) {
-        final item = entry.key;
-        final quantity = entry.value;
-
+      for (Item item in items) {
         itemWidgets.add(
-          _buildListItem(
-              focusNodesAndKeys[focusNodeAndKeyIndex].key,
-              focusNodesAndKeys[focusNodeAndKeyIndex].node,
-              item,
-              quantity,
-              items),
+          _buildListItem(focusNodesAndKeys[focusNodeAndKeyIndex].key,
+              focusNodesAndKeys[focusNodeAndKeyIndex].node, item),
         );
         focusNodeAndKeyIndex++;
       }
@@ -503,8 +534,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildListItem(GlobalKey<ItemDisplayState> key, FocusNode node,
-          Item item, int quantity, Map<Item, int> items) =>
+  Widget _buildListItem(
+          GlobalKey<ItemDisplayState> key, FocusNode node, Item item) =>
       Column(
         children: [
           ItemDisplay(
@@ -513,23 +544,20 @@ class _HomePageState extends State<HomePage> {
             existingCategories: _existingCategories,
             existingLocations: _existingLocations,
             item: item,
-            quantity: quantity,
             numberFocusNode: node,
             setItemNumber: (itemNumber) {
               setState(() {
-                items.update(item, (oldValue) => itemNumber);
+                _setItemQuantity(itemToUpdate: item, newQuantity: itemNumber);
               });
             },
             removeItem: () {
               setState(() {
-                items.remove(item);
+                _removeItem(item);
               });
             },
-            editItem: (
-                {required Item updatedItem, required int updatedQuantity}) {
+            editItem: ({required Item updatedItem}) {
               setState(() {
-                items.remove(item);
-                _addItem(item: updatedItem, quantity: updatedQuantity);
+                _editItem(item, updatedItem);
               });
             },
             moveItem: ({
@@ -537,16 +565,7 @@ class _HomePageState extends State<HomePage> {
               required int quantityToMove,
             }) {
               setState(() {
-                // First update the existing item
-                if (quantityToMove == quantity) {
-                  items.remove(item);
-                } else {
-                  items.update(item, (oldValue) => oldValue - quantityToMove);
-                }
-                // Next update the item with the new location
-                items.update(item.copyWith(location: newLocation),
-                    (oldValue) => oldValue + quantityToMove,
-                    ifAbsent: () => quantityToMove);
+                _moveItem(quantityToMove, item, newLocation);
               });
             },
           ),
@@ -557,6 +576,35 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       );
+
+  void _moveItem(int quantityToMove, Item item, String newLocation) {
+    // First update the existing item
+    if (quantityToMove == item.quantity) {
+      _removeItem(item);
+    } else {
+      _setItemQuantity(
+          itemToUpdate: item, newQuantity: item.quantity - quantityToMove);
+    }
+    // Next update the item with the new location
+    _addItem(
+      newItem: item.copyWith(
+          location: newLocation,
+          quantity: quantityToMove,
+          // Make sure that ID is null to avoid possible ID collision
+          // If we didn't do this and the item wasn't completely removed before this
+          // we could have two different items with the same ID
+          id: null),
+    );
+  }
+
+  void _editItem(Item item, Item updatedItem) {
+    _removeItem(item);
+    _addItem(newItem: updatedItem.copyWith(id: item.id));
+  }
+
+  void _removeItem(Item item) {
+    items.remove(item);
+  }
 
   Widget _buildHeader(String category) => Padding(
         padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
