@@ -1,88 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/providers/providers.dart';
 import 'package:inventory_app/data/models/models.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
 
 import 'add_item_page.dart';
 import 'settings_page.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({super.key, required this.title, required this.initialItems});
 
   final String title;
+  final List<Item> initialItems;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   bool _isSearching = false;
   bool _isFilterVisible = false;
   final TextEditingController _searchController = TextEditingController();
   String _previousSearchText = '';
   final FocusNode _searchFocusNode = FocusNode();
-  List<Item> items = [
-    const Item(
-      name: 'Broccoli',
-      category: 'Vegetables',
-      location: 'Upstairs Freezer',
-      quantity: 5,
-    ),
-    const Item(
-      name: 'Cauliflower',
-      category: 'Vegetables',
-      location: 'Upstairs Freezer',
-      quantity: 2,
-    ),
-    const Item(
-      name: 'Chicken Breast (500g)',
-      category: 'Meat',
-      location: 'Upstairs Freezer',
-      quantity: 1,
-    ),
-    const Item(
-      name: 'Ground Beef',
-      category: 'Meat',
-      location: 'Upstairs Freezer',
-      quantity: 4,
-    ),
-    const Item(
-      name: 'Bagels',
-      category: 'Bread',
-      location: 'Downstairs Freezer',
-      quantity: 15,
-    ),
-    const Item(
-      name: 'Soda Bread',
-      category: 'Bread',
-      location: 'Downstairs Freezer',
-      quantity: 1,
-    ),
-    const Item(
-      name: 'Mango',
-      category: 'Fruit',
-      location: 'Upstairs Freezer',
-      quantity: 2,
-    ),
-    const Item(
-      name: 'Strawberries',
-      category: 'Fruit',
-      location: 'Upstairs Freezer',
-      quantity: 1,
-    ),
-    const Item(
-      name: 'Raspberries',
-      category: 'Fruit',
-      location: 'Upstairs Freezer',
-      quantity: 2,
-    ),
-    const Item(
-      name: 'Mixed Berries',
-      category: 'Fruit',
-      location: 'Upstairs Freezer',
-      quantity: 1,
-    ),
-  ];
+  late List<Item> _items;
 
   List<String> _selectedCategories = [];
   List<String> _selectedLocations = [];
@@ -91,7 +33,7 @@ class _HomePageState extends State<HomePage> {
       _itemFocusNodesAndKeys = [];
 
   Iterable<T> _getUniqueValuesFromItems<T>(T Function(Item) fieldExtractor) =>
-      items.map(fieldExtractor).toSet();
+      _items.map(fieldExtractor).toSet();
 
   Iterable<String> get _existingCategories =>
       _getUniqueValuesFromItems((item) => item.category);
@@ -113,6 +55,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _items = widget.initialItems;
     _searchController.addListener(_searchControllerListener);
   }
 
@@ -127,17 +70,19 @@ class _HomePageState extends State<HomePage> {
 
     if (existingItemIndex >= 0) {
       // Item exists
-      final existingItem = items[existingItemIndex];
+      final existingItem = _items[existingItemIndex];
       final updatedItem = existingItem.copyWith(
           quantity: existingItem.quantity + newItem.quantity);
       _updateItemAtIndex(existingItemIndex, updatedItem);
     } else {
-      items.add(newItem);
+      _items.add(newItem);
+      // Add the item to the database, TODO: fix the fact that local copy won't have a valid ID
+      ref.read(Repository.databases).addItem(item: newItem);
     }
   }
 
   void _updateItemAtIndex(int existingItemIndex, Item newItem) {
-    items[existingItemIndex] = newItem;
+    _items[existingItemIndex] = newItem;
   }
 
   void _setItemQuantity(
@@ -146,14 +91,19 @@ class _HomePageState extends State<HomePage> {
 
     if (existingItemIndex != -1) {
       // Update the item's quantity
-      final existingItem = items[existingItemIndex];
+      final existingItem = _items[existingItemIndex];
       final updatedItem = existingItem.copyWith(quantity: newQuantity);
       _updateItemAtIndex(existingItemIndex, updatedItem);
+
+      // Update the item's quantity in the database
+      ref
+          .read(Repository.databases)
+          .updateItem(oldItemId: existingItem.id!, updatedItem: updatedItem);
     }
   }
 
   // Returns the item index of a matching item, if the item is not present, returns -1
-  int _getItemIndex(Item newItem) => items.indexWhere((item) =>
+  int _getItemIndex(Item newItem) => _items.indexWhere((item) =>
       item.name == newItem.name &&
       item.category == newItem.category &&
       item.location == newItem.location);
@@ -234,7 +184,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredItems = _isFilterEmpty ? items : _filterItems();
+    final filteredItems = _isFilterEmpty ? _items : _filterItems();
     final numberOfItems = filteredItems.length;
 
     final (:listView, :focusNodesAndKeys) =
@@ -343,7 +293,7 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: items.isEmpty
+                child: _items.isEmpty
                     ? const Center(
                         child: EmptyInventory(
                           mainMessage: Messages.emptyInventory,
@@ -457,7 +407,7 @@ class _HomePageState extends State<HomePage> {
   Iterable<Item> _filterItems() {
     final nameSearch = _searchController.text.trim().toLowerCase();
 
-    return items.where((item) {
+    return _items.where((item) {
       final matchesName = item.name.toLowerCase().contains(nameSearch);
       final matchesCategory = _selectedCategories.isEmpty ||
           _selectedCategories.contains(item.category);
@@ -604,7 +554,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _removeItem(Item item) {
-    items.remove(item);
+    _items.remove(item);
+
+    // Remove the item from the database
+    ref.read(Repository.databases).removeItem(itemId: item.id!);
   }
 
   Widget _buildHeader(String category) => Padding(

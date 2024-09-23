@@ -63,9 +63,9 @@ class DatabasesRepository with RepositoryExceptionMixin {
     ));
   }
 
-  RealtimeSubscription subscribeToPage() => _subscribeToPage();
+  RealtimeSubscription subscribeToChanges() => _subscribeToChanges();
 
-  RealtimeSubscription _subscribeToPage() {
+  RealtimeSubscription _subscribeToChanges() {
     return exceptionHandler(
         _realtime.subscribe(['collections.$collectionId.documents']));
   }

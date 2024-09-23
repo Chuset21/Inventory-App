@@ -7,6 +7,8 @@ import 'package:inventory_app/core/themes/themes.dart';
 import 'package:inventory_app/core/utils/logger_utils.dart';
 import 'package:inventory_app/presentation/screens/screens.dart';
 
+import 'data/models/models.dart';
+
 void main() async {
   // Load settings before starting the app to avoid unnecessary reloads
   final initialTheme = await LocalStorage.getAppTheme();
@@ -38,21 +40,106 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+final _itemsProvider = FutureProvider<Iterable<Item>>((ref) {
+  return ref.read(Repository.databases).getItems();
+});
+
+// TODO: remove - used for testing
+List<Item> testItems = [
+  const Item(
+    name: 'Broccoli',
+    category: 'Vegetables',
+    location: 'Upstairs Freezer',
+    quantity: 5,
+  ),
+  const Item(
+    name: 'Cauliflower',
+    category: 'Vegetables',
+    location: 'Upstairs Freezer',
+    quantity: 2,
+  ),
+  const Item(
+    name: 'Chicken Breast (500g)',
+    category: 'Meat',
+    location: 'Upstairs Freezer',
+    quantity: 1,
+  ),
+  const Item(
+    name: 'Ground Beef',
+    category: 'Meat',
+    location: 'Upstairs Freezer',
+    quantity: 4,
+  ),
+  const Item(
+    name: 'Bagels',
+    category: 'Bread',
+    location: 'Downstairs Freezer',
+    quantity: 15,
+  ),
+  const Item(
+    name: 'Soda Bread',
+    category: 'Bread',
+    location: 'Downstairs Freezer',
+    quantity: 1,
+  ),
+  const Item(
+    name: 'Mango',
+    category: 'Fruit',
+    location: 'Upstairs Freezer',
+    quantity: 2,
+  ),
+  const Item(
+    name: 'Strawberries',
+    category: 'Fruit',
+    location: 'Upstairs Freezer',
+    quantity: 1,
+  ),
+  const Item(
+    name: 'Raspberries',
+    category: 'Fruit',
+    location: 'Upstairs Freezer',
+    quantity: 2,
+  ),
+  const Item(
+    name: 'Mixed Berries',
+    category: 'Fruit',
+    location: 'Upstairs Freezer',
+    quantity: 1,
+  ),
+];
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key, required this.initialTheme});
 
   final AppTheme initialTheme;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncItems = ref.watch(_itemsProvider);
+
     return ThemeProvider(
       initTheme: getThemeData(initialTheme),
       builder: (context, myTheme) => MaterialApp(
         title: 'Freezer Inventory',
         theme: myTheme,
         debugShowCheckedModeBanner: false,
-        home: const HomePage(
-          title: 'Freezer Inventory',
+        home: asyncItems.when(
+          data: (items) {
+            return HomePage(
+              title: 'Freezer Inventory',
+              initialItems: items.toList(),
+            );
+          },
+          loading: () {
+            return const LoadingPage();
+          },
+          error: (e, st) {
+            logger.severe('Error');
+            logger.severe(st);
+            return const Center(
+              child: Text('Error loading data'),
+            );
+          },
         ),
       ),
     );
