@@ -13,7 +13,6 @@ class DatabasesRepository with RepositoryExceptionMixin {
   DatabasesRepository(this._ref);
 
   final Ref _ref;
-  static const _uniqueDocumentID = 'unique()';
 
   static Provider<DatabasesRepository> get provider =>
       _databaseRepositoryProvider;
@@ -36,12 +35,13 @@ class DatabasesRepository with RepositoryExceptionMixin {
     return documents.map((doc) => Item.fromJson(doc.data));
   }
 
-  Future<void> updateItem({required String oldItemId, required Item updatedItem}) async {
+  Future<void> updateItem(
+      {required String oldItemId, required Item updatedItem}) async {
     return exceptionHandlerFuture(await _databases.updateDocument(
       databaseId: databaseId,
       collectionId: collectionId,
-      documentId: updatedItem.id!,
-      data: updatedItem.copyWith(id: null).toJson(),
+      documentId: updatedItem.id,
+      data: updatedItem.toJson(),
     ));
   }
 
@@ -58,8 +58,8 @@ class DatabasesRepository with RepositoryExceptionMixin {
     return exceptionHandlerFuture(await _databases.createDocument(
       databaseId: databaseId,
       collectionId: collectionId,
-      documentId: _uniqueDocumentID,
-      data: item.copyWith(id: null).toJson(),
+      documentId: item.id,
+      data: item.toJson(),
     ));
   }
 

@@ -45,68 +45,68 @@ final _itemsProvider = FutureProvider<Iterable<Item>>((ref) {
 });
 
 // TODO: remove - used for testing
-List<Item> testItems = [
-  const Item(
-    name: 'Broccoli',
-    category: 'Vegetables',
-    location: 'Upstairs Freezer',
-    quantity: 5,
-  ),
-  const Item(
-    name: 'Cauliflower',
-    category: 'Vegetables',
-    location: 'Upstairs Freezer',
-    quantity: 2,
-  ),
-  const Item(
-    name: 'Chicken Breast (500g)',
-    category: 'Meat',
-    location: 'Upstairs Freezer',
-    quantity: 1,
-  ),
-  const Item(
-    name: 'Ground Beef',
-    category: 'Meat',
-    location: 'Upstairs Freezer',
-    quantity: 4,
-  ),
-  const Item(
-    name: 'Bagels',
-    category: 'Bread',
-    location: 'Downstairs Freezer',
-    quantity: 15,
-  ),
-  const Item(
-    name: 'Soda Bread',
-    category: 'Bread',
-    location: 'Downstairs Freezer',
-    quantity: 1,
-  ),
-  const Item(
-    name: 'Mango',
-    category: 'Fruit',
-    location: 'Upstairs Freezer',
-    quantity: 2,
-  ),
-  const Item(
-    name: 'Strawberries',
-    category: 'Fruit',
-    location: 'Upstairs Freezer',
-    quantity: 1,
-  ),
-  const Item(
-    name: 'Raspberries',
-    category: 'Fruit',
-    location: 'Upstairs Freezer',
-    quantity: 2,
-  ),
-  const Item(
-    name: 'Mixed Berries',
-    category: 'Fruit',
-    location: 'Upstairs Freezer',
-    quantity: 1,
-  ),
-];
+// List<Item> testItems = [
+//   const Item(
+//     name: 'Broccoli',
+//     category: 'Vegetables',
+//     location: 'Upstairs Freezer',
+//     quantity: 5,
+//   ),
+//   const Item(
+//     name: 'Cauliflower',
+//     category: 'Vegetables',
+//     location: 'Upstairs Freezer',
+//     quantity: 2,
+//   ),
+//   const Item(
+//     name: 'Chicken Breast (500g)',
+//     category: 'Meat',
+//     location: 'Upstairs Freezer',
+//     quantity: 1,
+//   ),
+//   const Item(
+//     name: 'Ground Beef',
+//     category: 'Meat',
+//     location: 'Upstairs Freezer',
+//     quantity: 4,
+//   ),
+//   const Item(
+//     name: 'Bagels',
+//     category: 'Bread',
+//     location: 'Downstairs Freezer',
+//     quantity: 15,
+//   ),
+//   const Item(
+//     name: 'Soda Bread',
+//     category: 'Bread',
+//     location: 'Downstairs Freezer',
+//     quantity: 1,
+//   ),
+//   const Item(
+//     name: 'Mango',
+//     category: 'Fruit',
+//     location: 'Upstairs Freezer',
+//     quantity: 2,
+//   ),
+//   const Item(
+//     name: 'Strawberries',
+//     category: 'Fruit',
+//     location: 'Upstairs Freezer',
+//     quantity: 1,
+//   ),
+//   const Item(
+//     name: 'Raspberries',
+//     category: 'Fruit',
+//     location: 'Upstairs Freezer',
+//     quantity: 2,
+//   ),
+//   const Item(
+//     name: 'Mixed Berries',
+//     category: 'Fruit',
+//     location: 'Upstairs Freezer',
+//     quantity: 1,
+//   ),
+// ];
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key, required this.initialTheme});

@@ -216,6 +216,7 @@ class _EditItemPageState extends State<EditItemPage> {
             ? () {
                 widget.editItemCallback(
                   updatedItem: Item(
+                    id: widget.itemToEdit.id,
                     name: normaliseOption(
                         chosenOption: _nameController.text,
                         existingValues: widget.existingNames),

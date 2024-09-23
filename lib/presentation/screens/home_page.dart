@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/constants/constants.dart';
 import 'package:inventory_app/core/providers/providers.dart';
+import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
 
@@ -75,10 +76,10 @@ class _HomePageState extends ConsumerState<HomePage> {
           quantity: existingItem.quantity + newItem.quantity);
       _updateItemAtIndex(existingItemIndex, existingItem, updatedItem);
     } else {
-      _items.add(newItem);
+      final itemToAdd = newItem.copyWith(id: uniqueId);
+      _items.add(itemToAdd);
       // Add the item to the database
-      // TODO: fix the fact that local copy won't have a valid ID. This should fix itself when we have realtime listeners, otherwise we should use the uuid package to create unique IDs
-      ref.read(Repository.databases).addItem(item: newItem);
+      ref.read(Repository.databases).addItem(item: itemToAdd);
     }
   }
 
@@ -88,7 +89,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     // Update the item's quantity in the database
     ref
         .read(Repository.databases)
-        .updateItem(oldItemId: existingItem.id!, updatedItem: newItem);
+        .updateItem(oldItemId: existingItem.id, updatedItem: newItem);
   }
 
   void _setItemQuantity(
@@ -538,13 +539,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
     // Next update the item with the new location
     _addItem(
-      newItem: item.copyWith(
-          location: newLocation,
-          quantity: quantityToMove,
-          // Make sure that ID is null to avoid possible ID collision
-          // If we didn't do this and the item wasn't completely removed before this
-          // we could have two different items with the same ID
-          id: null),
+      newItem: item.copyWith(location: newLocation, quantity: quantityToMove),
     );
   }
 
@@ -558,7 +553,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _items.remove(item);
 
     // Remove the item from the database
-    ref.read(Repository.databases).removeItem(itemId: item.id!);
+    ref.read(Repository.databases).removeItem(itemId: item.id);
   }
 
   Widget _buildHeader(String category) => Padding(

@@ -196,6 +196,7 @@ class _AddItemPageState extends State<AddItemPage> {
                     ? () {
                         widget.addItemCallback(
                           item: Item(
+                            id: uniqueId,
                             name: normaliseOption(
                                 chosenOption: _nameController.text,
                                 existingValues: widget.existingNames),

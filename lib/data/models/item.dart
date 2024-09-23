@@ -13,22 +13,22 @@ class _ItemFieldNames {
 
 @CopyWith()
 class Item extends Equatable {
-  final String? id;
+  final String id;
   final String name;
   final String category;
   final String location;
   final int quantity;
 
   const Item({
-    this.id,
+    required this.id,
     required this.name,
     required this.category,
     required this.location,
     required this.quantity,
   });
 
-  Map<String, dynamic> toJson() => {
-        if (id != null) _ItemFieldNames.id: id,
+  Map<String, dynamic> toJson({bool showId = false}) => {
+        if (showId) _ItemFieldNames.id: id,
         _ItemFieldNames.name: name,
         _ItemFieldNames.category: category,
         _ItemFieldNames.location: location,

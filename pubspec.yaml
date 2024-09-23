@@ -43,6 +43,7 @@ dependencies:
   flutter_riverpod: ^2.5.1
   animated_theme_switcher: ^2.0.10
   logging: ^1.2.0
+  uuid: ^4.5.0
 
 dev_dependencies:
   flutter_test:
