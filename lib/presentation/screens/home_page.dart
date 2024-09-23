@@ -77,8 +77,8 @@ class _HomePageState extends State<HomePage> {
   List<String> _selectedCategories = [];
   List<String> _selectedLocations = [];
 
-  late List<({FocusNode node, GlobalKey<ItemDisplayState> key})>
-      _itemFocusNodesAndKeys;
+  List<({FocusNode node, GlobalKey<ItemDisplayState> key})>
+      _itemFocusNodesAndKeys = [];
 
   Iterable<T> _getUniqueValuesFromItems<T>(T Function(Item) fieldExtractor) =>
       items.keys.map(fieldExtractor).toSet();
@@ -158,10 +158,24 @@ class _HomePageState extends State<HomePage> {
     _searchFocusNode.dispose();
     _searchController.removeListener(_searchControllerListener);
     _searchController.dispose();
+    _disposeItemFocusNodes();
+    super.dispose();
+  }
+
+  void _disposeItemFocusNodes() {
     for (var nodeAndKey in _itemFocusNodesAndKeys) {
       nodeAndKey.node.dispose();
     }
-    super.dispose();
+  }
+
+  // This function should be used whenever setting the _itemFocusNodesAndKeys
+  // To avoid memory leaks _itemFocusNodesAndKeys should never be set outside this function
+  void _setItemFocusNodesAndKeys(
+      List<({GlobalKey<ItemDisplayState> key, FocusNode node})>
+          focusNodesAndKeys) {
+    // First dispose of the previous item focus nodes and keys
+    _disposeItemFocusNodes();
+    _itemFocusNodesAndKeys = focusNodesAndKeys;
   }
 
   void _updateSelectedCategories(List<String> newSelectedCategories) {
@@ -184,7 +198,7 @@ class _HomePageState extends State<HomePage> {
     final (:listView, :focusNodesAndKeys) =
         _buildItemListViewWithFocusNodesAndKeys(filteredItems);
     final itemListView = listView;
-    _itemFocusNodesAndKeys = focusNodesAndKeys;
+    _setItemFocusNodesAndKeys(focusNodesAndKeys);
 
     return GestureDetector(
       onTap: () {
