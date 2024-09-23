@@ -18,7 +18,7 @@ class RepositoryException implements Exception {
 }
 
 mixin RepositoryExceptionMixin {
-  FutureOr<T> exceptionHandlerFuture<T>(
+  Future<T> exceptionHandlerFuture<T>(
     FutureOr computation, {
     String unknownMessage = 'Repository Exception',
   }) async {
