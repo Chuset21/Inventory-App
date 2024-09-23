@@ -14,9 +14,9 @@ abstract class Dependency {
 
 final _clientProvider = Provider<Client>(
   (ref) => Client()
-    ..setProject(appwriteProjectId)
-    ..setSelfSigned(status: true)
-    ..setEndpoint(appwriteEndpoint),
+    .setProject(appwriteProjectId)
+    .setSelfSigned(status: true)
+    .setEndpoint(appwriteEndpoint),
 );
 
 final _databaseProvider =
