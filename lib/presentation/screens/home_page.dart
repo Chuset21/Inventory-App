@@ -73,16 +73,22 @@ class _HomePageState extends ConsumerState<HomePage> {
       final existingItem = _items[existingItemIndex];
       final updatedItem = existingItem.copyWith(
           quantity: existingItem.quantity + newItem.quantity);
-      _updateItemAtIndex(existingItemIndex, updatedItem);
+      _updateItemAtIndex(existingItemIndex, existingItem, updatedItem);
     } else {
       _items.add(newItem);
-      // Add the item to the database, TODO: fix the fact that local copy won't have a valid ID
+      // Add the item to the database
+      // TODO: fix the fact that local copy won't have a valid ID. This should fix itself when we have realtime listeners, otherwise we should use the uuid package to create unique IDs
       ref.read(Repository.databases).addItem(item: newItem);
     }
   }
 
-  void _updateItemAtIndex(int existingItemIndex, Item newItem) {
+  void _updateItemAtIndex(
+      int existingItemIndex, Item existingItem, Item newItem) {
     _items[existingItemIndex] = newItem;
+    // Update the item's quantity in the database
+    ref
+        .read(Repository.databases)
+        .updateItem(oldItemId: existingItem.id!, updatedItem: newItem);
   }
 
   void _setItemQuantity(
@@ -93,12 +99,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       // Update the item's quantity
       final existingItem = _items[existingItemIndex];
       final updatedItem = existingItem.copyWith(quantity: newQuantity);
-      _updateItemAtIndex(existingItemIndex, updatedItem);
-
-      // Update the item's quantity in the database
-      ref
-          .read(Repository.databases)
-          .updateItem(oldItemId: existingItem.id!, updatedItem: updatedItem);
+      _updateItemAtIndex(existingItemIndex, existingItem, updatedItem);
     }
   }
 
