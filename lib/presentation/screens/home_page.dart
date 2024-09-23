@@ -475,59 +475,12 @@ class _HomePageState extends State<HomePage> {
         final quantity = entry.value;
 
         itemWidgets.add(
-          Column(
-            children: [
-              ItemDisplay(
-                key: focusNodesAndKeys[focusNodeAndKeyIndex].key,
-                existingNames: _existingNames,
-                existingCategories: _existingCategories,
-                existingLocations: _existingLocations,
-                item: item,
-                quantity: quantity,
-                numberFocusNode: focusNodesAndKeys[focusNodeAndKeyIndex].node,
-                setItemNumber: (itemNumber) {
-                  setState(() {
-                    items.update(item, (oldValue) => itemNumber);
-                  });
-                },
-                removeItem: () {
-                  setState(() {
-                    items.remove(item);
-                  });
-                },
-                editItem: (
-                    {required Item updatedItem, required int updatedQuantity}) {
-                  setState(() {
-                    items.remove(item);
-                    _addItem(item: updatedItem, quantity: updatedQuantity);
-                  });
-                },
-                moveItem: ({
-                  required String newLocation,
-                  required int quantityToMove,
-                }) {
-                  setState(() {
-                    // First update the existing item
-                    if (quantityToMove == quantity) {
-                      items.remove(item);
-                    } else {
-                      items.update(
-                          item, (oldValue) => oldValue - quantityToMove);
-                    }
-                    // Next update the item with the new location
-                    items.update(item.copyWith(location: newLocation),
-                        (oldValue) => oldValue + quantityToMove,
-                        ifAbsent: () => quantityToMove);
-                  });
-                },
-              ),
-              Divider(
-                height: 10.0,
-                thickness: 1,
-                color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-              ),
-            ],
-          ),
+          _buildListItem(
+              focusNodesAndKeys[focusNodeAndKeyIndex].key,
+              focusNodesAndKeys[focusNodeAndKeyIndex].node,
+              item,
+              quantity,
+              items),
         );
         focusNodeAndKeyIndex++;
       }
@@ -550,30 +503,83 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHeader(String category) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+  Widget _buildListItem(GlobalKey<ItemDisplayState> key, FocusNode node,
+          Item item, int quantity, Map<Item, int> items) =>
+      Column(
         children: [
-          Text(
-            category,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 22.0,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+          ItemDisplay(
+            key: key,
+            existingNames: _existingNames,
+            existingCategories: _existingCategories,
+            existingLocations: _existingLocations,
+            item: item,
+            quantity: quantity,
+            numberFocusNode: node,
+            setItemNumber: (itemNumber) {
+              setState(() {
+                items.update(item, (oldValue) => itemNumber);
+              });
+            },
+            removeItem: () {
+              setState(() {
+                items.remove(item);
+              });
+            },
+            editItem: (
+                {required Item updatedItem, required int updatedQuantity}) {
+              setState(() {
+                items.remove(item);
+                _addItem(item: updatedItem, quantity: updatedQuantity);
+              });
+            },
+            moveItem: ({
+              required String newLocation,
+              required int quantityToMove,
+            }) {
+              setState(() {
+                // First update the existing item
+                if (quantityToMove == quantity) {
+                  items.remove(item);
+                } else {
+                  items.update(item, (oldValue) => oldValue - quantityToMove);
+                }
+                // Next update the item with the new location
+                items.update(item.copyWith(location: newLocation),
+                    (oldValue) => oldValue + quantityToMove,
+                    ifAbsent: () => quantityToMove);
+              });
+            },
           ),
           Divider(
-            height: 8.0,
-            thickness: 3.5,
-            color: Theme.of(context).colorScheme.primaryContainer,
+            height: 10.0,
+            thickness: 1,
+            color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
           ),
         ],
-      ),
-    );
-  }
+      );
+
+  Widget _buildHeader(String category) => Padding(
+        padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              category,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22.0,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            Divider(
+              height: 8.0,
+              thickness: 3.5,
+              color: Theme.of(context).colorScheme.primaryContainer,
+            ),
+          ],
+        ),
+      );
 
   void _navigateToHomePage() {
     // Simply close the burger menu
