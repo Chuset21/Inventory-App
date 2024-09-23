@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/providers/providers.dart';
 import 'package:inventory_app/core/services/services.dart';
 import 'package:inventory_app/core/themes/themes.dart';
+import 'package:inventory_app/core/utils/logger_utils.dart';
 import 'package:inventory_app/presentation/screens/screens.dart';
 
 void main() async {
@@ -22,6 +23,8 @@ void main() async {
   //         databaseId: databaseId, collectionId: collectionId))
   //     .documents;
   // print(DatabaseUtils.mapDocumentsToItems(documents));
+
+  setupLogger();
 
   runApp(
     ProviderScope(

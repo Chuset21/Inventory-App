@@ -597,6 +597,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // TODO: there might be a more efficient way to do this sometimes, depending on if we're going to add a new item or update an existing item
   void _editItem(Item item, Item updatedItem) {
     _removeItem(item);
     _addItem(newItem: updatedItem.copyWith(id: item.id));
