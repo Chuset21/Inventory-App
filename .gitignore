@@ -12,6 +12,8 @@ pubspec.lock
 .dart_tool/
 .packages
 
+.env
+
 # Files created by the builder
 *.g.dart
 
