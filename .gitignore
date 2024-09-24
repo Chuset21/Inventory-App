@@ -12,6 +12,7 @@ pubspec.lock
 .dart_tool/
 .packages
 
+# Ignore the .env file
 .env
 
 # Files created by the builder

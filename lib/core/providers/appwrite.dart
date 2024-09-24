@@ -1,7 +1,7 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inventory_app/core/constants/appwrite.dart';
 import 'package:inventory_app/core/repositories/repositories.dart';
+import 'package:inventory_app/core/services/appwrite_config.dart';
 
 abstract class Dependency {
   static Provider<Client> get client => _clientProvider;
@@ -18,9 +18,9 @@ abstract class Repository {
 
 final _clientProvider = Provider<Client>(
   (ref) => Client()
-      .setProject(appwriteProjectId)
+      .setProject(AppwriteConfig.projectId)
       .setSelfSigned(status: true)
-      .setEndpoint(appwriteEndpoint),
+      .setEndpoint(AppwriteConfig.endpoint),
 );
 
 final _databasesProvider =
