@@ -455,6 +455,29 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  Widget _buildHeader(String category) => Padding(
+        padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              category,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22.0,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            Divider(
+              height: 8.0,
+              thickness: 3.5,
+              color: Theme.of(context).colorScheme.primaryContainer,
+            ),
+          ],
+        ),
+      );
+
   Widget _buildListItem(
           GlobalKey<ItemDisplayState> key, FocusNode node, Item item) =>
       Column(
@@ -567,29 +590,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _removeItem(Item item) {
     ref.read(Repository.databases).removeItem(itemId: item.id);
   }
-
-  Widget _buildHeader(String category) => Padding(
-        padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              category,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22.0,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            Divider(
-              height: 8.0,
-              thickness: 3.5,
-              color: Theme.of(context).colorScheme.primaryContainer,
-            ),
-          ],
-        ),
-      );
 
   void _navigateToHomePage() {
     // Simply close the burger menu
