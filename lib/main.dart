@@ -10,12 +10,12 @@ import 'package:inventory_app/presentation/screens/screens.dart';
 import 'data/models/models.dart';
 
 void main() async {
+  setupLogger();
+
   // Load settings before starting the app to avoid unnecessary reloads
   final initialTheme = await LocalStorage.getAppTheme();
   final isSafeDeleteOn = await LocalStorage.isSafeDeleteOn();
   final appwriteConfig = await LocalStorage.getAppwriteConfig();
-
-  setupLogger();
 
   runApp(
     ProviderScope(
