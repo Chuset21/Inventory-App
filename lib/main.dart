@@ -14,18 +14,6 @@ void main() async {
   final initialTheme = await LocalStorage.getAppTheme();
   final isSafeDeleteOn = await LocalStorage.isSafeDeleteOn();
 
-  // TODO: remove this once it is working inside the app
-  // This works!!!
-  // final client = Client()
-  //     .setProject(appwriteProjectId)
-  //     .setSelfSigned(status: true)
-  //     .setEndpoint(appwriteEndpoint);
-  // final databases = Databases(client);
-  // final documents = (await databases.listDocuments(
-  //         databaseId: databaseId, collectionId: collectionId))
-  //     .documents;
-  // print(DatabaseUtils.mapDocumentsToItems(documents));
-
   setupLogger();
 
   runApp(
