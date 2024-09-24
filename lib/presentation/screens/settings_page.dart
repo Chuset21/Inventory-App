@@ -49,27 +49,31 @@ class _SettingsPageState extends State<SettingsPage> {
               // Add other settings
               Padding(
                 padding: const EdgeInsets.only(top: 60.0),
-                child: buildPaddedCenteredSetting(
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isConfigFormVisible = !_isConfigFormVisible;
-                      });
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          DatabaseConfigurationSettings.title,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Icon(
-                          _isConfigFormVisible
-                              ? Icons.keyboard_arrow_up
-                              : Icons.keyboard_arrow_down,
-                        ),
-                      ],
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: buildPaddedCenteredSetting(
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isConfigFormVisible = !_isConfigFormVisible;
+                        });
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            DatabaseConfigurationSettings.title,
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            _isConfigFormVisible
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
