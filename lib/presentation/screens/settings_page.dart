@@ -1,16 +1,39 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/data/models/models.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key, this.errorInfo});
+
+  final ErrorInfo? errorInfo;
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  late bool showError;
+
+  @override
+  void initState() {
+    super.initState();
+    showError = widget.errorInfo != null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final settings = [
-      const AppThemeSelector(),
-      const SafeDeleteSelector(),
+    if (showError) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorSnackBar(context);
+      });
+      showError = false;
+    }
+
+    const settings = [
+      AppThemeSelector(),
+      SafeDeleteSelector(),
     ];
 
     return ThemeSwitchingArea(
@@ -48,4 +71,17 @@ class SettingsPage extends StatelessWidget {
           ])
       .expand((e) => e)
       .toList();
+
+  void _showErrorSnackBar(BuildContext context) {
+    final snackBar = SnackBar(
+      behavior: SnackBarBehavior.floating,
+      showCloseIcon: true,
+      duration: const Duration(seconds: 5),
+      content: Center(child: Text(widget.errorInfo!.message)),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
 }
