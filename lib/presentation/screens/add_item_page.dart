@@ -9,7 +9,7 @@ class AddItemPage extends StatefulWidget {
   final Iterable<String> existingNames;
   final Iterable<String> existingCategories;
   final Iterable<String> existingLocations;
-  final void Function({required Item item}) addItemCallback;
+  final void Function({required Item newItem}) addItemCallback;
 
   const AddItemPage({
     super.key,
@@ -195,7 +195,7 @@ class _AddItemPageState extends State<AddItemPage> {
                 onPressed: areAllOptionsValid
                     ? () {
                         widget.addItemCallback(
-                          item: Item(
+                          newItem: Item(
                             id: uniqueId,
                             name: normaliseOption(
                                 chosenOption: _nameController.text,

@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/constants/constants.dart';
 import 'package:inventory_app/core/providers/providers.dart';
+import 'package:inventory_app/core/repositories/repositories.dart';
 import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
 
 import 'add_item_page.dart';
 import 'settings_page.dart';
+
+final _itemRepositoryProvider = Provider<DatabasesRepository>((ref) {
+  return DatabasesRepository(ref);
+});
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key, required this.title, required this.initialItems});
@@ -58,34 +63,36 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.initState();
     _items = widget.initialItems;
     _searchController.addListener(_searchControllerListener);
-  }
 
-  void _addItemWithState({required Item item}) {
-    setState(() {
-      _addItem(newItem: item);
+    // Wait for the first build cycle to complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Get the repository from the provider
+      final itemRepo = ref.watch(_itemRepositoryProvider);
+
+      // Listen to real-time updates
+      itemRepo.listenToItems((updatedItems) {
+        setState(() {
+          _items = updatedItems.toList();
+        });
+      });
     });
   }
 
   void _addItem({required Item newItem}) {
-    final existingItemIndex = _getItemIndex(newItem);
+    final existingItem = _tryGetItem(newItem);
 
-    if (existingItemIndex >= 0) {
-      // Item exists
-      final existingItem = _items[existingItemIndex];
+    if (existingItem != null) {
       final updatedItem = existingItem.copyWith(
           quantity: existingItem.quantity + newItem.quantity);
-      _updateItemAtIndex(existingItemIndex, existingItem, updatedItem);
+      _updateItem(existingItem: existingItem, newItem: updatedItem);
     } else {
       final itemToAdd = newItem.copyWith(id: uniqueId);
-      _items.add(itemToAdd);
       // Add the item to the database
       ref.read(Repository.databases).addItem(item: itemToAdd);
     }
   }
 
-  void _updateItemAtIndex(
-      int existingItemIndex, Item existingItem, Item newItem) {
-    _items[existingItemIndex] = newItem;
+  void _updateItem({required Item existingItem, required Item newItem}) {
     // Update the item's quantity in the database
     ref
         .read(Repository.databases)
@@ -94,21 +101,25 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   void _setItemQuantity(
       {required Item itemToUpdate, required int newQuantity}) {
-    final existingItemIndex = _getItemIndex(itemToUpdate);
+    final existingItem = _tryGetItem(itemToUpdate);
 
-    if (existingItemIndex != -1) {
+    if (existingItem != null) {
       // Update the item's quantity
-      final existingItem = _items[existingItemIndex];
       final updatedItem = existingItem.copyWith(quantity: newQuantity);
-      _updateItemAtIndex(existingItemIndex, existingItem, updatedItem);
+      _updateItem(existingItem: existingItem, newItem: updatedItem);
     }
   }
 
-  // Returns the item index of a matching item, if the item is not present, returns -1
-  int _getItemIndex(Item newItem) => _items.indexWhere((item) =>
-      item.name == newItem.name &&
-      item.category == newItem.category &&
-      item.location == newItem.location);
+  Item? _tryGetItem(Item newItem) {
+    for (final item in _items) {
+      if (item.name == newItem.name &&
+          item.category == newItem.category &&
+          item.location == newItem.location) {
+        return item; // Return the found item
+      }
+    }
+    return null;
+  }
 
   void _unfocusAndSubmitItemNodes() {
     // Unfocus each item focus node
@@ -153,6 +164,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _searchController.removeListener(_searchControllerListener);
     _searchController.dispose();
     _disposeItemFocusNodes();
+    ref.read(_itemRepositoryProvider).closeSubscription();
     super.dispose();
   }
 
@@ -321,7 +333,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               context,
               MaterialPageRoute(
                 builder: (context) => AddItemPage(
-                  addItemCallback: _addItemWithState,
+                  addItemCallback: _addItem,
                   existingNames: _existingNames,
                   existingCategories: _existingCategories,
                   existingLocations: _existingLocations,
@@ -498,27 +510,19 @@ class _HomePageState extends ConsumerState<HomePage> {
             item: item,
             numberFocusNode: node,
             setItemNumber: (itemNumber) {
-              setState(() {
-                _setItemQuantity(itemToUpdate: item, newQuantity: itemNumber);
-              });
+              _setItemQuantity(itemToUpdate: item, newQuantity: itemNumber);
             },
             removeItem: () {
-              setState(() {
-                _removeItem(item);
-              });
+              _removeItem(item);
             },
             editItem: ({required Item updatedItem}) {
-              setState(() {
-                _editItem(item, updatedItem);
-              });
+              _editItem(item, updatedItem);
             },
             moveItem: ({
               required String newLocation,
               required int quantityToMove,
             }) {
-              setState(() {
-                _moveItem(quantityToMove, item, newLocation);
-              });
+              _moveItem(quantityToMove, item, newLocation);
             },
           ),
           Divider(
@@ -543,16 +547,24 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  // TODO: there might be a more efficient way to do this sometimes, depending on if we're going to add a new item or update an existing item
-  void _editItem(Item item, Item updatedItem) {
-    _removeItem(item);
-    _addItem(newItem: updatedItem.copyWith(id: item.id));
+  void _editItem(Item prevItem, Item newItem) {
+    // Check if the updated item collides with any other items
+    final existingItem = _tryGetItem(newItem);
+
+    if (existingItem != null) {
+      final updatedItem = existingItem.copyWith(
+          quantity: existingItem.quantity + newItem.quantity);
+      // Remove the item that was edited
+      _removeItem(prevItem);
+      // Update the item that already exists to have the increased quantity
+      _updateItem(existingItem: existingItem, newItem: updatedItem);
+    } else {
+      // If a version of the new item doesn't exist, simply update the item with the new information, but with the old ID
+      _updateItem(existingItem: prevItem, newItem: newItem);
+    }
   }
 
   void _removeItem(Item item) {
-    _items.remove(item);
-
-    // Remove the item from the database
     ref.read(Repository.databases).removeItem(itemId: item.id);
   }
 

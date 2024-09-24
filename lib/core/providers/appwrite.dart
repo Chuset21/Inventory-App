@@ -8,8 +8,6 @@ abstract class Dependency {
 
   static Provider<Databases> get databases => _databasesProvider;
 
-  static Provider<Account> get account => _accountProvider;
-
   static Provider<Realtime> get realtime => _realtimeProvider;
 }
 
@@ -27,10 +25,6 @@ final _clientProvider = Provider<Client>(
 
 final _databasesProvider =
     Provider<Databases>((ref) => Databases(ref.read(_clientProvider)));
-
-final _accountProvider = Provider<Account>(
-  (ref) => Account(ref.read(_clientProvider)),
-);
 
 final _realtimeProvider =
     Provider<Realtime>((ref) => Realtime(ref.read(_clientProvider)));
