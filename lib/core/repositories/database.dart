@@ -28,6 +28,12 @@ class DatabasesRepository with RepositoryExceptionMixin {
 
   AppwriteConfig get _appwriteConfig => _ref.read(appwriteConfigProvider);
 
+  List<String> get _channels {
+    return [
+      'databases.${_appwriteConfig.databaseId}.collections.${_appwriteConfig.collectionId}.documents'
+    ];
+  }
+
   Future<Iterable<Item>> getItems({Function? onErrorCallback}) {
     return exceptionHandler(_getItems(), onErrorCallback: onErrorCallback);
   }
@@ -47,7 +53,7 @@ class DatabasesRepository with RepositoryExceptionMixin {
       required Item updatedItem,
       Function? onErrorCallback}) async {
     return exceptionHandler(
-      await _databases.updateDocument(
+      _databases.updateDocument(
         databaseId: _appwriteConfig.databaseId,
         collectionId: _appwriteConfig.collectionId,
         documentId: oldItemId,
@@ -60,7 +66,7 @@ class DatabasesRepository with RepositoryExceptionMixin {
   Future<void> removeItem(
       {required String itemId, Function? onErrorCallback}) async {
     return exceptionHandler(
-      await _databases.deleteDocument(
+      _databases.deleteDocument(
           databaseId: _appwriteConfig.databaseId,
           collectionId: _appwriteConfig.collectionId,
           documentId: itemId),
@@ -70,7 +76,7 @@ class DatabasesRepository with RepositoryExceptionMixin {
 
   Future<void> addItem({required Item item, Function? onErrorCallback}) async {
     return exceptionHandler(
-      await _databases.createDocument(
+      _databases.createDocument(
         databaseId: _appwriteConfig.databaseId,
         collectionId: _appwriteConfig.collectionId,
         documentId: item.id,
@@ -80,16 +86,26 @@ class DatabasesRepository with RepositoryExceptionMixin {
     );
   }
 
-  void listenToItems(
-      {required Function(Iterable<Item>) onItemsUpdated,
-      Function? onErrorCallback,
-      Function? onLostConnectionCallback}) {
-    final channels = [
-      'databases.${_appwriteConfig.databaseId}.collections.${_appwriteConfig.collectionId}.documents'
-    ];
+  void listenToItems({
+    required Function(Iterable<Item>) onItemsUpdated,
+    Function? onErrorCallback,
+    Function? onLostConnectionCallback,
+  }) {
+    return instantExceptionHandler(
+      () => _listenToItems(
+          onItemsUpdated: onItemsUpdated,
+          onErrorCallback: onErrorCallback,
+          onLostConnectionCallback: onLostConnectionCallback),
+    );
+  }
 
+  void _listenToItems({
+    required Function(Iterable<Item>) onItemsUpdated,
+    Function? onErrorCallback,
+    Function? onLostConnectionCallback,
+  }) {
     cancelSubscription();
-    _subscription = _realtime.subscribe(channels).stream.listen((event) {
+    _subscription = _realtime.subscribe(_channels).stream.listen((event) {
       getItems().then(onItemsUpdated);
     }, onError: (o, st) {
       logger.severe('Error in realtime stream');
@@ -100,6 +116,10 @@ class DatabasesRepository with RepositoryExceptionMixin {
   }
 
   void cancelSubscription() {
+    return instantExceptionHandler(_cancelSubscription);
+  }
+
+  void _cancelSubscription() {
     if (_subscription != null) {
       logger.info('Cancelling subscription');
       _subscription!.cancel();
