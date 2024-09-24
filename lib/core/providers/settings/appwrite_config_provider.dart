@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inventory_app/core/services/services.dart';
 import 'package:inventory_app/data/models/models.dart';
 
 class AppwriteConfigNotifier extends StateNotifier<AppwriteConfig> {
@@ -6,7 +7,7 @@ class AppwriteConfigNotifier extends StateNotifier<AppwriteConfig> {
 
   void updateConfig(AppwriteConfig value) {
     state = value;
-    // TODO: local storage
+    LocalStorage.updateAppwriteConfig(value);
   }
 }
 

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:inventory_app/core/constants/constants.dart';
 import 'package:inventory_app/core/themes/themes.dart';
+import 'package:inventory_app/core/utils/utils.dart';
+import 'package:inventory_app/data/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorage {
@@ -15,7 +18,14 @@ class LocalStorage {
     WidgetsFlutterBinding.ensureInitialized();
     LocalStorage._preferences = await SharedPreferencesWithCache.create(
       cacheOptions: const SharedPreferencesWithCacheOptions(
-        allowList: <String>{appThemeKey, isSafeDeleteOnKey},
+        allowList: <String>{
+          appThemeKey,
+          isSafeDeleteOnKey,
+          appwriteEndpointKey,
+          appwriteProjectIdKey,
+          appwriteDatabaseIdKey,
+          appwriteCollectionIdKey,
+        },
       ),
     );
 
@@ -24,6 +34,27 @@ class LocalStorage {
     }
     if (_preferences.get(isSafeDeleteOnKey) == null) {
       _preferences.setBool(isSafeDeleteOnKey, _isSafeDeleteOnDefault);
+    }
+
+    // Initialize Appwrite Config
+    await dotenv.load(fileName: ".env");
+    final defaultAppwriteConfig = getDefaultAppwriteConfig();
+
+    if (_preferences.get(appwriteEndpointKey) == null) {
+      _preferences.setString(
+          appwriteEndpointKey, defaultAppwriteConfig.endpoint);
+    }
+    if (_preferences.get(appwriteProjectIdKey) == null) {
+      _preferences.setString(
+          appwriteProjectIdKey, defaultAppwriteConfig.projectId);
+    }
+    if (_preferences.get(appwriteDatabaseIdKey) == null) {
+      _preferences.setString(
+          appwriteDatabaseIdKey, defaultAppwriteConfig.databaseId);
+    }
+    if (_preferences.get(appwriteCollectionIdKey) == null) {
+      _preferences.setString(
+          appwriteCollectionIdKey, defaultAppwriteConfig.collectionId);
     }
     _isInitialised = true;
   }
@@ -56,4 +87,49 @@ class LocalStorage {
     }
     _preferences.setBool(isSafeDeleteOnKey, isSafeDeleteOn);
   }
+
+  // Appwrite Config Methods
+  static Future<AppwriteConfig> getAppwriteConfig() async {
+    if (!_isInitialised) {
+      await _initialise();
+    }
+
+    return AppwriteConfig(
+      endpoint: _preferences.getString(appwriteEndpointKey)!,
+      projectId: _preferences.getString(appwriteProjectIdKey)!,
+      databaseId: _preferences.getString(appwriteDatabaseIdKey)!,
+      collectionId: _preferences.getString(appwriteCollectionIdKey)!,
+    );
+  }
+
+  static Future<void> updateAppwriteConfigFields({
+    String? endpoint,
+    String? projectId,
+    String? databaseId,
+    String? collectionId,
+  }) async {
+    if (!_isInitialised) {
+      await _initialise();
+    }
+    if (endpoint != null) {
+      _preferences.setString(appwriteEndpointKey, endpoint);
+    }
+    if (projectId != null) {
+      _preferences.setString(appwriteProjectIdKey, projectId);
+    }
+    if (databaseId != null) {
+      _preferences.setString(appwriteDatabaseIdKey, databaseId);
+    }
+    if (collectionId != null) {
+      _preferences.setString(appwriteCollectionIdKey, collectionId);
+    }
+  }
+
+  static Future<void> updateAppwriteConfig(
+          AppwriteConfig appwriteConfig) async =>
+      await updateAppwriteConfigFields(
+          endpoint: appwriteConfig.endpoint,
+          projectId: appwriteConfig.projectId,
+          databaseId: appwriteConfig.databaseId,
+          collectionId: appwriteConfig.collectionId);
 }
