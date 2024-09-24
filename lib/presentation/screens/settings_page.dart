@@ -1,6 +1,7 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/constants.dart';
+import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
 
@@ -20,7 +21,7 @@ class _SettingsPageState extends State<SettingsPage> {
     // Show the error information the first time it builds
     if (widget.errorInfo != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showErrorSnackBar(context);
+        showErrorSnackBar(context, widget.errorInfo!);
       });
     }
   }
@@ -67,17 +68,4 @@ class _SettingsPageState extends State<SettingsPage> {
           ])
       .expand((e) => e)
       .toList();
-
-  void _showErrorSnackBar(BuildContext context) {
-    final snackBar = SnackBar(
-      behavior: SnackBarBehavior.floating,
-      showCloseIcon: true,
-      duration: const Duration(seconds: 5),
-      content: Center(child: Text(widget.errorInfo!.message)),
-    );
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
-  }
 }

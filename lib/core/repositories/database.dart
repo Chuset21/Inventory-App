@@ -23,8 +23,8 @@ class DatabasesRepository with RepositoryExceptionMixin {
 
   Databases get _databases => _ref.read(Dependency.databases);
 
-  Future<Iterable<Item>> getItems() {
-    return exceptionHandlerFuture(_getItems());
+  Future<Iterable<Item>> getItems({Function? onErrorCallback}) {
+    return exceptionHandler(_getItems(), onErrorCallback: onErrorCallback);
   }
 
   Future<Iterable<Item>> _getItems() async {
@@ -38,35 +38,47 @@ class DatabasesRepository with RepositoryExceptionMixin {
   }
 
   Future<void> updateItem(
-      {required String oldItemId, required Item updatedItem}) async {
-    return exceptionHandlerFuture(await _databases.updateDocument(
-      databaseId: databaseId,
-      collectionId: collectionId,
-      documentId: updatedItem.id,
-      data: updatedItem.toJson(),
-    ));
+      {required String oldItemId,
+      required Item updatedItem,
+      Function? onErrorCallback}) async {
+    return exceptionHandler(
+      await _databases.updateDocument(
+        databaseId: databaseId,
+        collectionId: collectionId,
+        documentId: oldItemId,
+        data: updatedItem.toJson(),
+      ),
+      onErrorCallback: onErrorCallback,
+    );
   }
 
-  Future<void> removeItem({required String itemId}) async {
-    return exceptionHandlerFuture(
+  Future<void> removeItem(
+      {required String itemId, Function? onErrorCallback}) async {
+    return exceptionHandler(
       await _databases.deleteDocument(
           databaseId: databaseId,
           collectionId: collectionId,
           documentId: itemId),
+      onErrorCallback: onErrorCallback,
     );
   }
 
-  Future<void> addItem({required Item item}) async {
-    return exceptionHandlerFuture(await _databases.createDocument(
-      databaseId: databaseId,
-      collectionId: collectionId,
-      documentId: item.id,
-      data: item.toJson(),
-    ));
+  Future<void> addItem({required Item item, Function? onErrorCallback}) async {
+    return exceptionHandler(
+      await _databases.createDocument(
+        databaseId: databaseId,
+        collectionId: collectionId,
+        documentId: item.id,
+        data: item.toJson(),
+      ),
+      onErrorCallback: onErrorCallback,
+    );
   }
 
-  // TODO: set up some sort of error handling
-  void listenToItems(Function(Iterable<Item>) onItemsUpdated) {
+  void listenToItems(
+      {required Function(Iterable<Item>) onItemsUpdated,
+      Function? onErrorCallback,
+      Function? onLostConnectionCallback}) {
     final channels = [
       'databases.$databaseId.collections.$collectionId.documents'
     ];
@@ -77,6 +89,9 @@ class DatabasesRepository with RepositoryExceptionMixin {
       getItems().then(onItemsUpdated);
     }, onError: (o, st) {
       logger.severe('Error in realtime stream');
+      onErrorCallback?.call();
+    }, onDone: () {
+      onLostConnectionCallback?.call();
     });
   }
 

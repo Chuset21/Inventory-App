@@ -2,17 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/constants/constants.dart';
 import 'package:inventory_app/core/providers/providers.dart';
-import 'package:inventory_app/core/repositories/repositories.dart';
 import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
 
 import 'add_item_page.dart';
 import 'settings_page.dart';
-
-final _itemRepositoryProvider = Provider<DatabasesRepository>((ref) {
-  return DatabasesRepository(ref);
-});
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key, required this.title, required this.initialItems});
@@ -58,6 +53,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     _previousSearchText = currentText;
   }
 
+  Function _onErrorCallBackBuilder(
+          {required ErrorInfo errorInfo, int secondsToShow = 5}) =>
+      () => showErrorSnackBar(context, errorInfo, secondsToShow: secondsToShow);
+
   @override
   void initState() {
     super.initState();
@@ -67,14 +66,24 @@ class _HomePageState extends ConsumerState<HomePage> {
     // Wait for the first build cycle to complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Get the repository from the provider
-      final itemRepo = ref.watch(_itemRepositoryProvider);
+      final itemRepo = ref.watch(Repository.databases);
 
       // Listen to real-time updates
-      itemRepo.listenToItems((updatedItems) {
-        setState(() {
-          _items = updatedItems.toList();
-        });
-      });
+      itemRepo.listenToItems(
+        onItemsUpdated: (updatedItems) {
+          setState(() {
+            _items = updatedItems.toList();
+          });
+        },
+        onErrorCallback: _onErrorCallBackBuilder(
+            errorInfo: ErrorInfo(
+                message: 'Error fetching real-time data from the database')),
+        onLostConnectionCallback: _onErrorCallBackBuilder(
+            errorInfo: ErrorInfo(
+                message:
+                    'Lost connection to the database, restart the application once connection issues are resolved'),
+            secondsToShow: 20),
+      );
     });
   }
 
@@ -121,7 +130,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _searchController.removeListener(_searchControllerListener);
     _searchController.dispose();
     _disposeItemFocusNodes();
-    ref.read(_itemRepositoryProvider).closeSubscription();
+    ref.read(Repository.databases).closeSubscription();
     super.dispose();
   }
 
@@ -131,8 +140,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
-  // This function should be used whenever setting the _itemFocusNodesAndKeys
-  // To avoid memory leaks _itemFocusNodesAndKeys should never be set outside this function
+// This function should be used whenever setting the _itemFocusNodesAndKeys
+// To avoid memory leaks _itemFocusNodesAndKeys should never be set outside this function
   void _setItemFocusNodesAndKeys(
       List<({GlobalKey<ItemDisplayState> key, FocusNode node})>
           focusNodesAndKeys) {
@@ -389,7 +398,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
-  // TODO: lazily build this list, as this is causing a lot of lag, especially apparent when switching themes
+// TODO: lazily build this list, as this is causing a lot of lag, especially apparent when switching themes
   /// Build the list view with focus nodes.
   /// Returns the list view with a reference to the focus node list too.
   /// This returns the focus nodes for the numbers as they are needed to be able to unfocus them when the user presses elsewhere on the screen.
@@ -523,15 +532,20 @@ class _HomePageState extends ConsumerState<HomePage> {
     } else {
       final itemToAdd = newItem.copyWith(id: uniqueId);
       // Add the item to the database
-      ref.read(Repository.databases).addItem(item: itemToAdd);
+      ref.read(Repository.databases).addItem(
+            item: itemToAdd,
+            onErrorCallback: _databaseUpdateErrorCallback,
+          );
     }
   }
 
   void _updateItem({required Item existingItem, required Item newItem}) {
-    // Update the item's quantity in the database
-    ref
-        .read(Repository.databases)
-        .updateItem(oldItemId: existingItem.id, updatedItem: newItem);
+    // Update the item in the database
+    ref.read(Repository.databases).updateItem(
+          oldItemId: existingItem.id,
+          updatedItem: newItem,
+          onErrorCallback: _databaseUpdateErrorCallback,
+        );
   }
 
   void _setItemQuantity(
@@ -588,8 +602,15 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _removeItem(Item item) {
-    ref.read(Repository.databases).removeItem(itemId: item.id);
+    ref.read(Repository.databases).removeItem(
+          itemId: item.id,
+          onErrorCallback: _databaseUpdateErrorCallback,
+        );
   }
+
+  Function get _databaseUpdateErrorCallback => _onErrorCallBackBuilder(
+        errorInfo: ErrorInfo(message: 'Error updating database'),
+      );
 
   void _navigateToHomePage() {
     // Simply close the burger menu

@@ -18,35 +18,21 @@ class RepositoryException implements Exception {
 }
 
 mixin RepositoryExceptionMixin {
-  Future<T> exceptionHandlerFuture<T>(
+  Future<T> exceptionHandler<T>(
     FutureOr computation, {
     String unknownMessage = 'Repository Exception',
+    Function? onErrorCallback,
   }) async {
     try {
       return await computation;
     } on AppwriteException catch (e) {
       logger.warning(e.message, e);
+      onErrorCallback?.call();
       throw RepositoryException(
           message: e.message ?? 'An undefined error occurred');
     } on Exception catch (e, st) {
       logger.severe(unknownMessage, e, st);
-      throw RepositoryException(
-          message: unknownMessage, exception: e, stackTrace: st);
-    }
-  }
-
-  T exceptionHandler<T>(
-    T computation, {
-    String unknownMessage = 'Repository Exception',
-  }) {
-    try {
-      return computation;
-    } on AppwriteException catch (e) {
-      logger.warning(e.message, e);
-      throw RepositoryException(
-          message: e.message ?? 'An undefined error occurred');
-    } on Exception catch (e, st) {
-      logger.severe(unknownMessage, e, st);
+      onErrorCallback?.call();
       throw RepositoryException(
           message: unknownMessage, exception: e, stackTrace: st);
     }
