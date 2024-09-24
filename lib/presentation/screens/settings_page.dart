@@ -14,23 +14,19 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  late bool showError;
-
   @override
   void initState() {
     super.initState();
-    showError = widget.errorInfo != null;
+    // Show the error information the first time it builds
+    if (widget.errorInfo != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorSnackBar(context);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (showError) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showErrorSnackBar(context);
-      });
-      showError = false;
-    }
-
     const settings = [
       AppThemeSelector(),
       SafeDeleteSelector(),
