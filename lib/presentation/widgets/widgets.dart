@@ -1,4 +1,5 @@
 export 'app_theme_selector.dart';
+export 'appwrite_config_form.dart';
 export 'burger_menu.dart';
 export 'custom_dropdown_menu.dart';
 export 'default_app_bar.dart';

@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/providers/providers.dart';
-import 'package:inventory_app/core/repositories/repository_exception.dart';
 import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
+
+import 'repository_exception.dart';
 
 // TODO: not sure if we should watch appwriteConfigProvider here
 final _databaseRepositoryProvider = Provider<DatabasesRepository>((ref) {

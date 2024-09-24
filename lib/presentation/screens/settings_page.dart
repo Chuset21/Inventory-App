@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/constants.dart';
 import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
-import 'package:inventory_app/presentation/widgets/appwrite_config_form.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
 
 class SettingsPage extends StatefulWidget {

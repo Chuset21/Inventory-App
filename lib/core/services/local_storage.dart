@@ -12,7 +12,7 @@ class LocalStorage {
   static late final SharedPreferencesWithCache _preferences;
   static bool _isInitialised = false;
 
-  LocalStorage._(); // Private constructor
+  LocalStorage._();
 
   static Future<void> _initialise() async {
     WidgetsFlutterBinding.ensureInitialized();

@@ -15,6 +15,10 @@ final appwriteConfigProvider =
     StateNotifierProvider<AppwriteConfigNotifier, AppwriteConfig>(
   (ref) => AppwriteConfigNotifier(
     const AppwriteConfig(
-        endpoint: '', projectId: '', databaseId: '', collectionId: ''),
+      endpoint: '',
+      projectId: '',
+      databaseId: '',
+      collectionId: '',
+    ),
   ),
 );

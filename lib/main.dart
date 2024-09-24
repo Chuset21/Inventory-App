@@ -5,7 +5,7 @@ import 'package:inventory_app/core/constants/constants.dart';
 import 'package:inventory_app/core/providers/providers.dart';
 import 'package:inventory_app/core/services/services.dart';
 import 'package:inventory_app/core/themes/themes.dart';
-import 'package:inventory_app/core/utils/logger_utils.dart';
+import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/presentation/screens/screens.dart';
 
 import 'data/models/models.dart';
