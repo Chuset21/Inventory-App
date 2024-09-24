@@ -19,7 +19,7 @@ Appwrite, make sure your Docker installation is updated to support Composer V2.
 
 ### Loading appwrite configuration into flutter environment
 
-In the root directory you should have a `.env` file, which should look something like this
+In the root directory you should have a `.env` file, which should look something like this:
 
 ```dotenv
 APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
