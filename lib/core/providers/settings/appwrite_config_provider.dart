@@ -5,9 +5,9 @@ import 'package:inventory_app/data/models/models.dart';
 class AppwriteConfigNotifier extends StateNotifier<AppwriteConfig> {
   AppwriteConfigNotifier(super.initialState);
 
-  void updateConfig(AppwriteConfig value) {
+  Future<void> updateConfig(AppwriteConfig value) async {
     state = value;
-    LocalStorage.updateAppwriteConfig(value);
+    await LocalStorage.updateAppwriteConfig(value);
   }
 }
 

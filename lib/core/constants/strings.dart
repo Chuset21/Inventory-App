@@ -1,22 +1,17 @@
-final class AppTitles {
-  AppTitles._();
-
+abstract class AppTitles {
   static const settings = 'Settings';
   static const home = 'Home';
   static const menu = 'Menu';
+  static const appTitle = 'Freezer Inventory';
 }
 
-final class ThemeText {
-  ThemeText._();
-
+abstract class ThemeText {
   static const light = 'Light';
   static const dark = 'Dark';
   static const systemDefault = 'System Default';
 }
 
-final class SafeDelete {
-  SafeDelete._();
-
+abstract class SafeDelete {
   static const settingDescription = 'Show Item Deletion Warning';
   static const turnOffWarningMessage = 'Turn this warning off in settings';
   static const cancel = 'Cancel';
@@ -26,9 +21,7 @@ final class SafeDelete {
       'Are you sure you want to remove "$itemName"?';
 }
 
-final class Tooltips {
-  Tooltips._();
-
+abstract class Tooltips {
   static const addButton = 'Add Item';
   static const confirmEditItem = 'Confirm item changes';
   static const changeOneField =
@@ -53,9 +46,7 @@ final class Tooltips {
           : 'Quantity must be between 1 and $maxQuantity inclusive';
 }
 
-final class FilterMessages {
-  FilterMessages._();
-
+abstract class FilterMessages {
   static const searchHint = 'Filter by name';
   static const noCategoryFound = 'No categories match your search';
   static const categoryFilterHint = 'Filter by category';
@@ -63,20 +54,18 @@ final class FilterMessages {
   static const locationFilterHint = 'Filter by location';
 }
 
-final class Messages {
-  Messages._();
-
+abstract class Messages {
   static const refineSearchSuggestion =
       'Try simplifying or refining your search for better results';
   static const addItemsSuggestion =
       'Start adding items to keep track of your inventory';
   static const emptySearch = 'Looks like no items match your search!';
   static const emptyInventory = 'Your inventory is empty!';
+  static const appRestartTitle = 'Restarting the app with the new config';
+  static const appRestartPrompt = 'Please tap here to open the app again.';
 }
 
-final class EditItemMessages {
-  EditItemMessages._();
-
+abstract class EditItemMessages {
   static const addItem = 'Add Item';
   static const editItem = 'Edit Item';
   static const moveItem = 'Move some or all items to a different location';
@@ -87,4 +76,27 @@ final class EditItemMessages {
   static const categoryHint = 'Select an existing category or enter a new one';
   static const location = 'Location';
   static const locationHint = 'Select an existing location or enter a new one';
+}
+
+abstract class DatabaseConfigurationSettings {
+  static const title = 'Database Configuration Settings (Advanced)';
+  static const endpointLabel = 'Endpoint';
+  static const projectIdLabel = 'Project ID';
+  static const databaseIdLabel = 'Database ID';
+  static const collectionIdLabel = 'Collection ID';
+  static const submit = 'Submit';
+}
+
+abstract class SnackBarMessages {
+  static const appwriteConfigFormSubmitError =
+      'Invalid configuration - could not connect to database. Changes have not been applied.';
+  static const errorFetchingInitialData =
+      'Error fetching data from the database';
+  static const errorFetchingRealTimeData =
+      'Error fetching real-time data from the database';
+  static const errorUpdatingDatabase = 'Error updating database';
+  static const successfulDatabaseReconnection = 'Successfully connected to database';
+
+  static buildLostConnectionMessage({required int secondsToRetry}) =>
+      'Lost connection to the database, attempting to connect in $secondsToRetry seconds';
 }

@@ -1,6 +1,7 @@
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inventory_app/core/constants/constants.dart';
 import 'package:inventory_app/core/providers/providers.dart';
 import 'package:inventory_app/core/services/services.dart';
 import 'package:inventory_app/core/themes/themes.dart';
@@ -32,7 +33,8 @@ void main() async {
 }
 
 final _itemsProvider = FutureProvider<Iterable<Item>>((ref) {
-  return ref.read(Repository.databases).getItems();
+  final databaseProvider = ref.watch(Repository.databases);
+  return databaseProvider.getItems();
 });
 
 class MyApp extends ConsumerWidget {
@@ -47,18 +49,18 @@ class MyApp extends ConsumerWidget {
     return ThemeProvider(
       initTheme: getThemeData(initialTheme),
       builder: (context, myTheme) => MaterialApp(
-        title: 'Freezer Inventory',
+        title: AppTitles.appTitle,
         theme: myTheme,
         debugShowCheckedModeBanner: false,
         home: asyncItems.when(
           data: (items) => HomePage(
-            title: 'Freezer Inventory',
+            title: AppTitles.appTitle,
             initialItems: items.toList(),
           ),
           loading: () => const LoadingPage(),
           error: (e, st) => SettingsPage(
             errorInfo:
-                ErrorInfo(message: 'Error fetching data from the database'),
+                ErrorInfo(message: SnackBarMessages.errorFetchingInitialData),
           ),
         ),
       ),

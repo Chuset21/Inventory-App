@@ -86,8 +86,9 @@ class _HomePageState extends ConsumerState<HomePage> {
         });
       },
       onErrorCallback: _onErrorCallBackBuilder(
-          errorInfo: ErrorInfo(
-              message: 'Error fetching real-time data from the database')),
+        errorInfo:
+            ErrorInfo(message: SnackBarMessages.errorFetchingRealTimeData),
+      ),
       // TODO: fix Concurrent modification during iteration: Instance of 'IdentityMap<int, RealtimeSubscription>' error
       onLostConnectionCallback: _retryFetchingItems,
     );
@@ -111,7 +112,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                 HomePage.initialSecondsUntilRetry; // Reset on success
             _isDisconnected = false;
           });
-          showMessageSnackBar(context, 'Successfully connected to database',
+          showMessageSnackBar(
+              context, SnackBarMessages.successfulDatabaseReconnection,
               backgroundColor: Colors.green[200]);
           _setupItemListener(); // Start listening for real-time updates
         },
@@ -125,8 +127,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     // Show the error message
     _onErrorCallBackBuilder(
       errorInfo: ErrorInfo(
-          message:
-              'Lost connection to the database, attempting to connect in $_retryTimeout seconds'),
+        message: SnackBarMessages.buildLostConnectionMessage(
+            secondsToRetry: _retryTimeout),
+      ),
       secondsToShow: _retryTimeout,
     )();
   }
@@ -656,7 +659,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Function get _databaseUpdateErrorCallback => _onErrorCallBackBuilder(
-        errorInfo: ErrorInfo(message: 'Error updating database'),
+        errorInfo: ErrorInfo(message: SnackBarMessages.errorUpdatingDatabase),
       );
 
   void _navigateToHomePage() {

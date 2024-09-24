@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:inventory_app/core/constants/constants.dart';
 import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
+import 'package:inventory_app/presentation/widgets/appwrite_config_form.dart';
 import 'package:inventory_app/presentation/widgets/widgets.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -15,6 +16,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  bool _isConfigFormVisible = false; // State to track visibility
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +44,44 @@ class _SettingsPageState extends State<SettingsPage> {
         body: Padding(
           padding: const EdgeInsets.only(top: 5.0),
           child: ListView(
-            children: addDividersBetween(settings),
+            children: [
+              ...addDividersBetween(settings),
+              // Add other settings
+              Padding(
+                padding: const EdgeInsets.only(top: 60.0),
+                child: buildPaddedCenteredSetting(
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isConfigFormVisible = !_isConfigFormVisible;
+                      });
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          DatabaseConfigurationSettings.title,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        Icon(
+                          _isConfigFormVisible
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              buildDivider(),
+              Visibility(
+                visible: _isConfigFormVisible,
+                child: buildPaddedCenteredSetting(const AppwriteConfigForm()),
+              ),
+              if (_isConfigFormVisible) buildDivider(),
+              // Add divider if form is visible
+            ],
           ),
         ),
       ),
