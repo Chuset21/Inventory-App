@@ -16,6 +16,7 @@ class ItemDisplay extends ConsumerStatefulWidget {
   final void Function({required Item updatedItem}) editItem;
   final void Function(
       {required String newLocation, required int quantityToMove}) moveItem;
+  final bool disableButtons;
 
   /// The focus node for the number
   final FocusNode? numberFocusNode;
@@ -31,6 +32,7 @@ class ItemDisplay extends ConsumerStatefulWidget {
     required this.editItem,
     required this.moveItem,
     this.numberFocusNode,
+    this.disableButtons = false,
   });
 
   int get quantity => item.quantity;
@@ -179,6 +181,7 @@ class ItemDisplayState extends ConsumerState<ItemDisplay> {
           width: _quantityBoxSize,
           height: _quantityBoxSize,
           child: TextField(
+            readOnly: widget.disableButtons,
             controller: _controller,
             focusNode: widget.numberFocusNode,
             keyboardType: const TextInputType.numberWithOptions(
@@ -307,7 +310,7 @@ class ItemDisplayState extends ConsumerState<ItemDisplay> {
       Tooltip(
         message: tooltipMessage,
         child: GestureDetector(
-          onTap: onTapCallback,
+          onTap: widget.disableButtons ? null : onTapCallback,
           child: _buildCircleAvatar(
             radius: radius,
             child: child,

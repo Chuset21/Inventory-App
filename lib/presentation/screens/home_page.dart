@@ -14,6 +14,7 @@ class HomePage extends ConsumerStatefulWidget {
 
   final String title;
   final List<Item> initialItems;
+  static const initialSecondsUntilRetry = 10;
 
   @override
   ConsumerState<HomePage> createState() => _HomePageState();
@@ -26,6 +27,10 @@ class _HomePageState extends ConsumerState<HomePage> {
   String _previousSearchText = '';
   final FocusNode _searchFocusNode = FocusNode();
   late List<Item> _items;
+  int _secondsUntilRetry = HomePage.initialSecondsUntilRetry;
+  bool _isDisconnected = false;
+
+  int get _retryTimeout => _secondsUntilRetry;
 
   List<String> _selectedCategories = [];
   List<String> _selectedLocations = [];
@@ -66,25 +71,64 @@ class _HomePageState extends ConsumerState<HomePage> {
     // Wait for the first build cycle to complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Get the repository from the provider
-      final itemRepo = ref.watch(Repository.databases);
+      _setupItemListener();
+    });
+  }
 
-      // Listen to real-time updates
-      itemRepo.listenToItems(
-        onItemsUpdated: (updatedItems) {
+  void _setupItemListener() {
+    final itemRepo = ref.watch(Repository.databases);
+
+    // Listen to real-time updates
+    itemRepo.listenToItems(
+      onItemsUpdated: (updatedItems) {
+        setState(() {
+          _items = updatedItems.toList();
+        });
+      },
+      onErrorCallback: _onErrorCallBackBuilder(
+          errorInfo: ErrorInfo(
+              message: 'Error fetching real-time data from the database')),
+      // TODO: fix Concurrent modification during iteration: Instance of 'IdentityMap<int, RealtimeSubscription>' error
+      onLostConnectionCallback: _retryFetchingItems,
+    );
+  }
+
+  void _retryFetchingItems() {
+    setState(() {
+      _isDisconnected = true;
+    });
+
+    Future.delayed(Duration(seconds: _retryTimeout), () {
+      // Double the retry timeout for the next attempt
+      _secondsUntilRetry *= 2;
+
+      // Fetch items asynchronously
+      ref.read(Repository.databases).getItems().then(
+        (result) {
           setState(() {
-            _items = updatedItems.toList();
+            _items = result.toList();
+            _secondsUntilRetry =
+                HomePage.initialSecondsUntilRetry; // Reset on success
+            _isDisconnected = false;
           });
+          showMessageSnackBar(context, 'Successfully connected to database',
+              backgroundColor: Colors.green[200]);
+          _setupItemListener(); // Start listening for real-time updates
         },
-        onErrorCallback: _onErrorCallBackBuilder(
-            errorInfo: ErrorInfo(
-                message: 'Error fetching real-time data from the database')),
-        onLostConnectionCallback: _onErrorCallBackBuilder(
-            errorInfo: ErrorInfo(
-                message:
-                    'Lost connection to the database, restart the application once connection issues are resolved'),
-            secondsToShow: 20),
+        onError: (o, st) {
+          // Recursively retry on error
+          _retryFetchingItems();
+        },
       );
     });
+
+    // Show the error message
+    _onErrorCallBackBuilder(
+      errorInfo: ErrorInfo(
+          message:
+              'Lost connection to the database, attempting to connect in $_retryTimeout seconds'),
+      secondsToShow: _retryTimeout,
+    )();
   }
 
   void _unfocusAndSubmitItemNodes() {
@@ -130,7 +174,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _searchController.removeListener(_searchControllerListener);
     _searchController.dispose();
     _disposeItemFocusNodes();
-    ref.read(Repository.databases).closeSubscription();
+    ref.read(Repository.databases).cancelSubscription();
     super.dispose();
   }
 
@@ -294,19 +338,21 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddItemPage(
-                  addItemCallback: _addItem,
-                  existingNames: _existingNames,
-                  existingCategories: _existingCategories,
-                  existingLocations: _existingLocations,
-                ),
-              ),
-            );
-          },
+          onPressed: _isDisconnected
+              ? null
+              : () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddItemPage(
+                        addItemCallback: _addItem,
+                        existingNames: _existingNames,
+                        existingCategories: _existingCategories,
+                        existingLocations: _existingLocations,
+                      ),
+                    ),
+                  );
+                },
           tooltip: Tooltips.addButton,
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).canvasColor,
@@ -492,6 +538,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       Column(
         children: [
           ItemDisplay(
+            disableButtons: _isDisconnected,
             key: key,
             existingNames: _existingNames,
             existingCategories: _existingCategories,

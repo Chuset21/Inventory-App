@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/constants/constants.dart';
@@ -14,7 +16,7 @@ class DatabasesRepository with RepositoryExceptionMixin {
   DatabasesRepository(this._ref);
 
   final Ref _ref;
-  RealtimeSubscription? _subscription;
+  StreamSubscription? _subscription;
 
   static Provider<DatabasesRepository> get provider =>
       _databaseRepositoryProvider;
@@ -83,9 +85,8 @@ class DatabasesRepository with RepositoryExceptionMixin {
       'databases.$databaseId.collections.$collectionId.documents'
     ];
 
-    _subscription = _realtime.subscribe(channels);
-
-    _subscription!.stream.listen((event) {
+    cancelSubscription();
+    _subscription = _realtime.subscribe(channels).stream.listen((event) {
       getItems().then(onItemsUpdated);
     }, onError: (o, st) {
       logger.severe('Error in realtime stream');
@@ -95,10 +96,10 @@ class DatabasesRepository with RepositoryExceptionMixin {
     });
   }
 
-  void closeSubscription() {
+  void cancelSubscription() {
     if (_subscription != null) {
-      logger.info('Closing subscription');
-      _subscription!.close();
+      logger.info('Cancelling subscription');
+      _subscription!.cancel();
     }
   }
 }

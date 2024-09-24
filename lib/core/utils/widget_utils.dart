@@ -10,11 +10,17 @@ void selectAllText(TextEditingController controller) {
 
 void showErrorSnackBar(BuildContext context, ErrorInfo errorInfo,
     {int secondsToShow = 5}) {
+  showMessageSnackBar(context, errorInfo.message, secondsToShow: secondsToShow);
+}
+
+void showMessageSnackBar(BuildContext context, String message,
+    {int secondsToShow = 5, Color? backgroundColor}) {
   final snackBar = SnackBar(
     behavior: SnackBarBehavior.floating,
+    backgroundColor: backgroundColor,
     showCloseIcon: true,
     duration: Duration(seconds: secondsToShow),
-    content: Center(child: Text(errorInfo.message)),
+    content: Center(child: Text(message)),
   );
 
   ScaffoldMessenger.of(context)
