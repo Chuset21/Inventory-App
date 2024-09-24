@@ -4,10 +4,10 @@ import 'package:appwrite/appwrite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/providers/providers.dart';
 import 'package:inventory_app/core/repositories/repository_exception.dart';
-import 'package:inventory_app/core/services/appwrite_config.dart';
 import 'package:inventory_app/core/utils/utils.dart';
 import 'package:inventory_app/data/models/models.dart';
 
+// TODO: not sure if we should watch appwriteConfigProvider here
 final _databaseRepositoryProvider = Provider<DatabasesRepository>((ref) {
   return DatabasesRepository(ref);
 });
@@ -25,14 +25,16 @@ class DatabasesRepository with RepositoryExceptionMixin {
 
   Databases get _databases => _ref.read(Dependency.databases);
 
+  AppwriteConfig get _appwriteConfig => _ref.read(appwriteConfigProvider);
+
   Future<Iterable<Item>> getItems({Function? onErrorCallback}) {
     return exceptionHandler(_getItems(), onErrorCallback: onErrorCallback);
   }
 
   Future<Iterable<Item>> _getItems() async {
     final documents = (await _databases.listDocuments(
-      collectionId: AppwriteConfig.collectionId,
-      databaseId: AppwriteConfig.databaseId,
+      collectionId: _appwriteConfig.collectionId,
+      databaseId: _appwriteConfig.databaseId,
     ))
         .documents;
 
@@ -45,8 +47,8 @@ class DatabasesRepository with RepositoryExceptionMixin {
       Function? onErrorCallback}) async {
     return exceptionHandler(
       await _databases.updateDocument(
-        databaseId: AppwriteConfig.databaseId,
-        collectionId: AppwriteConfig.collectionId,
+        databaseId: _appwriteConfig.databaseId,
+        collectionId: _appwriteConfig.collectionId,
         documentId: oldItemId,
         data: updatedItem.toJson(),
       ),
@@ -58,8 +60,8 @@ class DatabasesRepository with RepositoryExceptionMixin {
       {required String itemId, Function? onErrorCallback}) async {
     return exceptionHandler(
       await _databases.deleteDocument(
-          databaseId: AppwriteConfig.databaseId,
-          collectionId: AppwriteConfig.collectionId,
+          databaseId: _appwriteConfig.databaseId,
+          collectionId: _appwriteConfig.collectionId,
           documentId: itemId),
       onErrorCallback: onErrorCallback,
     );
@@ -68,8 +70,8 @@ class DatabasesRepository with RepositoryExceptionMixin {
   Future<void> addItem({required Item item, Function? onErrorCallback}) async {
     return exceptionHandler(
       await _databases.createDocument(
-        databaseId: AppwriteConfig.databaseId,
-        collectionId: AppwriteConfig.collectionId,
+        databaseId: _appwriteConfig.databaseId,
+        collectionId: _appwriteConfig.collectionId,
         documentId: item.id,
         data: item.toJson(),
       ),
@@ -82,7 +84,7 @@ class DatabasesRepository with RepositoryExceptionMixin {
       Function? onErrorCallback,
       Function? onLostConnectionCallback}) {
     final channels = [
-      'databases.${AppwriteConfig.databaseId}.collections.${AppwriteConfig.collectionId}.documents'
+      'databases.${_appwriteConfig.databaseId}.collections.${_appwriteConfig.collectionId}.documents'
     ];
 
     cancelSubscription();

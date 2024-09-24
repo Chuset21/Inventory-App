@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/providers/providers.dart';
 import 'package:inventory_app/core/services/services.dart';
 import 'package:inventory_app/core/themes/themes.dart';
+import 'package:inventory_app/core/utils/appwrite_config.dart';
 import 'package:inventory_app/core/utils/logger_utils.dart';
 import 'package:inventory_app/presentation/screens/screens.dart';
 
@@ -16,6 +17,7 @@ void main() async {
   // Load settings before starting the app to avoid unnecessary reloads
   final initialTheme = await LocalStorage.getAppTheme();
   final isSafeDeleteOn = await LocalStorage.isSafeDeleteOn();
+  final defaultAppwriteConfig = getDefaultAppwriteConfig();
 
   setupLogger();
 
@@ -25,6 +27,8 @@ void main() async {
         themeProvider.overrideWith((ref) => ThemeNotifier(initialTheme)),
         safeDeleteProvider
             .overrideWith((ref) => SafeDeleteNotifier(isSafeDeleteOn)),
+        appwriteConfigProvider.overrideWith(
+            (ref) => AppwriteConfigNotifier(defaultAppwriteConfig)),
       ],
       child: MyApp(initialTheme: initialTheme),
     ),
