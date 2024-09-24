@@ -78,49 +78,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
-  void _addItem({required Item newItem}) {
-    final existingItem = _tryGetItem(newItem);
-
-    if (existingItem != null) {
-      final updatedItem = existingItem.copyWith(
-          quantity: existingItem.quantity + newItem.quantity);
-      _updateItem(existingItem: existingItem, newItem: updatedItem);
-    } else {
-      final itemToAdd = newItem.copyWith(id: uniqueId);
-      // Add the item to the database
-      ref.read(Repository.databases).addItem(item: itemToAdd);
-    }
-  }
-
-  void _updateItem({required Item existingItem, required Item newItem}) {
-    // Update the item's quantity in the database
-    ref
-        .read(Repository.databases)
-        .updateItem(oldItemId: existingItem.id, updatedItem: newItem);
-  }
-
-  void _setItemQuantity(
-      {required Item itemToUpdate, required int newQuantity}) {
-    final existingItem = _tryGetItem(itemToUpdate);
-
-    if (existingItem != null) {
-      // Update the item's quantity
-      final updatedItem = existingItem.copyWith(quantity: newQuantity);
-      _updateItem(existingItem: existingItem, newItem: updatedItem);
-    }
-  }
-
-  Item? _tryGetItem(Item newItem) {
-    for (final item in _items) {
-      if (item.name == newItem.name &&
-          item.category == newItem.category &&
-          item.location == newItem.location) {
-        return item; // Return the found item
-      }
-    }
-    return null;
-  }
-
   void _unfocusAndSubmitItemNodes() {
     // Unfocus each item focus node
     for (var nodeAndKey in _itemFocusNodesAndKeys) {
@@ -532,6 +489,49 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ],
       );
+
+  void _addItem({required Item newItem}) {
+    final existingItem = _tryGetItem(newItem);
+
+    if (existingItem != null) {
+      final updatedItem = existingItem.copyWith(
+          quantity: existingItem.quantity + newItem.quantity);
+      _updateItem(existingItem: existingItem, newItem: updatedItem);
+    } else {
+      final itemToAdd = newItem.copyWith(id: uniqueId);
+      // Add the item to the database
+      ref.read(Repository.databases).addItem(item: itemToAdd);
+    }
+  }
+
+  void _updateItem({required Item existingItem, required Item newItem}) {
+    // Update the item's quantity in the database
+    ref
+        .read(Repository.databases)
+        .updateItem(oldItemId: existingItem.id, updatedItem: newItem);
+  }
+
+  void _setItemQuantity(
+      {required Item itemToUpdate, required int newQuantity}) {
+    final existingItem = _tryGetItem(itemToUpdate);
+
+    if (existingItem != null) {
+      // Update the item's quantity
+      final updatedItem = existingItem.copyWith(quantity: newQuantity);
+      _updateItem(existingItem: existingItem, newItem: updatedItem);
+    }
+  }
+
+  Item? _tryGetItem(Item newItem) {
+    for (final item in _items) {
+      if (item.name == newItem.name &&
+          item.category == newItem.category &&
+          item.location == newItem.location) {
+        return item; // Return the found item
+      }
+    }
+    return null;
+  }
 
   void _moveItem(int quantityToMove, Item item, String newLocation) {
     // First update the existing item
