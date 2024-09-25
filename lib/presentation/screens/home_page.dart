@@ -637,10 +637,10 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _editItem(Item prevItem, Item newItem) {
-    // Check if the updated item collides with any other items
     final existingItem = _tryGetItem(newItem);
 
-    if (existingItem != null) {
+    // Check if the updated item collides with any items other than the existing one
+    if (existingItem != null && existingItem != prevItem) {
       final updatedItem = existingItem.copyWith(
           quantity: existingItem.quantity + newItem.quantity);
       // Remove the item that was edited
