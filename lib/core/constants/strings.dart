@@ -2,7 +2,7 @@ abstract class AppTitles {
   static const settings = 'Settings';
   static const home = 'Home';
   static const menu = 'Menu';
-  static const appTitle = 'Freezer Inventory';
+  static const appTitle = 'Inventory';
 }
 
 abstract class ThemeText {
@@ -95,7 +95,8 @@ abstract class SnackBarMessages {
   static const errorFetchingRealTimeData =
       'Error fetching real-time data from the database';
   static const errorUpdatingDatabase = 'Error updating database';
-  static const successfulDatabaseReconnection = 'Successfully connected to database';
+  static const successfulDatabaseReconnection =
+      'Successfully connected to database';
 
   static buildLostConnectionMessage({required int secondsToRetry}) =>
       'Lost connection to the database, attempting to connect in $secondsToRetry seconds';
