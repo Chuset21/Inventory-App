@@ -5,10 +5,10 @@ import 'package:inventory_app/data/models/models.dart';
 
 /// This function must be called after the .env file has been read.
 AppwriteConfig getDefaultAppwriteConfig() => AppwriteConfig(
-      endpoint: dotenv.env[endpointEnvKey]!,
-      projectId: dotenv.env[projectIdEnvKey]!,
-      databaseId: dotenv.env[databaseIdEnvKey]!,
-      collectionId: dotenv.env[collectionIdEnvKey]!,
+      endpoint: dotenv.env[endpointEnvKey] ?? '',
+      projectId: dotenv.env[projectIdEnvKey] ?? '',
+      databaseId: dotenv.env[databaseIdEnvKey] ?? '',
+      collectionId: dotenv.env[collectionIdEnvKey] ?? '',
     );
 
 Future<bool> isConfigValid(AppwriteConfig appwriteConfig) async {

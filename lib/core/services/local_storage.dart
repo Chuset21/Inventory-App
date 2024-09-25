@@ -37,7 +37,11 @@ class LocalStorage {
     }
 
     // Initialize Appwrite Config
-    await dotenv.load(fileName: ".env");
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      logger.severe('Error loading .env file');
+    }
     final defaultAppwriteConfig = getDefaultAppwriteConfig();
 
     if (_preferences.get(appwriteEndpointKey) == null) {
