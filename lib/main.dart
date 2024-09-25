@@ -50,7 +50,6 @@ class MyApp extends ConsumerWidget {
       builder: (context, myTheme) => MaterialApp(
         title: AppTitles.appTitle,
         theme: myTheme,
-        debugShowCheckedModeBanner: false,
         home: asyncItems.when(
           data: (items) => HomePage(
             title: AppTitles.appTitle,
