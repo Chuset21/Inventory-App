@@ -112,9 +112,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                 HomePage.initialSecondsUntilRetry; // Reset on success
             _isDisconnected = false;
           });
-          showMessageSnackBar(
-              context, SnackBarMessages.successfulDatabaseReconnection,
-              backgroundColor: Colors.green[200]);
+          if (context.mounted && mounted) {
+            showMessageSnackBar(
+                context, SnackBarMessages.successfulDatabaseReconnection,
+                backgroundColor: Colors.green[200]);
+          }
           _setupItemListener(); // Start listening for real-time updates
         },
         onError: (o, st) {

@@ -97,13 +97,15 @@ class _AppwriteConfigFormState extends ConsumerState<AppwriteConfigForm> {
                             notificationBody: Messages.appRestartPrompt);
                       }
                     } else {
-                      showErrorSnackBar(
-                        context,
-                        ErrorInfo(
-                          message:
-                              SnackBarMessages.appwriteConfigFormSubmitError,
-                        ),
-                      );
+                      if (context.mounted && mounted) {
+                        showErrorSnackBar(
+                          context,
+                          ErrorInfo(
+                            message:
+                                SnackBarMessages.appwriteConfigFormSubmitError,
+                          ),
+                        );
+                      }
                     }
                   }
                 : null,
