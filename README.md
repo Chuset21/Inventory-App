@@ -64,3 +64,19 @@ In the [appwrite directory](/appwrite), run the following command:
 ```bash
 docker compose down -v
 ```
+
+## App Signing
+
+To sign the app for release mode you must have a keystore file and a file in [/android](/android)
+called `key.properties`.
+It should look something like this.
+
+```properties
+storePassword=abc123
+keyPassword=abc123
+keyAlias=upload
+storeFile=<keystore-file-location>
+```
+
+Since the keystore file and the `key.properties` file contain sensitive and personal information I
+have not checked them into the repository.

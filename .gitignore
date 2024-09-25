@@ -14,6 +14,10 @@ pubspec.lock
 
 # Ignore the .env file
 .env
+# Ignore the keystore file
+upload-keystore.jks
+# Ignore the key.properties file
+/android/key.properties
 
 # Files created by the builder
 *.g.dart
