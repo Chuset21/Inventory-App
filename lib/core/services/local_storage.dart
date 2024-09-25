@@ -30,35 +30,49 @@ class LocalStorage {
     );
 
     if (_preferences.get(appThemeKey) == null) {
-      _preferences.setString(appThemeKey, _appThemeDefault.name);
+      await _preferences.setString(appThemeKey, _appThemeDefault.name);
     }
     if (_preferences.get(isSafeDeleteOnKey) == null) {
-      _preferences.setBool(isSafeDeleteOnKey, _isSafeDeleteOnDefault);
+      await _preferences.setBool(isSafeDeleteOnKey, _isSafeDeleteOnDefault);
     }
 
-    // Initialize Appwrite Config
-    try {
-      await dotenv.load(fileName: ".env");
-    } catch (e) {
-      logger.severe('Error loading .env file');
-    }
-    final defaultAppwriteConfig = getDefaultAppwriteConfig();
+    // Check if any of the Appwrite config keys are missing
+    final endpoint = _preferences.getString(appwriteEndpointKey);
+    final projectId = _preferences.getString(appwriteProjectIdKey);
+    final databaseId = _preferences.getString(appwriteDatabaseIdKey);
+    final collectionId = _preferences.getString(appwriteCollectionIdKey);
 
-    if (_preferences.get(appwriteEndpointKey) == null) {
-      _preferences.setString(
-          appwriteEndpointKey, defaultAppwriteConfig.endpoint);
-    }
-    if (_preferences.get(appwriteProjectIdKey) == null) {
-      _preferences.setString(
-          appwriteProjectIdKey, defaultAppwriteConfig.projectId);
-    }
-    if (_preferences.get(appwriteDatabaseIdKey) == null) {
-      _preferences.setString(
-          appwriteDatabaseIdKey, defaultAppwriteConfig.databaseId);
-    }
-    if (_preferences.get(appwriteCollectionIdKey) == null) {
-      _preferences.setString(
-          appwriteCollectionIdKey, defaultAppwriteConfig.collectionId);
+    if (endpoint == null ||
+        projectId == null ||
+        databaseId == null ||
+        collectionId == null) {
+      // Try loading the environment file only if a key is missing
+      try {
+        await dotenv.load(fileName: ".env");
+      } catch (e) {
+        logger.severe('Error loading .env file');
+      }
+
+      // Get default config after loading environment variables
+      final defaultAppwriteConfig = getDefaultAppwriteConfig();
+
+      // Set preferences only if they are null
+      if (endpoint == null) {
+        await _preferences.setString(
+            appwriteEndpointKey, defaultAppwriteConfig.endpoint);
+      }
+      if (projectId == null) {
+        await _preferences.setString(
+            appwriteProjectIdKey, defaultAppwriteConfig.projectId);
+      }
+      if (databaseId == null) {
+        await _preferences.setString(
+            appwriteDatabaseIdKey, defaultAppwriteConfig.databaseId);
+      }
+      if (collectionId == null) {
+        await _preferences.setString(
+            appwriteCollectionIdKey, defaultAppwriteConfig.collectionId);
+      }
     }
     _isInitialised = true;
   }
@@ -75,7 +89,7 @@ class LocalStorage {
     if (!_isInitialised) {
       await _initialise();
     }
-    _preferences.setString(appThemeKey, theme.name);
+    await _preferences.setString(appThemeKey, theme.name);
   }
 
   static Future<bool> isSafeDeleteOn() async {
@@ -89,7 +103,7 @@ class LocalStorage {
     if (!_isInitialised) {
       await _initialise();
     }
-    _preferences.setBool(isSafeDeleteOnKey, isSafeDeleteOn);
+    await _preferences.setBool(isSafeDeleteOnKey, isSafeDeleteOn);
   }
 
   // Appwrite Config Methods
@@ -116,16 +130,16 @@ class LocalStorage {
       await _initialise();
     }
     if (endpoint != null) {
-      _preferences.setString(appwriteEndpointKey, endpoint);
+      await _preferences.setString(appwriteEndpointKey, endpoint);
     }
     if (projectId != null) {
-      _preferences.setString(appwriteProjectIdKey, projectId);
+      await _preferences.setString(appwriteProjectIdKey, projectId);
     }
     if (databaseId != null) {
-      _preferences.setString(appwriteDatabaseIdKey, databaseId);
+      await _preferences.setString(appwriteDatabaseIdKey, databaseId);
     }
     if (collectionId != null) {
-      _preferences.setString(appwriteCollectionIdKey, collectionId);
+      await _preferences.setString(appwriteCollectionIdKey, collectionId);
     }
   }
 
