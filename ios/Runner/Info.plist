@@ -45,5 +45,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Not Sure if the below is needed, would need to test on iOS -->
+	<key>NSAppTransportSecurity</key>
+    <dict>
+       <key>NSAllowsArbitraryLoads</key><true/>
+    </dict>
 </dict>
 </plist>
