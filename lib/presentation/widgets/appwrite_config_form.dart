@@ -74,7 +74,7 @@ class _AppwriteConfigFormState extends ConsumerState<AppwriteConfigForm> {
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: isDifferentConfig(currentConfig)
+            onPressed: _isDifferentConfig(currentConfig)
                 ? () async {
                     final configToTest = AppwriteConfig(
                       endpoint: _endpointController.text.trim().toLowerCase(),
@@ -119,7 +119,7 @@ class _AppwriteConfigFormState extends ConsumerState<AppwriteConfigForm> {
   }
 
   // Function to check if the new configuration is different
-  bool isDifferentConfig(AppwriteConfig currentConfig) {
+  bool _isDifferentConfig(AppwriteConfig currentConfig) {
     final newEndpoint = _endpointController.text.trim().toLowerCase();
     final newProjectId = _projectIdController.text.trim().toLowerCase();
     final newDatabaseId = _databaseIdController.text.trim().toLowerCase();
