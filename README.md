@@ -31,6 +31,10 @@ COLLECTION_ID=68g53293002880cf1e8b
 If you change the key names, make sure to change the key names
 in [constants/env.dart](/lib/core/constants/env.dart).
 
+You can also change the configuration settings in the settings page.  
+**Note that the configuration settings are treated as case insensitive and will be converted to
+lowercase.**
+
 ### Starting the Appwrite server
 
 In the [appwrite directory](/appwrite), run the following command:
