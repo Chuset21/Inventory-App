@@ -12,11 +12,14 @@ final ThemeData _darkTheme = ThemeData(
 
 ThemeData _createTheme(ThemeData initialTheme) => initialTheme.copyWith(
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: _darkTheme.colorScheme.error,
-        contentTextStyle: TextStyle(color: _darkTheme.colorScheme.surface),
-        actionTextColor: _darkTheme.colorScheme.surface,
-        closeIconColor: _darkTheme.colorScheme.surface,
+        backgroundColor: initialTheme.colorScheme.error,
+        contentTextStyle: TextStyle(color: initialTheme.colorScheme.surface),
+        actionTextColor: initialTheme.colorScheme.surface,
+        closeIconColor: initialTheme.colorScheme.surface,
       ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+          linearTrackColor: initialTheme.colorScheme.onError.withOpacity(0.5),
+          color: initialTheme.colorScheme.onError),
     );
 
 final ThemeData lightTheme = _createTheme(_lightTheme);

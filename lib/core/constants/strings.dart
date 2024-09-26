@@ -101,3 +101,7 @@ abstract class SnackBarMessages {
   static buildLostConnectionMessage({required int secondsToRetry}) =>
       'Lost connection to the database, attempting to connect in $secondsToRetry seconds';
 }
+
+abstract class SemanticLabels {
+  static const linearProgressIndicator = 'Linear progress indicator';
+}

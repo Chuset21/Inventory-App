@@ -114,8 +114,11 @@ class _HomePageState extends ConsumerState<HomePage> {
           });
           if (context.mounted && mounted) {
             showMessageSnackBar(
-                context, SnackBarMessages.successfulDatabaseReconnection,
-                backgroundColor: Colors.green[200]);
+              context,
+              SnackBarMessages.successfulDatabaseReconnection,
+              backgroundColor: Colors.green[200],
+              foregroundColor: Colors.green[900],
+            );
           }
           _setupItemListener(); // Start listening for real-time updates
         },

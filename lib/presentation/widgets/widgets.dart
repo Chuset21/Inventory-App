@@ -7,3 +7,4 @@ export 'empty_inventory.dart';
 export 'filter_dropdown.dart';
 export 'item_display.dart';
 export 'safe_delete_selector.dart';
+export 'my_linear_progress_indicator.dart';
