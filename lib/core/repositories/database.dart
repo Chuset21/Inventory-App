@@ -8,7 +8,6 @@ import 'package:inventory_app/data/models/models.dart';
 
 import 'repository_exception.dart';
 
-// TODO: not sure if we should watch appwriteConfigProvider here
 final _databaseRepositoryProvider = Provider<DatabasesRepository>((ref) {
   return DatabasesRepository(ref);
 });
@@ -34,18 +33,46 @@ class DatabasesRepository with RepositoryExceptionMixin {
     ];
   }
 
+  static const _queryLimit = 100;
+
   Future<Iterable<Item>> getItems({Function? onErrorCallback}) {
     return exceptionHandler(_getItems(), onErrorCallback: onErrorCallback);
   }
 
   Future<Iterable<Item>> _getItems() async {
-    final documents = (await _databases.listDocuments(
-      collectionId: _appwriteConfig.collectionId,
-      databaseId: _appwriteConfig.databaseId,
-    ))
-        .documents;
+    final List<Item> result = [];
+    String? lastDocumentId;
+    bool hasMore = true;
 
-    return documents.map((doc) => Item.fromJson(doc.data));
+    // Loop to fetch all documents in batches of _queryLimit
+    while (hasMore) {
+      final queries = [
+        Query.limit(_queryLimit),
+      ];
+
+      // If there is a lastDocumentId, add the cursorAfter query
+      if (lastDocumentId != null) {
+        queries.add(Query.cursorAfter(lastDocumentId));
+      }
+
+      // Fetch the current batch of documents
+      final documents = (await _databases.listDocuments(
+        collectionId: _appwriteConfig.collectionId,
+        databaseId: _appwriteConfig.databaseId,
+        queries: queries,
+      ))
+          .documents;
+
+      result.addAll(documents.map((doc) => Item.fromJson(doc.data)));
+
+      if (documents.length < _queryLimit) {
+        hasMore = false;
+      } else {
+        lastDocumentId = documents.last.$id;
+      }
+    }
+
+    return result;
   }
 
   Future<void> updateItem(
