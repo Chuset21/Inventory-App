@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inventory_app/core/constants/constants.dart';
@@ -21,6 +24,8 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  late Timer _timer;
+  static const _timerDuration = Duration(seconds: 10);
   bool _isSearching = false;
   bool _isFilterVisible = false;
   final TextEditingController _searchController = TextEditingController();
@@ -70,7 +75,6 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     // Wait for the first build cycle to complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Get the repository from the provider
       _setupItemListener();
     });
   }
@@ -78,20 +82,56 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _setupItemListener() {
     final itemRepo = ref.watch(Repository.databases);
 
+    // Set up a timer to fetch items periodically in case the realtime connection isn't working
+    _timer = _buildPeriodicTimer();
+
     // Listen to real-time updates
     itemRepo.listenToItems(
       onItemsUpdated: (updatedItems) {
-        setState(() {
-          _items = updatedItems.toList();
-        });
+        // Reset the timer
+        _timer.cancel();
+        _timer = _buildPeriodicTimer();
+
+        if (!_areItemsEqual(updatedItems)) {
+          setState(() {
+            _items = updatedItems.toList();
+          });
+        }
       },
       onErrorCallback: _onErrorCallBackBuilder(
         errorInfo:
             ErrorInfo(message: SnackBarMessages.errorFetchingRealTimeData),
       ),
       // TODO: fix Concurrent modification during iteration: Instance of 'IdentityMap<int, RealtimeSubscription>' error
-      onLostConnectionCallback: _retryFetchingItems,
+      onLostConnectionCallback: () {
+        // Cancel the timer until we reconnect, where _setupItemListener() will be called, resetting the timer
+        _timer.cancel();
+        _retryFetchingItems();
+      },
     );
+  }
+
+  bool _areItemsEqual(Iterable<Item> newItems) =>
+      const UnorderedIterableEquality().equals(_items, newItems);
+
+  Timer _buildPeriodicTimer() {
+    final itemRepo = ref.watch(Repository.databases);
+
+    return Timer.periodic(_timerDuration, (timer) {
+      itemRepo.getItems().then((result) {
+        if (!_areItemsEqual(result)) {
+          setState(() {
+            _items = result.toList();
+          });
+        }
+      }, onError: (o, st) {
+        _onErrorCallBackBuilder(
+          errorInfo: ErrorInfo(
+            message: SnackBarMessages.errorFetchingData,
+          ),
+        )();
+      });
+    });
   }
 
   void _retryFetchingItems() {
@@ -107,7 +147,9 @@ class _HomePageState extends ConsumerState<HomePage> {
       ref.read(Repository.databases).getItems().then(
         (result) {
           setState(() {
-            _items = result.toList();
+            if (!_areItemsEqual(result)) {
+              _items = result.toList();
+            }
             _secondsUntilRetry =
                 HomePage.initialSecondsUntilRetry; // Reset on success
             _isDisconnected = false;
@@ -183,6 +225,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     _searchController.dispose();
     _disposeItemFocusNodes();
     ref.read(Repository.databases).cancelSubscription();
+    _timer.cancel();
     super.dispose();
   }
 
@@ -577,40 +620,72 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       );
 
-  void _addItem({required Item newItem}) {
-    final existingItem = _tryGetItem(newItem);
+  /// Returns the item index of a matching item, if the item is not present, returns -1
+  int _getItemIndex(Item newItem) => _items.indexWhere((item) =>
+      item.name == newItem.name &&
+      item.category == newItem.category &&
+      item.location == newItem.location);
 
-    if (existingItem != null) {
+  void _addItem({required Item newItem}) {
+    final existingItemIndex = _getItemIndex(newItem);
+
+    if (existingItemIndex >= 0) {
+      final existingItem = _items[existingItemIndex];
       final updatedItem = existingItem.copyWith(
           quantity: existingItem.quantity + newItem.quantity);
-      _updateItem(existingItem: existingItem, newItem: updatedItem);
+      _updateItem(
+        existingItemIndex: existingItemIndex,
+        existingItem: existingItem,
+        newItem: updatedItem,
+      );
     } else {
       final itemToAdd = newItem.copyWith(id: uniqueId);
+      // Optimistically update the UI
+      _localAddItem(newItem: itemToAdd);
       // Add the item to the database
       ref.read(Repository.databases).addItem(
             item: itemToAdd,
-            onErrorCallback: _databaseUpdateErrorCallback,
+            onErrorCallback: () {
+              // Undo the optimistic UI update
+              _localRemoveItem(itemToAdd);
+              _databaseUpdateErrorCallback();
+            },
           );
     }
   }
 
-  void _updateItem({required Item existingItem, required Item newItem}) {
+  void _updateItem(
+      {required int existingItemIndex,
+      required Item existingItem,
+      required Item newItem}) {
+    // Optimistically update the UI
+    _localUpdateItem(existingItemIndex: existingItemIndex, newItem: newItem);
     // Update the item in the database
     ref.read(Repository.databases).updateItem(
           oldItemId: existingItem.id,
           updatedItem: newItem,
-          onErrorCallback: _databaseUpdateErrorCallback,
+          onErrorCallback: () {
+            // Undo the optimistic UI update
+            _localUpdateItem(
+                existingItemIndex: existingItemIndex, newItem: existingItem);
+            _databaseUpdateErrorCallback();
+          },
         );
   }
 
   void _setItemQuantity(
       {required Item itemToUpdate, required int newQuantity}) {
-    final existingItem = _tryGetItem(itemToUpdate);
+    final existingItemIndex = _getItemIndex(itemToUpdate);
 
-    if (existingItem != null) {
+    if (existingItemIndex >= 0) {
+      final existingItem = _items[existingItemIndex];
       // Update the item's quantity
       final updatedItem = existingItem.copyWith(quantity: newQuantity);
-      _updateItem(existingItem: existingItem, newItem: updatedItem);
+      _updateItem(
+        existingItemIndex: existingItemIndex,
+        existingItem: existingItem,
+        newItem: updatedItem,
+      );
     }
   }
 
@@ -649,18 +724,54 @@ class _HomePageState extends ConsumerState<HomePage> {
       // Remove the item that was edited
       _removeItem(prevItem);
       // Update the item that already exists to have the increased quantity
-      _updateItem(existingItem: existingItem, newItem: updatedItem);
+      _updateItem(
+        // The existing item must have an index, since we were able to retrieve it
+        existingItemIndex: _getItemIndex(existingItem),
+        existingItem: existingItem,
+        newItem: updatedItem,
+      );
     } else {
+      // Previous item must exist, since it was the item that was edited to create new item
+      final prevItemIndex = _getItemIndex(prevItem);
       // If a version of the new item doesn't exist, simply update the item with the new information, but with the old ID
-      _updateItem(existingItem: prevItem, newItem: newItem);
+      _updateItem(
+        existingItemIndex: prevItemIndex,
+        existingItem: prevItem,
+        newItem: newItem,
+      );
     }
   }
 
   void _removeItem(Item item) {
+    // Optimistically update the UI
+    _localRemoveItem(item);
     ref.read(Repository.databases).removeItem(
           itemId: item.id,
-          onErrorCallback: _databaseUpdateErrorCallback,
+          onErrorCallback: () {
+            // Undo the optimistic UI update
+            _localAddItem(newItem: item);
+            _databaseUpdateErrorCallback();
+          },
         );
+  }
+
+  void _localAddItem({required Item newItem}) {
+    setState(() {
+      _items.add(newItem);
+    });
+  }
+
+  void _localUpdateItem(
+      {required int existingItemIndex, required Item newItem}) {
+    setState(() {
+      _items[existingItemIndex] = newItem;
+    });
+  }
+
+  void _localRemoveItem(Item item) {
+    setState(() {
+      _items.remove(item);
+    });
   }
 
   Function get _databaseUpdateErrorCallback => _onErrorCallBackBuilder(

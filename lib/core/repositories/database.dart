@@ -27,11 +27,9 @@ class DatabasesRepository with RepositoryExceptionMixin {
 
   AppwriteConfig get _appwriteConfig => _ref.read(appwriteConfigProvider);
 
-  List<String> get _channels {
-    return [
-      'databases.${_appwriteConfig.databaseId}.collections.${_appwriteConfig.collectionId}.documents'
-    ];
-  }
+  List<String> get _channels => [
+        'databases.${_appwriteConfig.databaseId}.collections.${_appwriteConfig.collectionId}.documents',
+      ];
 
   static const _queryLimit = 100;
 

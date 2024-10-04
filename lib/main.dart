@@ -58,7 +58,7 @@ class MyApp extends ConsumerWidget {
           loading: () => const LoadingPage(),
           error: (e, st) => SettingsPage(
             errorInfo:
-                ErrorInfo(message: SnackBarMessages.errorFetchingInitialData),
+                ErrorInfo(message: SnackBarMessages.errorFetchingData),
           ),
         ),
       ),

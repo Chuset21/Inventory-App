@@ -90,7 +90,7 @@ abstract class DatabaseConfigurationSettings {
 abstract class SnackBarMessages {
   static const appwriteConfigFormSubmitError =
       'Invalid configuration - could not connect to database. Changes have not been applied.';
-  static const errorFetchingInitialData =
+  static const errorFetchingData =
       'Error fetching data from the database';
   static const errorFetchingRealTimeData =
       'Error fetching real-time data from the database';
