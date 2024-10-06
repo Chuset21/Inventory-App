@@ -305,7 +305,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                             textCapitalization: TextCapitalization.sentences,
                             controller: _searchController,
                             focusNode: _searchFocusNode,
-                            autofocus: true,
                             decoration: InputDecoration(
                               hintText: FilterMessages.searchHint,
                               hintStyle: TextStyle(
