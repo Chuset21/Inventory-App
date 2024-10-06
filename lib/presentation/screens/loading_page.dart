@@ -6,12 +6,14 @@ class LoadingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: DefaultAppBar(
+    return Scaffold(
+      appBar: const DefaultAppBar(
         title: Text('Loading...'),
       ),
       body: Center(
-        child: CircularProgressIndicator(), // The loading spinner
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ),
       ),
     );
   }
