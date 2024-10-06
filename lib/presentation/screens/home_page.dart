@@ -201,7 +201,8 @@ class _HomePageState extends ConsumerState<HomePage> {
         _searchFocusNode.unfocus();
       } else {
         _unfocusAndSubmitItemNodes();
-        _searchFocusNode.requestFocus();
+        // This would open up the keyboard when the user toggles search
+        // _searchFocusNode.requestFocus();
       }
     });
   }
